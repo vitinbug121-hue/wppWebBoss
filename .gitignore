@@ -1,2 +1,5 @@
 .env
 testeDebugger.py
+dist/database_vendas.json
+dist/ml_tokens_autorizacao.json
+dist/vendas_coleta.json

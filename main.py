@@ -155,10 +155,14 @@ class AppColetorPro:
                 # Pegamos o ID da ordem (ou pack_id se preferir, mas seguindo sua instrução: order_id)
                 order_id = str(pedido['id'])
                 buyer_id = str(pedido.get('buyer', {}).get('id'))
+                nome_prod = str(pedido['payments'][0]['reason']) 
+                valor = str(pedido['total_amount'])
+                corProduto = str(pedido['order_items'][0]['item']['variation_attributes'][0]['value_name'])
                 
                 # --- TRATATIVA 1: Controle Local (Banco de Dados) ---
                 # Se já marcamos como solicitado no DB, pulamos a consulta de mensagens
                 if order_id in db and db[order_id].get('solicitado'):
+                    self.logger(f"Mensagem já Enviada no chat da Ordem {order_id}...")
                     continue
 
                 self.logger(f"Verificando histórico de mensagens para Ordem: {order_id}")
@@ -193,7 +197,10 @@ class AppColetorPro:
                     db[order_id] = {
                         "solicitado": True, 
                         "buyer_id": pedido.get('buyer', {}).get('id'),
-                        "pack_id": pedido.get('pack_id')
+                        "pack_id": pedido.get('pack_id'),
+                        "corProduto": corProduto,
+                        "produto": nome_prod,
+                        "valor": valor
                     }
                     enviados += 1
                     self.logger(f"Ordem {order_id}: Mensagem enviada e registrada.")
@@ -218,29 +225,23 @@ class AppColetorPro:
 
         for order_id, dados in db.items():
             if not dados.get('zap_extraido'):
-                pack_id = dados['pack_id']
-                url_hist = f"https://api.mercadolibre.com/messages/packs/{pack_id}/sellers/{ML_CLIENT_ID}"
+                url_hist = f"https://api.mercadolibre.com/messages/packs/{order_id}/sellers/{ML_SELLER_ID}?tag=post_sale"
                 
                 res = requests.get(url_hist, headers=headers)
                 if res.status_code == 200:
                     mensagens = res.json().get('messages', [])
                     for m in mensagens:
-                        # Se a mensagem for do comprador (diferente do meu ID)
-                        if str(m.get('from', {}).get('id')) != str(ML_CLIENT_ID):
                             texto = m.get('text', '')
                             # Regex robusto para capturar vários formatos de telefone BR
-                            match = re.search(r'(\d{2})[-.\s]?(9?\d{4})[-.\s]?(\d{4})', texto)
+                            match = re.search(r'(?:\+?55\s?)?\(?(\d{2})\)?\s?(9?\d{4})[\s.-]?(\d{4})', texto)
                             
                             if match:
                                 zap = "".join(match.groups())
-                                # Busca o nome do produto para o DB
-                                nome_prod = self.obter_produto_ml(order_id, token)
                                 nome_cli = self.obter_nome_cliente(order_id, token)
 
                                 db[order_id].update({
-                                    "zap_extraido": zap,
+                                    "zap_extraido": zap,    
                                     "nome_cliente": nome_cli,
-                                    "produto": nome_prod,
                                     "status": "pronto_para_wa"
                                 })
                                 extraidos += 1
