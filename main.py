@@ -5,7 +5,7 @@ import json
 import os
 import re
 import webbrowser
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 # Load variables from .env file
@@ -85,8 +85,7 @@ class AppColetorPro:
         estilo = {"width": 25, "height": 2, "font": ("Arial", 10, "bold")}
 
         tk.Button(btn_frame, text="0. AUTORIZAR APP ML", command=self.fluxo_autorizacao_ml, bg="#9C27B0", fg="white", **estilo).grid(row=0, column=0, padx=10)
-        tk.Button(btn_frame, text="1. PEDIR ZAP (NOVOS)", command=self.passo_1_solicitar, bg="#1976D2", fg="white", **estilo).grid(row=0, column=1, padx=10)
-        tk.Button(btn_frame, text="2. EXTRAIR DADOS", command=self.passo_2_extrair, bg="#388E3C", fg="white", **estilo).grid(row=0, column=2, padx=10)
+        tk.Button(btn_frame, text="TRABALHO ESCRAVO ML", command=self.passo_1_solicitar, bg="#1976D2", fg="white", **estilo).grid(row=0, column=1, padx=10)
         tk.Button(btn_frame, text="3. CHAMAR NO WHATSAPP", command=self.passo_3_disparar_wa, bg="#FBC02D", fg="black", **estilo).grid(row=0, column=3, padx=10)
 
         # Log
@@ -129,14 +128,20 @@ class AppColetorPro:
         return token
 
     # --- PASSO 1: SOLICITAÇÃO ---
-    import requests
-
     def passo_1_solicitar(self):
         token = self.get_token_ml()
         if not token: 
             return
-
-        msg_padrao = "Olá! A transportadora precisa pra preencher os seus dados de entrega e enviar o código de rastreio pra você acompanhar, por favor envie seu WhatsApp com DDD:"
+        
+        # --- SOLICITAÇÃO DO PRAZO AO USUÁRIO ---
+        prazo_usuario = simpledialog.askstring("Prazo de Entrega", "Informe o prazo estimado de entrega (ex: 15/05 ou 10 dias):")
+        
+        # Se o usuário clicar em cancelar ou deixar vazio, interrompe o processo
+        if not prazo_usuario:
+            self.logger("Operação cancelada: O prazo de entrega é obrigatório.", "AVISO")
+            return
+        prazo_usuario = (datetime.now() + timedelta(days=5)).strftime("%d/%m")
+        msg_padrao = f"Olá, tudo bem? O frete é grátis para todo Brasil e o prazo estimado de entrega é até {prazo_usuario}. Lembrando que os produtos são importados, vem de fora do país! Vamos fazer o envio e mandar o código de rastreio. \n \n \n A transportadora precisa do seu telefone pra preencher os seus dados de entrega e enviar o código de rastreio pra você acompanhar."
         
         self.logger("Iniciando varredura de vendas via /orders/search...")
         
@@ -161,12 +166,32 @@ class AppColetorPro:
                 
                 # --- TRATATIVA 1: Controle Local (Banco de Dados) ---
                 # Se já marcamos como solicitado no DB, pulamos a consulta de mensagens
-                #verificar se a data de envio da msg passou dois dias e continua com numero_extraido = false, se sim, resetar para solicitar novamente
-                
-                if order_id in db and (db[order_id].get('solicitado') and db[order_id].get('numero_extraido')):
-                    self.logger(f"Numero ja extraido para a ordem {order_id}...")
-                    continue
-                
+                #VERIFICAR SE A DATA INICIAL SE PASSOU 4 OU 5 DIAS ENVIAR CODIGO DE RASTREIO TIRANDO FINAL DE SEMANA E FERIADO
+               
+                if order_id in db and (db[order_id].get('solicitado') and db[order_id].get('data_solicitacao_inicial')):
+                    data_solicitacao_inicial = db[order_id].get('data_solicitacao_inicial')
+                    try:
+                        data_envio = datetime.strptime(data_solicitacao_inicial, "%d/%m/%Y %H:%M")
+                        diferenca = datetime.now() - data_envio
+                        if diferenca.days >= 5:  # Se passou 5 dias, enviar código de rastreio
+                            self.logger(f"Enviando código de rastreio para a ordem {order_id}...")
+                            payload = {
+                                "from": {
+                                    "user_id": ML_SELLER_ID
+                                },
+                                "to": {
+                                    "user_id": buyer_id
+                                },
+                                "text": ""
+                            }
+                            # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
+                            envio = requests.post(url_msg, json=payload, headers=headers)
+                            db[order_id]['rastreio_enviado'] = True
+                            db[order_id]['data_rastreio'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                            self.salvar_db(db)
+                    except Exception as e:
+                        self.logger(f"Erro ao verificar data inicial da ordem {order_id}: {str(e)}", "ERRO")
+
                 if order_id in db:
                     data_solicitacao = db[order_id].get('data_solicitacao')
                     if data_solicitacao:
@@ -181,7 +206,7 @@ class AppColetorPro:
                                 "to": {
                                     "user_id": buyer_id
                                 },
-                                "text": "Olá! Não recebemos seu WhatsApp. \n A transportadora precisa pra preencher os seus dados de entrega e enviar o código de rastreio pra você acompanhar, por favor envie seu WhatsApp com DDD:"
+                                "text": "Olá! Não recebemos seu telefone. \n A transportadora precisa pra preencher os seus dados de entrega e enviar o código de rastreio pra você acompanhar."
                             }
                             # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
                             envio = requests.post(url_msg, json=payload, headers=headers)
@@ -203,7 +228,9 @@ class AppColetorPro:
                 mensagens_no_chat = res_historico.get('messages', [])
                 
                 # Verifica se algum texto no histórico é igual à nossa mensagem padrão
-                ja_enviado_no_ml = any(msg_padrao in m.get('text', '') for m in mensagens_no_chat)
+                #buscar apenas pelo pedaço da frase "Olá, tudo bem? O frete é grátis para todo Brasil"
+                msg_padrao_parte = "Olá, tudo bem? O frete é grátis para todo Brasil"
+                ja_enviado_no_ml = any(msg_padrao_parte in m.get('text', '') for m in mensagens_no_chat)
 
                 if ja_enviado_no_ml:
                     self.logger(f"Mensagem já constava no chat da Ordem {order_id}. Atualizando controle local.")
@@ -232,7 +259,8 @@ class AppColetorPro:
                         "produto": nome_prod,
                         "valor": valor,
                         "numero_extraido": False,
-                        "data_solicitacao": datetime.now().strftime("%d/%m/%Y %H:%M")
+                        "data_solicitacao": datetime.now().strftime("%d/%m/%Y %H:%M"),
+                        "data_solicitacao_inicial": datetime.now().strftime("%d/%m/%Y %H:%M")
                     }
                     enviados += 1
                     self.logger(f"Ordem {order_id}: Mensagem enviada e registrada.")
@@ -246,42 +274,6 @@ class AppColetorPro:
         except Exception as e:
             self.logger(f"Erro no Passo 1: {str(e)}", "ERRO")
 
-    # --- PASSO 2: EXTRAÇÃO ---
-    def passo_2_extrair(self):
-        token = self.get_token_ml()
-        if not token: return
-
-        db = self.carregar_db()
-        headers = {'Authorization': f'Bearer {token}'}
-        extraidos = 0
-
-        for order_id, dados in db.items():
-            if not dados.get('zap_extraido'):
-                url_hist = f"https://api.mercadolibre.com/messages/packs/{order_id}/sellers/{ML_SELLER_ID}?tag=post_sale"
-                
-                res = requests.get(url_hist, headers=headers)
-                if res.status_code == 200:
-                    mensagens = res.json().get('messages', [])
-                    for m in mensagens:
-                            texto = m.get('text', '')
-                            # Regex robusto para capturar vários formatos de telefone BR
-                            match = re.search(r'(?:\+?55\s?)?\(?(\d{2})\)?\s?(9?\d{4})[\s.-]?(\d{4})', texto)
-                            
-                            if match:
-                                zap = "".join(match.groups())
-                                #nome_cli = self.obter_nome_cliente(order_id, token)
-
-                                db[order_id].update({
-                                    "zap_extraido": zap,    
-                                    #"nome_cliente": nome_cli,
-                                    "status": "pronto_para_wa",
-                                     "numero_extraido": True,
-                                })
-                                extraidos += 1
-                                self.logger(f"Sucesso: Numero: {zap} capturado para o pedido {order_id}")
-                                break
-        self.salvar_db(db)
-        self.logger(f"Fim do Passo 2. Novos números extraídos: {extraidos}")
 
     # --- PASSO 3: DISPARO WHATSAPP META ---
     def passo_3_disparar_wa(self):
