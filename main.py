@@ -154,6 +154,7 @@ class AppColetorPro:
             for pedido in pedidos:
                 # Pegamos o ID da ordem (ou pack_id se preferir, mas seguindo sua instrução: order_id)
                 order_id = str(pedido['id'])
+                buyer_id = str(pedido.get('buyer', {}).get('id'))
                 
                 # --- TRATATIVA 1: Controle Local (Banco de Dados) ---
                 # Se já marcamos como solicitado no DB, pulamos a consulta de mensagens
@@ -175,9 +176,18 @@ class AppColetorPro:
                     # Atualizamos o DB para não consultar esta ordem novamente na próxima execução
                     db[order_id] = {"solicitado": True, "data_check": "sync"}
                     continue
-
+                
+                payload = {
+                    "from": {
+                        "user_id": ML_SELLER_ID
+                    },
+                    "to": {
+                        "user_id": buyer_id
+                    },
+                    "text": msg_padrao
+                }
                 # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
-                envio = requests.post(url_msg, json={"text": msg_padrao}, headers=headers)
+                envio = requests.post(url_msg, json=payload, headers=headers)
                 
                 if envio.status_code in [200, 201]:
                     db[order_id] = {
