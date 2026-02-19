@@ -161,7 +161,37 @@ class AppColetorPro:
                 
                 # --- TRATATIVA 1: Controle Local (Banco de Dados) ---
                 # Se já marcamos como solicitado no DB, pulamos a consulta de mensagens
-                if order_id in db and db[order_id].get('solicitado'):
+                #verificar se a data de envio da msg passou dois dias e continua com numero_extraido = false, se sim, resetar para solicitar novamente
+                
+                if order_id in db and (db[order_id].get('solicitado') and db[order_id].get('numero_extraido')):
+                    self.logger(f"Numero ja extraido para a ordem {order_id}...")
+                    continue
+                
+                if order_id in db:
+                    data_solicitacao = db[order_id].get('data_solicitacao')
+                    if data_solicitacao:
+                        try:
+                            data_envio = datetime.strptime(data_solicitacao, "%d/%m/%Y %H:%M")
+                            diferenca = datetime.now() - data_envio
+                            if diferenca.days >= 1 and not db[order_id].get('numero_extraido'):
+                                payload = {
+                                "from": {
+                                    "user_id": ML_SELLER_ID
+                                },
+                                "to": {
+                                    "user_id": buyer_id
+                                },
+                                "text": "Olá! Não recebemos seu WhatsApp. \n A transportadora precisa pra preencher os seus dados de entrega e enviar o código de rastreio pra você acompanhar, por favor envie seu WhatsApp com DDD:"
+                            }
+                            # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
+                            envio = requests.post(url_msg, json=payload, headers=headers)
+                            if envio.status_code in [200, 201]:
+                                db[order_id]['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                                self.logger(f"Reenvio: Mensagem reenviada para {order_id} após 1 dia sem resposta.")
+                        except Exception as e:
+                            self.logger(f"Erro ao reenviar mensagem para {order_id}: {str(e)}", "ERRO")    
+
+                if order_id in db and (db[order_id].get('solicitado')):
                     self.logger(f"Mensagem já Enviada no chat da Ordem {order_id}...")
                     continue
 
@@ -200,7 +230,9 @@ class AppColetorPro:
                         "pack_id": pedido.get('pack_id'),
                         "corProduto": corProduto,
                         "produto": nome_prod,
-                        "valor": valor
+                        "valor": valor,
+                        "numero_extraido": False,
+                        "data_solicitacao": datetime.now().strftime("%d/%m/%Y %H:%M")
                     }
                     enviados += 1
                     self.logger(f"Ordem {order_id}: Mensagem enviada e registrada.")
@@ -237,15 +269,16 @@ class AppColetorPro:
                             
                             if match:
                                 zap = "".join(match.groups())
-                                nome_cli = self.obter_nome_cliente(order_id, token)
+                                #nome_cli = self.obter_nome_cliente(order_id, token)
 
                                 db[order_id].update({
                                     "zap_extraido": zap,    
-                                    "nome_cliente": nome_cli,
-                                    "status": "pronto_para_wa"
+                                    #"nome_cliente": nome_cli,
+                                    "status": "pronto_para_wa",
+                                     "numero_extraido": True,
                                 })
                                 extraidos += 1
-                                self.logger(f"Sucesso: {nome_cli} ({zap}) capturado para o pedido {order_id}")
+                                self.logger(f"Sucesso: Numero: {zap} capturado para o pedido {order_id}")
                                 break
         self.salvar_db(db)
         self.logger(f"Fim do Passo 2. Novos números extraídos: {extraidos}")
