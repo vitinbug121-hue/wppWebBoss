@@ -1,6 +1,6 @@
 import tkinter as tk
-from tkinter import scrolledtext, messagebox, simpledialog
-from turtle import pd
+from tkinter import scrolledtext, messagebox, simpledialog, filedialog
+#from turtle import tur
 import requests
 import json
 import os
@@ -8,6 +8,9 @@ import re
 import webbrowser
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # Load variables from .env file
 load_dotenv()
@@ -87,7 +90,9 @@ class AppColetorPro:
 
         tk.Button(btn_frame, text="0. AUTORIZAR APP ML", command=self.fluxo_autorizacao_ml, bg="#9C27B0", fg="white", **estilo).grid(row=0, column=0, padx=10)
         tk.Button(btn_frame, text="TRABALHO ESCRAVO ML", command=self.passo_1_solicitar, bg="#1976D2", fg="white", **estilo).grid(row=0, column=1, padx=10)
-        tk.Button(btn_frame, text="3. CHAMAR NO WHATSAPP", command=self.passo_3_disparar_wa, bg="#FBC02D", fg="black", **estilo).grid(row=0, column=3, padx=10)
+        # tk.Button(btn_frame, text="3. CHAMAR NO WHATSAPP", command=self.passo_3_disparar_wa, bg="#FBC02D", fg="black", **estilo).grid(row=0, column=3, padx=10)
+        tk.Button(btn_frame, text="4. DASHBOARD", command=self.abrir_dashboard_vendas, bg="#4CAF50", fg="white", **estilo).grid(row=0, column=4, padx=10)
+        tk.Button(btn_frame, text="5. EXPORTAR EXCEL", command=self.exportar_para_excel, bg="#2E7D32", fg="white", **estilo).grid(row=0, column=5, padx=10)
 
         # Log
         self.log = scrolledtext.ScrolledText(self.root, height=30, width=150, font=("Consolas", 9), bg="#F5F5F5")
@@ -207,6 +212,7 @@ class AppColetorPro:
                                 db[order_id]['boleto_enviado'] = True
                                 db[order_id]['data_boleto'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                 self.logger(f"Boleto enviado com sucesso para a ordem {order_id}!")
+                                continue
                             else:
                                 self.logger(f"Falha ao enviar boleto para a ordem {order_id}: {envio.text}", "ERRO")
                     except Exception as e:
@@ -253,6 +259,7 @@ class AppColetorPro:
                             db[order_id]['data_rastreio'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                             db[order_id]['codigo_rastreio'] = codigo_rastreio
                             self.salvar_db(db)
+                            continue
                     except Exception as e:
                         self.logger(f"Erro ao verificar data inicial da ordem {order_id}: {str(e)}", "ERRO")
 
@@ -277,6 +284,7 @@ class AppColetorPro:
                             if envio.status_code in [200, 201]:
                                 db[order_id]['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                 self.logger(f"Reenvio: Mensagem reenviada para {order_id} após 1 dia sem resposta.")
+                                continue
                         except Exception as e:
                             self.logger(f"Erro ao reenviar mensagem para {order_id}: {str(e)}", "ERRO")    
 
@@ -299,7 +307,16 @@ class AppColetorPro:
                 if ja_enviado_no_ml:
                     self.logger(f"Mensagem já constava no chat da Ordem {order_id}. Atualizando controle local.")
                     # Atualizamos o DB para não consultar esta ordem novamente na próxima execução
-                    db[order_id] = {"solicitado": True, "data_check": "sync"}
+                    db[order_id] = {
+                        "solicitado": True, 
+                        "buyer_id": pedido.get('buyer', {}).get('id'),
+                        "pack_id": pedido.get('pack_id'),
+                        "corProduto": corProduto,
+                        "produto": nome_prod,
+                        "valor": valor,
+                        "data_solicitacao": datetime.now().strftime("%d/%m/%Y %H:%M"),
+                        "data_solicitacao_inicial": datetime.now().strftime("%d/%m/%Y %H:%M")
+                    }
                     continue
                 
                 payload = {
@@ -405,6 +422,68 @@ class AppColetorPro:
 
     def salvar_db(self, db):
         with open(DB_FILE, 'w') as f: json.dump(db, f, indent=4)
+        
+    # --- NOVAS FUNCIONALIDADES: DASHBOARD E EXCEL ---
+    def abrir_dashboard_vendas(self):
+        db = self.carregar_db()
+        if not db:
+            messagebox.showinfo("Dashboard", "Banco de dados vazio.")
+            return
+
+        etapas = {"Solicitado (E1)": [], "Rastreio (E2)": [], "Boleto (E3)": []}
+        for oid, dados in db.items():
+            if dados.get('boleto_enviado'): etapas["Boleto (E3)"].append(oid)
+            elif dados.get('rastreio_enviado'): etapas["Rastreio (E2)"].append(oid)
+            elif dados.get('solicitado'): etapas["Solicitado (E1)"].append(oid)
+
+        dash_win = tk.Toplevel(self.root)
+        dash_win.title("Status de Vendas")
+        dash_win.geometry("900x500")
+
+        main_frame = tk.Frame(dash_win)
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        # Gráfico
+        fig, ax = plt.subplots(figsize=(5, 4), dpi=100)
+        ax.bar(etapas.keys(), [len(v) for v in etapas.values()], color=['#1976D2', '#FBC02D', '#4CAF50'])
+        ax.set_title("Pedidos por Etapa")
+        
+        canvas = FigureCanvasTkAgg(fig, master=main_frame)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Lista de IDs
+        text_area = scrolledtext.ScrolledText(main_frame, width=35)
+        text_area.pack(side=tk.RIGHT, fill=tk.BOTH)
+        for etapa, ids in etapas.items():
+            text_area.insert(tk.END, f"\n[{etapa}]\n" + "\n".join([f"ID: {i}" for i in ids]) + "\n")
+        text_area.configure(state=tk.DISABLED)
+
+    def exportar_para_excel(self):
+        db = self.carregar_db()
+        if not db: return
+        
+        dados_excel = []
+        for order_id, d in db.items():
+            etapa = "Etapa 1"
+            if d.get('boleto_enviado'): etapa = "Etapa 3"
+            elif d.get('rastreio_enviado'): etapa = "Etapa 2"
+
+            dados_excel.append({
+                "Order ID": order_id,
+                "Status": etapa,
+                "Produto": d.get('produto', 'N/A'),
+                "Data": d.get('data_solicitacao_inicial', 'N/A'),
+                "Rastreio": d.get('codigo_rastreio', 'Pendente')
+            })
+
+        df = pd.DataFrame(dados_excel)
+        caminho = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("Excel", "*.xlsx")])
+        
+        if caminho:
+            df.to_excel(caminho, index=False)
+            self.logger(f"Excel salvo em: {caminho}", "SUCESSO")
+            messagebox.showinfo("Sucesso", "Arquivo Excel exportado!")    
 
 if __name__ == "__main__":
     root = tk.Tk()
