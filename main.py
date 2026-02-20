@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import scrolledtext, messagebox, simpledialog
+from turtle import pd
 import requests
 import json
 import os
@@ -135,10 +136,10 @@ class AppColetorPro:
         
         # --- SOLICITAÇÃO DO PRAZO AO USUÁRIO ---
         prazo_usuario = simpledialog.askstring("Prazo de Entrega", "Informe o prazo estimado de entrega (ex: 15/05 ou 10 dias):")
-        
+        codigo_rastreio = simpledialog.askstring("Código de Rastreio", "Informe o código de rastreio do produto:")
         # Se o usuário clicar em cancelar ou deixar vazio, interrompe o processo
-        if not prazo_usuario:
-            self.logger("Operação cancelada: O prazo de entrega é obrigatório.", "AVISO")
+        if not prazo_usuario or not codigo_rastreio:
+            self.logger("Operação cancelada: O prazo de entrega e o código de rastreio são obrigatórios.", "AVISO")
             return
         prazo_usuario = (datetime.now() + timedelta(days=5)).strftime("%d/%m")
         msg_padrao = f"Olá, tudo bem? O frete é grátis para todo Brasil e o prazo estimado de entrega é até {prazo_usuario}. Lembrando que os produtos são importados, vem de fora do país! Vamos fazer o envio e mandar o código de rastreio. \n \n \n A transportadora precisa do seu telefone pra preencher os seus dados de entrega e enviar o código de rastreio pra você acompanhar."
@@ -163,11 +164,57 @@ class AppColetorPro:
                 nome_prod = str(pedido['payments'][0]['reason']) 
                 valor = str(pedido['total_amount'])
                 corProduto = str(pedido['order_items'][0]['item']['variation_attributes'][0]['value_name'])
+                # APOS 2 OU 3 DIAS DO ENVIO DO CODIGO DE RASTREIO, ENVIAR MSG E BOLETO PARA PAGAMENTO DE TAXA E SALVAR NO DB QUE O BOLETO FOI ENVIADO
+                if order_id in db and (db[order_id].get('rastreio_enviado') and db[order_id].get('data_rastreio')):
+                    data_rastreio = db[order_id].get('data_rastreio')
+                    try:
+                        data_envio = datetime.strptime(data_rastreio, "%d/%m/%Y %H:%M")
+                        diferenca = datetime.now() - data_envio
+                        if diferenca.days >= 3 and not db[order_id].get('boleto_enviado'):
+                            self.logger(f"Enviando boleto para pagamento de taxa para a ordem {order_id}...")
+                            df = pd.read_excel(r"C:\Users\mathe\Meu Drive\Sistema JV V1\Nova pasta\dist\registros_pedidos.xlsx")
+                            boleto_numero = None
+                            for index, row in df.iterrows():
+                                if str(row['Order ID']) == order_id and str(row['Boleto Usado']) == 'FALSE':
+                                    boleto_numero = str(row['Código'])
+                                    break
+
+                            payload = {
+                                "from": {
+                                    "user_id": ML_SELLER_ID
+                                },
+                                "to": {
+                                    "user_id": buyer_id
+                                },
+                                "text": f"""
+                                    ( Living Shop )
+                                    Boa tarde, tudo bem?
+
+                                    O seu painel importado chegou no Brasil. 🥳
+                                    Porém, a receita federal taxou o seu produto no valor de R$ 138,98.
+
+                                    É necessário ser paga essa taxa, para liberar o seu pedido. Caso seja pago hoje, o seu pedido chegará nessa quarta, 25. 😉
+                                    
+                                    O pagamento é feito somente pelo boleto do Mercado Pago que enviamos, a transportadora só está aceitando boleto do Mercado Pago
+                                    com a segurança da plataforma!
+                                    
+                                    >>> {boleto_numero} <<<
+                                """
+                            }
+                            # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
+                            envio = requests.post(url_msg, json=payload, headers=headers)
+                            if envio.status_code in [200, 201]:
+                                db[order_id]['boleto_enviado'] = True
+                                db[order_id]['data_boleto'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                                self.logger(f"Boleto enviado com sucesso para a ordem {order_id}!")
+                            else:
+                                self.logger(f"Falha ao enviar boleto para a ordem {order_id}: {envio.text}", "ERRO")
+                    except Exception as e:
+                        self.logger(f"Erro ao verificar data de envio do rastreio para a ordem {order_id}: {str(e)}", "ERRO")
                 
-                # --- TRATATIVA 1: Controle Local (Banco de Dados) ---
-                # Se já marcamos como solicitado no DB, pulamos a consulta de mensagens
-                #VERIFICAR SE A DATA INICIAL SE PASSOU 4 OU 5 DIAS ENVIAR CODIGO DE RASTREIO TIRANDO FINAL DE SEMANA E FERIADO
-               
+                    
+           
+                #VERIFICAR SE A DATA INICIAL SE PASSOU 4 OU 5 DIAS ENVIAR CODIGO DE RASTREIO 
                 if order_id in db and (db[order_id].get('solicitado') and db[order_id].get('data_solicitacao_inicial')):
                     data_solicitacao_inicial = db[order_id].get('data_solicitacao_inicial')
                     try:
@@ -182,12 +229,29 @@ class AppColetorPro:
                                 "to": {
                                     "user_id": buyer_id
                                 },
-                                "text": ""
+                                "text": f"""
+                                    ACOMPANHE O SEU PEDIDO
+                                    Segue abaixo, o seu código de rastreamento.
+
+                                    >>> {codigo_rastreio} 
+                                    
+                                    Para rastrear, basta acessar o site oficial dos Correios 👇
+                                    https://rastreamento.correios.com.br/app/index.php
+                                    
+                                    
+                                    
+                                    Lembrando que ..
+                                    Os produtos são importados e PODE SER TAXADO mas é bem difícil! O pedido é entregue pela transportadora, os Correios apenas fazem o rastreamento. Os Correios demora até 3 dias para atualizar. 
+                                    Mas não se preocupe, o seu pedido já está a caminho. 
+
+                                    Dúvidas, estamos à disposição 😉
+                                    """
                             }
                             # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
                             envio = requests.post(url_msg, json=payload, headers=headers)
                             db[order_id]['rastreio_enviado'] = True
                             db[order_id]['data_rastreio'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                            db[order_id]['codigo_rastreio'] = codigo_rastreio
                             self.salvar_db(db)
                     except Exception as e:
                         self.logger(f"Erro ao verificar data inicial da ordem {order_id}: {str(e)}", "ERRO")
@@ -198,7 +262,7 @@ class AppColetorPro:
                         try:
                             data_envio = datetime.strptime(data_solicitacao, "%d/%m/%Y %H:%M")
                             diferenca = datetime.now() - data_envio
-                            if diferenca.days >= 1 and not db[order_id].get('numero_extraido'):
+                            if diferenca.days >= 1 and not db[order_id].get('numero_extraido') and not db[order_id].get('rastreio_enviado'):
                                 payload = {
                                 "from": {
                                     "user_id": ML_SELLER_ID
