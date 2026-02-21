@@ -109,8 +109,8 @@ class AppColetorPro:
 
         tk.Button(btn_frame, text="AUTORIZAR ML", command=self.fluxo_autorizacao_ml, bg="#9C27B0", fg="white", **estilo).grid(row=0, column=0, padx=5)
         tk.Button(btn_frame, text="PROCESSAMENTO ALL", command=self.passo_1_solicitar, bg="#1976D2", fg="white", **estilo).grid(row=0, column=1, padx=5)
-        tk.Button(btn_frame, text="DASHBOARD", command=lambda: print("Dashboard"), bg="#4CAF50", fg="white", **estilo).grid(row=0, column=2, padx=5)
-        tk.Button(btn_frame, text="EXPORTAR EXCEL", command=lambda: print("Excel"), bg="#2E7D32", fg="white", **estilo).grid(row=0, column=3, padx=5)
+        tk.Button(btn_frame, text="DASHBOARD", command=self.abrir_dashboard_vendas, bg="#4CAF50", fg="white", **estilo).grid(row=0, column=2, padx=5)
+        tk.Button(btn_frame, text="EXPORTAR EXCEL", command=self.exportar_para_excel, bg="#2E7D32", fg="white", **estilo).grid(row=0, column=3, padx=5)
 
         # --- Log ---
         self.log = scrolledtext.ScrolledText(self.root, height=25, width=140, font=("Consolas", 9), bg="#F5F5F5")
@@ -182,7 +182,7 @@ class AppColetorPro:
                     break
 
                 todos_os_pedidos.extend(resultados)
-                
+                break
                 total_disponivel = data.get("paging", {}).get("total", 0)
                 current_offset += limit_por_request
 
@@ -190,7 +190,7 @@ class AppColetorPro:
                     self.logger(f"Busca finalizada. Total capturado: {len(todos_os_pedidos)}")
                     break
                 
-                time.sleep(0.5) # Delay leve para evitar 429
+                time.sleep(1) # Delay leve para evitar 429
 
             except requests.exceptions.RequestException as e:
                 self.logger(f"Erro na requisição: {e}", "ERRO")
@@ -214,7 +214,6 @@ class AppColetorPro:
         if not prazo_usuario or not codigo_rastreio or not pagInicial:
             self.logger("Operação cancelada: O prazo de entrega, código de rastreio e página inicial são obrigatórios.", "AVISO")
             return
-        prazo_usuario = (datetime.now() + timedelta(days=5)).strftime("%d/%m")
         msg_padrao = f"Olá, tudo bem? O frete é grátis para todo Brasil e o prazo estimado de entrega é até {prazo_usuario}. Lembrando que os produtos são importados, vem de fora do país! Vamos fazer o envio e mandar o código de rastreio. \n \n \n A transportadora precisa do seu telefone pra preencher os seus dados de entrega e enviar o código de rastreio pra você acompanhar."
         
         self.logger("Iniciando varredura de vendas via /orders/search...")
@@ -229,6 +228,10 @@ class AppColetorPro:
 
             for pedido in pedidos:
                 # Pegamos o ID da ordem (ou pack_id se preferir, mas seguindo sua instrução: order_id)
+                #se o array de pedido tiver na posição 10 parar o loop e encerrar para um teste
+                if pedidos.index(pedido) >= 10:
+                    self.logger("Limite de 10 pedidos atingido para teste. Encerrando loop.")
+                    break
                 order_id = str(pedido['id'])
                 buyer_id = str(pedido.get('buyer', {}).get('id'))
                 nome_prod = str(pedido['payments'][0]['reason']) 
@@ -236,6 +239,9 @@ class AppColetorPro:
                 corProduto = str(pedido['order_items'][0]['item']['variation_attributes'][0]['value_name'])
                 # APOS 2 OU 3 DIAS DO ENVIO DO CODIGO DE RASTREIO, ENVIAR MSG E BOLETO PARA PAGAMENTO DE TAXA E SALVAR NO DB QUE O BOLETO FOI ENVIADO
                 url_msg = f"https://api.mercadolibre.com/messages/packs/{order_id}/sellers/{ML_SELLER_ID}?tag=post_sale"
+                # Se a ordem não existe no DB, inicializamos como dicionário vazio
+                if order_id not in db:
+                    db[order_id] = {}
                 
                 if order_id in db and (db[order_id].get('rastreio_enviado') and db[order_id].get('data_rastreio')):
                     data_rastreio = db[order_id].get('data_rastreio')
@@ -329,7 +335,9 @@ class AppColetorPro:
                             continue
                     except Exception as e:
                         self.logger(f"Erro ao verificar data inicial da ordem {order_id}: {str(e)}", "ERRO")
+                
 
+                
                 if order_id in db:
                     data_solicitacao = db[order_id].get('data_solicitacao')
                     if data_solicitacao:
@@ -364,6 +372,19 @@ class AppColetorPro:
                 # --- TRATATIVA 2: Validar se a mensagem já existe no chat ---
                 res_historico = requests.get(url_msg, headers=headers).json()
                 mensagens_no_chat = res_historico.get('messages', [])
+                for m in mensagens_no_chat:
+                    texto = m.get('text', '')
+                    # Regex robusto para capturar vários formatos de telefone BR
+                    match = re.search(r'(?:\+?55\s?)?\(?(\d{2})\)?\s?(9?\d{4})[\s.-]?(\d{4})', texto)
+                    if match:
+                            zap = "".join(match.groups())
+                            #nome_cli = self.obter_nome_cliente(order_id, token)
+                            db[order_id]['zap_extraido'] = zap
+                            db[order_id]['numero_extraido'] = True
+                        
+                            self.logger(f"Finalizado extração de telefone para a ordem {order_id}: {zap}")
+                            break
+                
                 
                 # Verifica se algum texto no histórico é igual à nossa mensagem padrão
                 #buscar apenas pelo pedaço da frase "Olá, tudo bem? O frete é grátis para todo Brasil"
@@ -373,16 +394,14 @@ class AppColetorPro:
                 if ja_enviado_no_ml:
                     self.logger(f"Mensagem já constava no chat da Ordem {order_id}. Atualizando controle local.")
                     # Atualizamos o DB para não consultar esta ordem novamente na próxima execução
-                    db[order_id] = {
-                        "solicitado": True, 
-                        "buyer_id": pedido.get('buyer', {}).get('id'),
-                        "pack_id": pedido.get('pack_id'),
-                        "corProduto": corProduto,
-                        "produto": nome_prod,
-                        "valor": valor,
-                        "data_solicitacao": datetime.now().strftime("%d/%m/%Y %H:%M"),
-                        "data_solicitacao_inicial": datetime.now().strftime("%d/%m/%Y %H:%M")
-                    }
+                    db[order_id]['solicitado'] = True
+                    db[order_id]['buyer_id'] = pedido.get('buyer', {}).get('id')
+                    db[order_id]['pack_id'] = pedido.get('pack_id')
+                    db[order_id]['corProduto'] = corProduto
+                    db[order_id]['produto'] = nome_prod
+                    db[order_id]['valor'] = valor
+                    db[order_id]['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                    db[order_id]['data_solicitacao_inicial'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                     continue
                 
                 payload = {
@@ -398,17 +417,14 @@ class AppColetorPro:
                 envio = requests.post(url_msg, json=payload, headers=headers)
                 
                 if envio.status_code in [200, 201]:
-                    db[order_id] = {
-                        "solicitado": True, 
-                        "buyer_id": pedido.get('buyer', {}).get('id'),
-                        "pack_id": pedido.get('pack_id'),
-                        "corProduto": corProduto,
-                        "produto": nome_prod,
-                        "valor": valor,
-                        "numero_extraido": False,
-                        "data_solicitacao": datetime.now().strftime("%d/%m/%Y %H:%M"),
-                        "data_solicitacao_inicial": datetime.now().strftime("%d/%m/%Y %H:%M")
-                    }
+                    db[order_id]['solicitado'] = True
+                    db[order_id]['buyer_id'] = pedido.get('buyer', {}).get('id')
+                    db[order_id]['pack_id'] = pedido.get('pack_id')
+                    db[order_id]['corProduto'] = corProduto
+                    db[order_id]['produto'] = nome_prod
+                    db[order_id]['valor'] = valor
+                    db[order_id]['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                    db[order_id]['data_solicitacao_inicial'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                     enviados += 1
                     self.logger(f"Ordem {order_id}: Mensagem enviada e registrada.")
                 else:
@@ -602,6 +618,8 @@ class AppColetorPro:
             df.to_excel(caminho, index=False)
             self.logger(f"Excel salvo em: {caminho}", "SUCESSO")
             messagebox.showinfo("Sucesso", "Arquivo Excel exportado!")    
+            
+         
 
 if __name__ == "__main__":
     root = tk.Tk()

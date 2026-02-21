@@ -1,32 +1,120 @@
 {
-    "2000015057208564": {
+    "2000014970461538": {
+        "zap_extraido": "35997582912",
+        "numero_extraido": true,
         "solicitado": true,
-        "buyer_id": 1806349626,
+        "buyer_id": 603346317,
         "pack_id": null,
-        "corProduto": "Marrom",
-        "produto": "Painel Para Tv At\u00e9 60 Polegadas Gr\u00e9cia 1 Porta E Prateleiras",
-        "valor": "215.47",
-        "data_solicitacao": "20/02/2026 23:58",
-        "data_solicitacao_inicial": "20/02/2026 23:58"
+        "corProduto": "Cinza",
+        "produto": "Rack Com Painel Para Tv At\u00e9 65 Polegadas Veneza 1,83m",
+        "valor": "315.75",
+        "data_solicitacao": "21/02/2026 01:52",
+        "data_solicitacao_inicial": "21/02/2026 01:52"
     },
-    "2000015083599708": {
+    "2000015002355452": {
+        "zap_extraido": "68999133305",
+        "numero_extraido": true,
         "solicitado": true,
-        "buyer_id": 84793684,
+        "buyer_id": 3153385678,
         "pack_id": null,
-        "corProduto": "Marrom",
-        "produto": "Painel Para Tv At\u00e9 60 Polegadas Gr\u00e9cia 1 Porta E Prateleiras",
-        "valor": "215.47",
-        "data_solicitacao": "20/02/2026 23:58",
-        "data_solicitacao_inicial": "20/02/2026 23:58"
+        "corProduto": "Cinza",
+        "produto": "Rack Com Painel Para Tv At\u00e9 65 Polegadas Veneza 1,83m",
+        "valor": "315.75",
+        "data_solicitacao": "21/02/2026 01:52",
+        "data_solicitacao_inicial": "21/02/2026 01:52"
     },
-    "2000015177983976": {
+    "2000015002769036": {
+        "zap_extraido": "62991848047",
+        "numero_extraido": true,
         "solicitado": true,
-        "buyer_id": 833531531,
+        "buyer_id": 1318727169,
+        "pack_id": null,
+        "corProduto": "Bege",
+        "produto": "Rack Com Painel Para Tv At\u00e9 65 Polegadas Veneza 1,83m",
+        "valor": "315.75",
+        "data_solicitacao": "21/02/2026 01:52",
+        "data_solicitacao_inicial": "21/02/2026 01:52"
+    },
+    "2000015034912130": {
+        "zap_extraido": "42999763374",
+        "numero_extraido": true,
+        "solicitado": true,
+        "buyer_id": 703826046,
+        "pack_id": null,
+        "corProduto": "Bege",
+        "produto": "Rack Com Painel Para Tv At\u00e9 65 Polegadas Veneza 1,83m",
+        "valor": "315.75",
+        "data_solicitacao": "21/02/2026 01:52",
+        "data_solicitacao_inicial": "21/02/2026 01:52"
+    },
+    "2000015076794374": {
+        "zap_extraido": "21965616092",
+        "numero_extraido": true,
+        "solicitado": true,
+        "buyer_id": 1605652361,
+        "pack_id": null,
+        "corProduto": "Bege",
+        "produto": "Rack Com Painel Para Tv At\u00e9 65 Polegadas Veneza 1,83m",
+        "valor": "315.75",
+        "data_solicitacao": "21/02/2026 01:52",
+        "data_solicitacao_inicial": "21/02/2026 01:52"
+    },
+    "2000015079431096": {
+        "zap_extraido": "13996475432",
+        "numero_extraido": true,
+        "solicitado": true,
+        "buyer_id": 327728978,
+        "pack_id": null,
+        "corProduto": "Bege",
+        "produto": "Rack Com Painel Para Tv At\u00e9 65 Polegadas Veneza 1,83m",
+        "valor": "315.75",
+        "data_solicitacao": "21/02/2026 01:52",
+        "data_solicitacao_inicial": "21/02/2026 01:52"
+    },
+    "2000015079873640": {
+        "zap_extraido": "79996448236",
+        "numero_extraido": true,
+        "solicitado": true,
+        "buyer_id": 2468420332,
         "pack_id": null,
         "corProduto": "Marrom",
-        "produto": "Painel Para Tv At\u00e9 60 Polegadas Gr\u00e9cia 1 Porta E Prateleiras",
-        "valor": "215.47",
-        "data_solicitacao": "20/02/2026 23:58",
-        "data_solicitacao_inicial": "20/02/2026 23:58"
+        "produto": "Rack Com Painel Para Tv At\u00e9 65 Polegadas Veneza 1,83m",
+        "valor": "315.75",
+        "data_solicitacao": "21/02/2026 01:52",
+        "data_solicitacao_inicial": "21/02/2026 01:52"
+    },
+    "2000015081097516": {
+        "zap_extraido": "24998329697",
+        "numero_extraido": true,
+        "solicitado": true,
+        "buyer_id": 322085618,
+        "pack_id": null,
+        "corProduto": "Marrom",
+        "produto": "Rack Com Painel Para Tv At\u00e9 65 Polegadas Veneza 1,83m",
+        "valor": "315.75",
+        "data_solicitacao": "21/02/2026 01:52",
+        "data_solicitacao_inicial": "21/02/2026 01:52"
+    },
+    "2000015082718566": {
+        "zap_extraido": "13997946150",
+        "numero_extraido": true,
+        "solicitado": true,
+        "buyer_id": 1183595283,
+        "pack_id": null,
+        "corProduto": "Bege",
+        "produto": "Rack Com Painel Para Tv At\u00e9 65 Polegadas Veneza 1,83m",
+        "valor": "315.75",
+        "data_solicitacao": "21/02/2026 01:52",
+        "data_solicitacao_inicial": "21/02/2026 01:52"
+    },
+    "2000015084356744": {
+        "solicitado": true,
+        "buyer_id": 273920657,
+        "pack_id": null,
+        "corProduto": "Bege",
+        "produto": "Rack Com Painel Para Tv At\u00e9 65 Polegadas Veneza 1,83m",
+        "valor": "315.75",
+        "data_solicitacao": "21/02/2026 01:52",
+        "data_solicitacao_inicial": "21/02/2026 01:52"
     }
 }
