@@ -11,6 +11,8 @@ from dotenv import load_dotenv
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.ticker import MaxNLocator
+import time
 
 # Load variables from .env file
 load_dotenv()
@@ -76,26 +78,42 @@ class AppColetorPro:
         self.setup_ui()
 
     def setup_ui(self):
-        # Header
+        # --- Header ---
         header = tk.Frame(self.root, bg="#212121", height=60)
         header.pack(fill=tk.X)
         tk.Label(header, text="PAINEL DE CONTROLE DE LEADS", fg="white", bg="#212121", font=("Arial", 14, "bold")).pack(pady=15)
 
-        # Container de Botões
+        # --- Seção de Inputs (Novos Campos) ---
+        input_frame = tk.LabelFrame(self.root, text=" Configurações de Busca e Envio ", font=("Arial", 10, "bold"), padx=10, pady=10)
+        input_frame.pack(fill=tk.X, padx=20, pady=10)
+
+        # Layout em Grid para os campos
+        self.var_prazo = tk.StringVar()
+        self.var_rastreio = tk.StringVar()
+        self.var_pag_inicial = tk.StringVar(value="0")
+
+        tk.Label(input_frame, text="Prazo Entrega:").grid(row=0, column=0, sticky="w", padx=5)
+        tk.Entry(input_frame, textvariable=self.var_prazo, width=20).grid(row=0, column=1, padx=10)
+
+        tk.Label(input_frame, text="Cód. Rastreio:").grid(row=0, column=2, sticky="w", padx=5)
+        tk.Entry(input_frame, textvariable=self.var_rastreio, width=25).grid(row=0, column=3, padx=10)
+
+        tk.Label(input_frame, text="Página Inicial (Offset):").grid(row=0, column=4, sticky="w", padx=5)
+        tk.Entry(input_frame, textvariable=self.var_pag_inicial, width=10).grid(row=0, column=5, padx=10)
+
+        # --- Container de Botões ---
         btn_frame = tk.Frame(self.root)
-        btn_frame.pack(pady=20)
+        btn_frame.pack(pady=10)
 
-        # Estilo dos botões
-        estilo = {"width": 25, "height": 2, "font": ("Arial", 10, "bold")}
+        estilo = {"width": 20, "height": 2, "font": ("Arial", 9, "bold")}
 
-        tk.Button(btn_frame, text="0. AUTORIZAR APP ML", command=self.fluxo_autorizacao_ml, bg="#9C27B0", fg="white", **estilo).grid(row=0, column=0, padx=10)
-        tk.Button(btn_frame, text="TRABALHO ESCRAVO ML", command=self.passo_1_solicitar, bg="#1976D2", fg="white", **estilo).grid(row=0, column=1, padx=10)
-        # tk.Button(btn_frame, text="3. CHAMAR NO WHATSAPP", command=self.passo_3_disparar_wa, bg="#FBC02D", fg="black", **estilo).grid(row=0, column=3, padx=10)
-        tk.Button(btn_frame, text="4. DASHBOARD", command=self.abrir_dashboard_vendas, bg="#4CAF50", fg="white", **estilo).grid(row=0, column=4, padx=10)
-        tk.Button(btn_frame, text="5. EXPORTAR EXCEL", command=self.exportar_para_excel, bg="#2E7D32", fg="white", **estilo).grid(row=0, column=5, padx=10)
+        tk.Button(btn_frame, text="AUTORIZAR ML", command=self.fluxo_autorizacao_ml, bg="#9C27B0", fg="white", **estilo).grid(row=0, column=0, padx=5)
+        tk.Button(btn_frame, text="PROCESSAMENTO ALL", command=self.passo_1_solicitar, bg="#1976D2", fg="white", **estilo).grid(row=0, column=1, padx=5)
+        tk.Button(btn_frame, text="DASHBOARD", command=lambda: print("Dashboard"), bg="#4CAF50", fg="white", **estilo).grid(row=0, column=2, padx=5)
+        tk.Button(btn_frame, text="EXPORTAR EXCEL", command=lambda: print("Excel"), bg="#2E7D32", fg="white", **estilo).grid(row=0, column=3, padx=5)
 
-        # Log
-        self.log = scrolledtext.ScrolledText(self.root, height=30, width=150, font=("Consolas", 9), bg="#F5F5F5")
+        # --- Log ---
+        self.log = scrolledtext.ScrolledText(self.root, height=25, width=140, font=("Consolas", 9), bg="#F5F5F5")
         self.log.pack(pady=10, padx=20)
 
     def logger(self, msg, tag="INFO"):
@@ -133,6 +151,53 @@ class AppColetorPro:
             self.logger("Não foi possível obter um token válido. Autorize novamente.", "ALERTA")
         return token
 
+    def buscar_vendas_paginadas(self, seller_id, access_token, offset_inicial=0, limite_maximo=1000):
+        url_base = "https://api.mercadolibre.com/orders/search"
+        limit_por_request = 50
+        current_offset = int(offset_inicial) # Garante que é um inteiro
+        
+        headers = {"Authorization": f"Bearer {access_token}"}
+        todos_os_pedidos = []
+
+        while True:
+            # A URL e os parâmetros devem ser montados aqui dentro para atualizar o offset
+            params = {
+                "seller": seller_id,
+                "order.status": "paid",
+                "offset": current_offset,
+                "limit": limit_por_request
+            }
+
+            try:
+                self.logger(f"Buscando offset {current_offset}...")
+                # Passamos os params separadamente para o requests montar a URL corretamente
+                response = requests.get(url_base, headers=headers, params=params)
+                response.raise_for_status()
+                
+                data = response.json()
+                resultados = data.get("results", [])
+
+                if not resultados:
+                    self.logger("Nenhum pedido encontrado nesta faixa.")
+                    break
+
+                todos_os_pedidos.extend(resultados)
+                
+                total_disponivel = data.get("paging", {}).get("total", 0)
+                current_offset += limit_por_request
+
+                if current_offset >= total_disponivel or current_offset >= limite_maximo:
+                    self.logger(f"Busca finalizada. Total capturado: {len(todos_os_pedidos)}")
+                    break
+                
+                time.sleep(0.5) # Delay leve para evitar 429
+
+            except requests.exceptions.RequestException as e:
+                self.logger(f"Erro na requisição: {e}", "ERRO")
+                break
+
+        return todos_os_pedidos
+    
     # --- PASSO 1: SOLICITAÇÃO ---
     def passo_1_solicitar(self):
         token = self.get_token_ml()
@@ -140,25 +205,25 @@ class AppColetorPro:
             return
         
         # --- SOLICITAÇÃO DO PRAZO AO USUÁRIO ---
-        prazo_usuario = simpledialog.askstring("Prazo de Entrega", "Informe o prazo estimado de entrega (ex: 15/05 ou 10 dias):")
-        codigo_rastreio = simpledialog.askstring("Código de Rastreio", "Informe o código de rastreio do produto:")
+        prazo_usuario = self.var_prazo.get()
+        codigo_rastreio = self.var_rastreio.get()
+        pagInicial = self.var_pag_inicial.get()
+        
+    
         # Se o usuário clicar em cancelar ou deixar vazio, interrompe o processo
-        if not prazo_usuario or not codigo_rastreio:
-            self.logger("Operação cancelada: O prazo de entrega e o código de rastreio são obrigatórios.", "AVISO")
+        if not prazo_usuario or not codigo_rastreio or not pagInicial:
+            self.logger("Operação cancelada: O prazo de entrega, código de rastreio e página inicial são obrigatórios.", "AVISO")
             return
         prazo_usuario = (datetime.now() + timedelta(days=5)).strftime("%d/%m")
         msg_padrao = f"Olá, tudo bem? O frete é grátis para todo Brasil e o prazo estimado de entrega é até {prazo_usuario}. Lembrando que os produtos são importados, vem de fora do país! Vamos fazer o envio e mandar o código de rastreio. \n \n \n A transportadora precisa do seu telefone pra preencher os seus dados de entrega e enviar o código de rastreio pra você acompanhar."
         
         self.logger("Iniciando varredura de vendas via /orders/search...")
-        
-        # 1. Buscar vendas recentes com status 'paid'
-        url_vendas = f"https://api.mercadolibre.com/orders/search?seller={ML_SELLER_ID}&order.status=paid"
-        headers = {'Authorization': f'Bearer {token}'}
+        headers = {
+            "Authorization": f"Bearer {token}"
+        }
+        pedidos = self.buscar_vendas_paginadas(ML_SELLER_ID, token, offset_inicial=pagInicial)
         
         try:
-            res_vendas = requests.get(url_vendas, headers=headers).json()
-            pedidos = res_vendas.get('results', [])
-            
             db = self.carregar_db()
             enviados = 0
 
@@ -170,6 +235,8 @@ class AppColetorPro:
                 valor = str(pedido['total_amount'])
                 corProduto = str(pedido['order_items'][0]['item']['variation_attributes'][0]['value_name'])
                 # APOS 2 OU 3 DIAS DO ENVIO DO CODIGO DE RASTREIO, ENVIAR MSG E BOLETO PARA PAGAMENTO DE TAXA E SALVAR NO DB QUE O BOLETO FOI ENVIADO
+                url_msg = f"https://api.mercadolibre.com/messages/packs/{order_id}/sellers/{ML_SELLER_ID}?tag=post_sale"
+                
                 if order_id in db and (db[order_id].get('rastreio_enviado') and db[order_id].get('data_rastreio')):
                     data_rastreio = db[order_id].get('data_rastreio')
                     try:
@@ -184,7 +251,7 @@ class AppColetorPro:
                                     boleto_numero = str(row['Código'])
                                     break
 
-                            payload = {
+                            payloadBoleto = {
                                 "from": {
                                     "user_id": ML_SELLER_ID
                                 },
@@ -207,7 +274,7 @@ class AppColetorPro:
                                 """
                             }
                             # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
-                            envio = requests.post(url_msg, json=payload, headers=headers)
+                            envio = requests.post(url_msg, json=payloadBoleto, headers=headers)
                             if envio.status_code in [200, 201]:
                                 db[order_id]['boleto_enviado'] = True
                                 db[order_id]['data_boleto'] = datetime.now().strftime("%d/%m/%Y %H:%M")
@@ -228,7 +295,7 @@ class AppColetorPro:
                         diferenca = datetime.now() - data_envio
                         if diferenca.days >= 5:  # Se passou 5 dias, enviar código de rastreio
                             self.logger(f"Enviando código de rastreio para a ordem {order_id}...")
-                            payload = {
+                            payloadRastreio = {
                                 "from": {
                                     "user_id": ML_SELLER_ID
                                 },
@@ -254,7 +321,7 @@ class AppColetorPro:
                                     """
                             }
                             # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
-                            envio = requests.post(url_msg, json=payload, headers=headers)
+                            envio = requests.post(url_msg, json=payloadRastreio, headers=headers)
                             db[order_id]['rastreio_enviado'] = True
                             db[order_id]['data_rastreio'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                             db[order_id]['codigo_rastreio'] = codigo_rastreio
@@ -270,17 +337,17 @@ class AppColetorPro:
                             data_envio = datetime.strptime(data_solicitacao, "%d/%m/%Y %H:%M")
                             diferenca = datetime.now() - data_envio
                             if diferenca.days >= 1 and not db[order_id].get('numero_extraido') and not db[order_id].get('rastreio_enviado'):
-                                payload = {
-                                "from": {
-                                    "user_id": ML_SELLER_ID
-                                },
-                                "to": {
-                                    "user_id": buyer_id
-                                },
-                                "text": "Olá! Não recebemos seu telefone. \n A transportadora precisa pra preencher os seus dados de entrega e enviar o código de rastreio pra você acompanhar."
-                            }
+                                payloadReenvio = {
+                                    "from": {
+                                        "user_id": ML_SELLER_ID
+                                    },
+                                    "to": {
+                                        "user_id": buyer_id
+                                    },
+                                    "text": "Olá! Não recebemos seu telefone. \n A transportadora precisa pra preencher os seus dados de entrega e enviar o código de rastreio pra você acompanhar."
+                                }
                             # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
-                            envio = requests.post(url_msg, json=payload, headers=headers)
+                            envio = requests.post(url_msg, json=payloadReenvio, headers=headers)
                             if envio.status_code in [200, 201]:
                                 db[order_id]['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                 self.logger(f"Reenvio: Mensagem reenviada para {order_id} após 1 dia sem resposta.")
@@ -295,7 +362,6 @@ class AppColetorPro:
                 self.logger(f"Verificando histórico de mensagens para Ordem: {order_id}")
                 
                 # --- TRATATIVA 2: Validar se a mensagem já existe no chat ---
-                url_msg = f"https://api.mercadolibre.com/messages/packs/{order_id}/sellers/{ML_SELLER_ID}?tag=post_sale"
                 res_historico = requests.get(url_msg, headers=headers).json()
                 mensagens_no_chat = res_historico.get('messages', [])
                 
@@ -437,26 +503,62 @@ class AppColetorPro:
             elif dados.get('solicitado'): etapas["Solicitado (E1)"].append(oid)
 
         dash_win = tk.Toplevel(self.root)
-        dash_win.title("Status de Vendas")
-        dash_win.geometry("900x500")
+        dash_win.title("Status de Vendas - Visão Geral")
+        dash_win.geometry("1000x600")
+        dash_win.configure(bg="#f8f9fa")
 
-        main_frame = tk.Frame(dash_win)
-        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        main_frame = tk.Frame(dash_win, bg="#f8f9fa")
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
 
-        # Gráfico
-        fig, ax = plt.subplots(figsize=(5, 4), dpi=100)
-        ax.bar(etapas.keys(), [len(v) for v in etapas.values()], color=['#1976D2', '#FBC02D', '#4CAF50'])
-        ax.set_title("Pedidos por Etapa")
+        # --- CONFIGURAÇÃO DO GRÁFICO ---
+        fig, ax = plt.subplots(figsize=(6, 5), dpi=100)
+        fig.patch.set_facecolor('#f8f9fa')
         
+        nomes = list(etapas.keys())
+        valores = [len(v) for v in etapas.values()]
+        cores = ['#007bff', '#ffc107', '#28a745']
+
+        bars = ax.bar(nomes, valores, color=cores, width=0.6)
+        
+        # A MÁGICA AQUI: Força apenas números inteiros no eixo Y
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+        
+        # Estética do gráfico
+        ax.set_title("Volume de Pedidos por Etapa", fontsize=12, fontweight='bold', pad=15)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.grid(axis='y', linestyle='--', alpha=0.7)
+
+        # Adiciona o número exato em cima de cada barra
+        for bar in bars:
+            height = bar.get_height()
+            ax.annotate(f'{int(height)}',
+                        xy=(bar.get_x() + bar.get_width() / 2, height),
+                        xytext=(0, 3), 
+                        textcoords="offset points",
+                        ha='center', va='bottom', fontweight='bold')
+
         canvas = FigureCanvasTkAgg(fig, master=main_frame)
         canvas.draw()
         canvas.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-        # Lista de IDs
-        text_area = scrolledtext.ScrolledText(main_frame, width=35)
-        text_area.pack(side=tk.RIGHT, fill=tk.BOTH)
+        # --- LISTA LATERAL DE ORDER_ID ---
+        list_frame = tk.Frame(main_frame, bg="white", bd=1, relief=tk.FLAT)
+        list_frame.pack(side=tk.RIGHT, fill=tk.BOTH, padx=(20, 0))
+
+        tk.Label(list_frame, text="LISTA DE ORDER_ID", bg="#343a40", fg="white", font=("Arial", 10, "bold"), pady=5).pack(fill=tk.X)
+        
+        text_area = scrolledtext.ScrolledText(list_frame, width=30, font=("Consolas", 10), bd=0)
+        text_area.pack(fill=tk.BOTH, expand=True)
+
         for etapa, ids in etapas.items():
-            text_area.insert(tk.END, f"\n[{etapa}]\n" + "\n".join([f"ID: {i}" for i in ids]) + "\n")
+            text_area.insert(tk.END, f"\n> {etapa}\n", "header")
+            if not ids:
+                text_area.insert(tk.END, "  (Vazio)\n")
+            for i in ids:
+                text_area.insert(tk.END, f"  ID: {i}\n")
+        
+        text_area.tag_config("header", foreground="#007bff", font=("Consolas", 10, "bold"))
         text_area.configure(state=tk.DISABLED)
 
     def exportar_para_excel(self):
@@ -474,7 +576,10 @@ class AppColetorPro:
                 "Status": etapa,
                 "Produto": d.get('produto', 'N/A'),
                 "Data": d.get('data_solicitacao_inicial', 'N/A'),
-                "Rastreio": d.get('codigo_rastreio', 'Pendente')
+                "Rastreio": d.get('codigo_rastreio', 'Pendente'),
+                "corProduto": d.get('corProduto', 'N/A'),
+                "valor": d.get('valor', 'N/A'),
+                "numero":d.get('zap_extraido', 'N/A')
             })
 
         df = pd.DataFrame(dados_excel)
