@@ -1,1 +1,32 @@
-{}
+{
+    "2000015057208564": {
+        "solicitado": true,
+        "buyer_id": 1806349626,
+        "pack_id": null,
+        "corProduto": "Marrom",
+        "produto": "Painel Para Tv At\u00e9 60 Polegadas Gr\u00e9cia 1 Porta E Prateleiras",
+        "valor": "215.47",
+        "data_solicitacao": "20/02/2026 23:58",
+        "data_solicitacao_inicial": "20/02/2026 23:58"
+    },
+    "2000015083599708": {
+        "solicitado": true,
+        "buyer_id": 84793684,
+        "pack_id": null,
+        "corProduto": "Marrom",
+        "produto": "Painel Para Tv At\u00e9 60 Polegadas Gr\u00e9cia 1 Porta E Prateleiras",
+        "valor": "215.47",
+        "data_solicitacao": "20/02/2026 23:58",
+        "data_solicitacao_inicial": "20/02/2026 23:58"
+    },
+    "2000015177983976": {
+        "solicitado": true,
+        "buyer_id": 833531531,
+        "pack_id": null,
+        "corProduto": "Marrom",
+        "produto": "Painel Para Tv At\u00e9 60 Polegadas Gr\u00e9cia 1 Porta E Prateleiras",
+        "valor": "215.47",
+        "data_solicitacao": "20/02/2026 23:58",
+        "data_solicitacao_inicial": "20/02/2026 23:58"
+    }
+}

@@ -346,12 +346,12 @@ class AppColetorPro:
                                     },
                                     "text": "Olá! Não recebemos seu telefone. \n A transportadora precisa pra preencher os seus dados de entrega e enviar o código de rastreio pra você acompanhar."
                                 }
-                            # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
-                            envio = requests.post(url_msg, json=payloadReenvio, headers=headers)
-                            if envio.status_code in [200, 201]:
-                                db[order_id]['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                                self.logger(f"Reenvio: Mensagem reenviada para {order_id} após 1 dia sem resposta.")
-                                continue
+                                 # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
+                                envio = requests.post(url_msg, json=payloadReenvio, headers=headers)
+                                if envio.status_code in [200, 201]:
+                                    db[order_id]['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                                    self.logger(f"Reenvio: Mensagem reenviada para {order_id} após 1 dia sem resposta.")
+                                    continue
                         except Exception as e:
                             self.logger(f"Erro ao reenviar mensagem para {order_id}: {str(e)}", "ERRO")    
 
@@ -482,9 +482,22 @@ class AppColetorPro:
 
     # --- CONTROLE DE DADOS ---
     def carregar_db(self):
-        if os.path.exists(DB_FILE):
-            with open(DB_FILE, 'r') as f: return json.load(f)
-        return {}
+    # 1. Verifica se o arquivo existe
+        if not os.path.exists(DB_FILE):
+            return {}
+        try:
+            with open(DB_FILE, 'r', encoding='utf-8') as f:
+                # Tenta carregar o conteúdo
+                conteudo = f.read().strip()
+                if not conteudo:  # Se o arquivo estiver em branco (vazio)
+                    return {}
+                return json.loads(conteudo)
+                
+        except (json.JSONDecodeError, IOError) as e:
+            # Se o JSON estiver corrompido ou malformado, 
+            # retorna um dicionário vazio para não travar o processo.
+            print(f"Aviso: Erro ao ler {DB_FILE} ({e}). Iniciando base vazia.")
+            return {}
 
     def salvar_db(self, db):
         with open(DB_FILE, 'w') as f: json.dump(db, f, indent=4)
