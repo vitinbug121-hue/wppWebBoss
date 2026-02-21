@@ -370,10 +370,10 @@ class AppColetorPro:
                 self.logger(f"Verificando histórico de mensagens para Ordem: {order_id}")
                 
                 # --- TRATATIVA 2: Validar se a mensagem já existe no chat ---
-                res_historico = requests.get(url_msg, headers=headers).json()
-                mensagens_no_chat = res_historico.get('messages', [])
-                for m in mensagens_no_chat:
-                    texto = m.get('text', '')
+                conversaCompleta = self.obter_conversa_completa(order_id, order_id, ML_SELLER_ID, token)
+                #res_historico = requests.get(url_msg, headers=headers).json()
+                for m in conversaCompleta:
+                    texto = m.get('texto', '')
                     # Regex robusto para capturar vários formatos de telefone BR
                     match = re.search(r'(?:\+?55\s?)?\(?(\d{2})\)?\s?(9?\d{4})[\s.-]?(\d{4})', texto)
                     if match:
@@ -389,7 +389,7 @@ class AppColetorPro:
                 # Verifica se algum texto no histórico é igual à nossa mensagem padrão
                 #buscar apenas pelo pedaço da frase "Olá, tudo bem? O frete é grátis para todo Brasil"
                 msg_padrao_parte = "Olá, tudo bem? O frete é grátis para todo Brasil"
-                ja_enviado_no_ml = any(msg_padrao_parte in m.get('text', '') for m in mensagens_no_chat)
+                ja_enviado_no_ml = any(msg_padrao_parte in m.get('texto', '') for m in conversaCompleta)
 
                 if ja_enviado_no_ml:
                     self.logger(f"Mensagem já constava no chat da Ordem {order_id}. Atualizando controle local.")
@@ -436,7 +436,52 @@ class AppColetorPro:
 
         except Exception as e:
             self.logger(f"Erro no Passo 1: {str(e)}", "ERRO")
+            
+            
+    def obter_conversa_completa(self, order_id, pack_id, seller_id, token):
+        headers = {"Authorization": f"Bearer {token}"}
+        conversa_unificada = []
+        claim_ids = []
 
+        # --- PARTE A: Chat de Pós-Venda Comum ---
+        url_comum = f"https://api.mercadolibre.com/messages/packs/{pack_id}/sellers/{seller_id}?tag=post_sale"
+        try:
+            res_comum = requests.get(url_comum, headers=headers, timeout=10)
+            if res_comum.status_code == 200:
+                dados = res_comum.json()
+                msgs = dados.get('messages', [])
+                
+                # Extração correta dos claim_ids que vimos no seu debugger
+                status_conversa = dados.get('conversation_status', {})
+                claim_ids = status_conversa.get('claim_ids', [])
+                
+                for m in msgs:
+                    conversa_unificada.append({
+                        "origem": "Chat Comum",
+                        "texto": m.get('text'),
+                        "data": m.get('message_date')
+                    })
+        except Exception as e:
+            self.logger(f"Erro ao buscar chat comum {order_id}: {e}")
+
+        # --- PARTE B: Chat de Reclamação (Claim) ---
+        for claim_id in claim_ids:
+            try:
+                url_msg_claim = f"https://api.mercadolibre.com/post-purchase/v1/claims/{claim_id}/messages"
+                res_msg_claim = requests.get(url_msg_claim, headers=headers, timeout=10)
+                
+                if res_msg_claim.status_code == 200:
+                    msgs_claim = res_msg_claim.json()
+                    for mc in msgs_claim:
+                        conversa_unificada.append({
+                            "origem": f"Reclamação ({claim_id})",
+                            "texto": mc.get('message'),
+                            "data": mc.get('date_created') 
+                        })  
+            except Exception as e:
+                self.logger(f"Erro na reclamação {claim_id}: {e}")
+
+        return conversa_unificada
 
     # --- PASSO 3: DISPARO WHATSAPP META ---
     def passo_3_disparar_wa(self):
