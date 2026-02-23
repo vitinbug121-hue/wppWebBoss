@@ -182,7 +182,6 @@ class AppColetorPro:
                     break
 
                 todos_os_pedidos.extend(resultados)
-                break
                 total_disponivel = data.get("paging", {}).get("total", 0)
                 current_offset += limit_por_request
 
@@ -214,7 +213,7 @@ class AppColetorPro:
         if not prazo_usuario or not codigo_rastreio or not pagInicial:
             self.logger("Operação cancelada: O prazo de entrega, código de rastreio e página inicial são obrigatórios.", "AVISO")
             return
-        msg_padrao = f"Olá, tudo bem? O frete é grátis para todo Brasil e o prazo estimado de entrega é até {prazo_usuario}. Lembrando que os produtos são importados, vem de fora do país! Vamos fazer o envio e mandar o código de rastreio. \n \n \n A transportadora precisa do seu telefone pra preencher os seus dados de entrega e enviar o código de rastreio pra você acompanhar."
+        msg_padrao = f"Olá, tudo bem? O frete é grátis para todo Brasil e o prazo estimado de entrega é até {prazo_usuario}. Lembrando que os produtos são importados, vem de fora do país! Vamos fazer o envio e mandar o código de rastreio. \n \n \nA transportadora precisa do seu telefone pra preencher os seus dados de entrega e enviar o código de rastreio pra você acompanhar."
         
         self.logger("Iniciando varredura de vendas via /orders/search...")
         headers = {
@@ -229,9 +228,9 @@ class AppColetorPro:
             for pedido in pedidos:
                 # Pegamos o ID da ordem (ou pack_id se preferir, mas seguindo sua instrução: order_id)
                 #se o array de pedido tiver na posição 10 parar o loop e encerrar para um teste
-                if pedidos.index(pedido) >= 10:
-                    self.logger("Limite de 10 pedidos atingido para teste. Encerrando loop.")
-                    break
+                #if pedidos.index(pedido) >= 5:
+                #    self.logger("Limite de 5 pedidos atingido para teste. Encerrando loop.")
+                #    break
                 order_id = str(pedido['id'])
                 buyer_id = str(pedido.get('buyer', {}).get('id'))
                 nome_prod = str(pedido['payments'][0]['reason']) 
@@ -284,6 +283,7 @@ class AppColetorPro:
                             if envio.status_code in [200, 201]:
                                 db[order_id]['boleto_enviado'] = True
                                 db[order_id]['data_boleto'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                                db[order_id]['codigo_boleto'] = boleto_numero
                                 self.logger(f"Boleto enviado com sucesso para a ordem {order_id}!")
                                 continue
                             else:
@@ -465,21 +465,22 @@ class AppColetorPro:
             self.logger(f"Erro ao buscar chat comum {order_id}: {e}")
 
         # --- PARTE B: Chat de Reclamação (Claim) ---
-        for claim_id in claim_ids:
-            try:
-                url_msg_claim = f"https://api.mercadolibre.com/post-purchase/v1/claims/{claim_id}/messages"
-                res_msg_claim = requests.get(url_msg_claim, headers=headers, timeout=10)
-                
-                if res_msg_claim.status_code == 200:
-                    msgs_claim = res_msg_claim.json()
-                    for mc in msgs_claim:
-                        conversa_unificada.append({
-                            "origem": f"Reclamação ({claim_id})",
-                            "texto": mc.get('message'),
-                            "data": mc.get('date_created') 
-                        })  
-            except Exception as e:
-                self.logger(f"Erro na reclamação {claim_id}: {e}")
+        if(len(claim_ids) > 0):
+            for claim_id in claim_ids:
+                try:
+                    url_msg_claim = f"https://api.mercadolibre.com/post-purchase/v1/claims/{claim_id}/messages"
+                    res_msg_claim = requests.get(url_msg_claim, headers=headers, timeout=10)
+                    
+                    if res_msg_claim.status_code == 200:
+                        msgs_claim = res_msg_claim.json()
+                        for mc in msgs_claim:
+                            conversa_unificada.append({
+                                "origem": f"Reclamação ({claim_id})",
+                                "texto": mc.get('message'),
+                                "data": mc.get('date_created') 
+                            })  
+                except Exception as e:
+                    self.logger(f"Erro na reclamação {claim_id}: {e}")
 
         return conversa_unificada
 
@@ -653,7 +654,9 @@ class AppColetorPro:
                 "Rastreio": d.get('codigo_rastreio', 'Pendente'),
                 "corProduto": d.get('corProduto', 'N/A'),
                 "valor": d.get('valor', 'N/A'),
-                "numero":d.get('zap_extraido', 'N/A')
+                "numero":d.get('zap_extraido', 'N/A'),
+                "boleto_enviado": d.get('codigo_boleto', 'N/A'),
+                "boleto_Pago" : "Não"
             })
 
         df = pd.DataFrame(dados_excel)
