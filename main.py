@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.ticker import MaxNLocator
 import time
+import sys
+import threading
 
 # Load variables from .env file
 load_dotenv()
@@ -29,8 +31,19 @@ WA_TOKEN = 'SEU_TOKEN_PERMANENTE_META'
 WA_PHONE_ID = 'SEU_PHONE_NUMBER_ID'
 WA_TEMPLATE_NAME = 'atendimento_cliente_ml' # Deve estar aprovado na Meta
 
+BASE_DIR = "database_vendas.json"
 # Arquivos locais
-DB_FILE = 'database_vendas.json'
+if getattr(sys, 'frozen', False):
+    # Se for o .exe rodando dentro de /dist
+    BASE_DIR = os.path.dirname(sys.executable)
+    # Se a pasta atual for 'dist', subimos um nível para a raiz
+    if os.path.basename(BASE_DIR).lower() == 'dist':
+        BASE_DIR = os.path.dirname(BASE_DIR)
+else:
+    # Se for o script .py rodando na raiz
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+DB_FILE = os.path.join(BASE_DIR, 'database_vendas.json')
 TOKEN_FILE = 'ml_tokens_autorizacao.json'
 
 class GerenciadorTokenML:
@@ -108,7 +121,7 @@ class AppColetorPro:
         estilo = {"width": 20, "height": 2, "font": ("Arial", 9, "bold")}
 
         tk.Button(btn_frame, text="AUTORIZAR ML", command=self.fluxo_autorizacao_ml, bg="#9C27B0", fg="white", **estilo).grid(row=0, column=0, padx=5)
-        tk.Button(btn_frame, text="PROCESSAMENTO ALL", command=self.passo_1_solicitar, bg="#1976D2", fg="white", **estilo).grid(row=0, column=1, padx=5)
+        tk.Button(btn_frame, text="PROCESSAMENTO ALL", command=self.iniciar_thread_processamento, bg="#1976D2", fg="white", **estilo).grid(row=0, column=1, padx=5)
         tk.Button(btn_frame, text="DASHBOARD", command=self.abrir_dashboard_vendas, bg="#4CAF50", fg="white", **estilo).grid(row=0, column=2, padx=5)
         tk.Button(btn_frame, text="EXPORTAR EXCEL", command=self.exportar_para_excel, bg="#2E7D32", fg="white", **estilo).grid(row=0, column=3, padx=5)
 
@@ -197,21 +210,55 @@ class AppColetorPro:
 
         return todos_os_pedidos
     
+    def iniciar_thread_processamento(self):
+        """Captura os dados na Main Thread e inicia o background."""
+        token = self.get_token_ml()
+        if not token: return
+
+        # --- AS PERGUNTAS (RODAM NA MAIN THREAD) ---
+        env_rastreio = messagebox.askyesno("Enviar Rastreio", "Deseja enviar código de rastreio agora?")
+        lim_rastreio = 0
+        cod_rastreio = self.var_rastreio.get().strip()
+        
+        if env_rastreio:
+            if not cod_rastreio:
+                messagebox.showerror("Erro", "Preencha o campo 'Cód. Rastreio'!")
+                return
+            lim_rastreio = simpledialog.askinteger("Limite", "Quantos rastreios?", minvalue=1)
+            if not lim_rastreio: return
+
+        env_boleto = messagebox.askyesno("Enviar Boleto", "Deseja enviar boletos agora?")
+        lim_boleto = 0
+        if env_boleto:
+            lim_boleto = simpledialog.askinteger("Limite", "Quantos boletos?", minvalue=1)
+            if not lim_boleto: return
+
+        # --- DISPARA A THREAD ---
+        # Passamos as respostas como argumentos para a thread
+        thread = threading.Thread(target=self.passo_1_solicitar, args=(token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto))
+        thread.daemon = True # Faz a thread fechar se você fechar a janela
+        thread.start()
+        self.logger("Thread de processamento iniciada em segundo plano...")
+    
     # --- PASSO 1: SOLICITAÇÃO ---
-    def passo_1_solicitar(self):
+    def passo_1_solicitar(self, token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto):
         token = self.get_token_ml()
         if not token: 
             return
         
-        # --- SOLICITAÇÃO DO PRAZO AO USUÁRIO ---
-        prazo_usuario = self.var_prazo.get()
-        codigo_rastreio = self.var_rastreio.get()
-        pagInicial = self.var_pag_inicial.get()
-        
+        rastreios_contagem = 0
+        boletos_contagem = 0
     
+        # --- DEMAIS INPUTS ---
+        prazo_usuario = self.var_prazo.get()
+        pagInicial = self.var_pag_inicial.get()
+        if not prazo_usuario or not pagInicial:
+            self.logger("Erro: Prazo e Página Inicial são obrigatórios.", "ERRO")
+            return
+        
         # Se o usuário clicar em cancelar ou deixar vazio, interrompe o processo
-        if not prazo_usuario or not codigo_rastreio or not pagInicial:
-            self.logger("Operação cancelada: O prazo de entrega, código de rastreio e página inicial são obrigatórios.", "AVISO")
+        if not prazo_usuario or not pagInicial:
+            self.logger("Operação cancelada: O prazo de entrega e página inicial são obrigatórios.", "AVISO")
             return
         msg_padrao = f"Olá, tudo bem? O frete é grátis para todo Brasil e o prazo estimado de entrega é até {prazo_usuario}. Lembrando que os produtos são importados, vem de fora do país! Vamos fazer o envio e mandar o código de rastreio. \n \n \nA transportadora precisa do seu telefone pra preencher os seus dados de entrega e enviar o código de rastreio pra você acompanhar."
         
@@ -243,11 +290,11 @@ class AppColetorPro:
                     db[order_id] = {}
                 
                 if order_id in db and (db[order_id].get('rastreio_enviado') and db[order_id].get('data_rastreio')):
-                    data_rastreio = db[order_id].get('data_rastreio')
+                    #data_rastreio = db[order_id].get('data_rastreio')
                     try:
-                        data_envio = datetime.strptime(data_rastreio, "%d/%m/%Y %H:%M")
-                        diferenca = datetime.now() - data_envio
-                        if diferenca.days >= 3 and not db[order_id].get('boleto_enviado'):
+                       # data_envio = datetime.strptime(data_rastreio, "%d/%m/%Y %H:%M")
+                       # diferenca = datetime.now() - data_envio
+                        if env_boleto and boletos_contagem < lim_boleto:
                             self.logger(f"Enviando boleto para pagamento de taxa para a ordem {order_id}...")
                             df = pd.read_excel(r"C:\Users\mathe\Meu Drive\Sistema JV V1\Nova pasta\dist\registros_pedidos.xlsx")
                             boleto_numero = None
@@ -255,7 +302,9 @@ class AppColetorPro:
                                 if str(row['Order ID']) == order_id and str(row['Boleto Usado']) == 'FALSE':
                                     boleto_numero = str(row['Código'])
                                     break
-
+                            if(not boleto_numero):
+                                self.logger(f"Não foi possível encontrar um boleto disponível para a ordem {order_id}. Verifique o Excel de registros.", "ERRO")
+                                break       
                             payloadBoleto = {
                                 "from": {
                                     "user_id": ML_SELLER_ID
@@ -284,6 +333,7 @@ class AppColetorPro:
                                 db[order_id]['boleto_enviado'] = True
                                 db[order_id]['data_boleto'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                 db[order_id]['codigo_boleto'] = boleto_numero
+                                rastreios_contagem += 1
                                 self.logger(f"Boleto enviado com sucesso para a ordem {order_id}!")
                                 continue
                             else:
@@ -297,9 +347,9 @@ class AppColetorPro:
                 if order_id in db and (db[order_id].get('solicitado') and db[order_id].get('data_solicitacao_inicial')):
                     data_solicitacao_inicial = db[order_id].get('data_solicitacao_inicial')
                     try:
-                        data_envio = datetime.strptime(data_solicitacao_inicial, "%d/%m/%Y %H:%M")
-                        diferenca = datetime.now() - data_envio
-                        if diferenca.days >= 5:  # Se passou 5 dias, enviar código de rastreio
+                        #data_envio = datetime.strptime(data_solicitacao_inicial, "%d/%m/%Y %H:%M")
+                        #diferenca = datetime.now() - data_envio
+                        if env_rastreio and rastreios_contagem < lim_rastreio: 
                             self.logger(f"Enviando código de rastreio para a ordem {order_id}...")
                             payloadRastreio = {
                                 "from": {
@@ -312,7 +362,7 @@ class AppColetorPro:
                                     ACOMPANHE O SEU PEDIDO
                                     Segue abaixo, o seu código de rastreamento.
 
-                                    >>> {codigo_rastreio} 
+                                    >>> {cod_rastreio} 
                                     
                                     Para rastrear, basta acessar o site oficial dos Correios 👇
                                     https://rastreamento.correios.com.br/app/index.php
@@ -330,13 +380,40 @@ class AppColetorPro:
                             envio = requests.post(url_msg, json=payloadRastreio, headers=headers)
                             db[order_id]['rastreio_enviado'] = True
                             db[order_id]['data_rastreio'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                            db[order_id]['codigo_rastreio'] = codigo_rastreio
+                            db[order_id]['codigo_rastreio'] = cod_rastreio
+                            boletos_contagem += 1
                             self.salvar_db(db)
                             continue
                     except Exception as e:
                         self.logger(f"Erro ao verificar data inicial da ordem {order_id}: {str(e)}", "ERRO")
                 
-
+                # --- TRATATIVA 2: Validar se a mensagem já existe no chat ---
+                conversaCompleta = self.obter_conversa_completa(order_id, order_id, ML_SELLER_ID, token)
+                #res_historico = requests.get(url_msg, headers=headers).json()
+                if order_id in db and (db[order_id].get('solicitado') and not db[order_id].get('numero_extraido')):
+                    for m in conversaCompleta:
+                        texto = m.get('texto', '')
+                        # Regex robusto para capturar vários formatos de telefone BR
+                        match = re.search(r'(?:\+?55\s?)?\(?(\d{2})\)?\s?(9)?\s?(\d{4})[\s.-]?(\d{4})', texto)
+                        if match:
+                                zap = "".join(match.groups())
+                                #nome_cli = self.obter_nome_cliente(order_id, token)
+                                db[order_id]['zap_extraido'] = zap
+                                db[order_id]['numero_extraido'] = True
+                            
+                                self.logger(f"Finalizado extração de telefone para a ordem {order_id}: {zap}")
+                                payloadReenvio = {
+                                        "from": {
+                                            "user_id": ML_SELLER_ID
+                                        },
+                                        "to": {
+                                            "user_id": buyer_id
+                                        },
+                                        "text": "Olá! recebemos seu telefone. Obrigado! \nVamos dar continuidade ao processo de envio do seu pedido. \nAssim que o código de rastreio estiver disponível, enviaremos para você acompanhar a entrega. 😉"
+                                }
+                                    # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
+                                envio = requests.post(url_msg, json=payloadReenvio, headers=headers)
+                                break
                 
                 if order_id in db:
                     data_solicitacao = db[order_id].get('data_solicitacao')
@@ -344,7 +421,7 @@ class AppColetorPro:
                         try:
                             data_envio = datetime.strptime(data_solicitacao, "%d/%m/%Y %H:%M")
                             diferenca = datetime.now() - data_envio
-                            if diferenca.days >= 1 and not db[order_id].get('numero_extraido') and not db[order_id].get('rastreio_enviado'):
+                            if diferenca.days >= 1 and not db[order_id].get('numero_extraido') and not db[order_id].get('tentativa_', 0) < 2:
                                 payloadReenvio = {
                                     "from": {
                                         "user_id": ML_SELLER_ID
@@ -355,9 +432,10 @@ class AppColetorPro:
                                     "text": "Olá! Não recebemos seu telefone. \n A transportadora precisa pra preencher os seus dados de entrega e enviar o código de rastreio pra você acompanhar."
                                 }
                                  # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
-                                envio = requests.post(url_msg, json=payloadReenvio, headers=headers)
+                                #envio = requests.post(url_msg, json=payloadReenvio, headers=headers)
                                 if envio.status_code in [200, 201]:
                                     db[order_id]['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                                    db[order_id]['tentativa_'] = db[order_id].get('tentativa_', 0) + 1
                                     self.logger(f"Reenvio: Mensagem reenviada para {order_id} após 1 dia sem resposta.")
                                     continue
                         except Exception as e:
@@ -368,22 +446,6 @@ class AppColetorPro:
                     continue
 
                 self.logger(f"Verificando histórico de mensagens para Ordem: {order_id}")
-                
-                # --- TRATATIVA 2: Validar se a mensagem já existe no chat ---
-                conversaCompleta = self.obter_conversa_completa(order_id, order_id, ML_SELLER_ID, token)
-                #res_historico = requests.get(url_msg, headers=headers).json()
-                for m in conversaCompleta:
-                    texto = m.get('texto', '')
-                    # Regex robusto para capturar vários formatos de telefone BR
-                    match = re.search(r'(?:\+?55\s?)?\(?(\d{2})\)?\s?(9?\d{4})[\s.-]?(\d{4})', texto)
-                    if match:
-                            zap = "".join(match.groups())
-                            #nome_cli = self.obter_nome_cliente(order_id, token)
-                            db[order_id]['zap_extraido'] = zap
-                            db[order_id]['numero_extraido'] = True
-                        
-                            self.logger(f"Finalizado extração de telefone para a ordem {order_id}: {zap}")
-                            break
                 
                 
                 # Verifica se algum texto no histórico é igual à nossa mensagem padrão
