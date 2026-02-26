@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import scrolledtext, messagebox, simpledialog, filedialog
+from tkinter import ttk
 #from turtle import tur
 import requests
 import json
@@ -113,6 +114,9 @@ class AppColetorPro:
 
         tk.Label(input_frame, text="Página Inicial (Offset):").grid(row=0, column=4, sticky="w", padx=5)
         tk.Entry(input_frame, textvariable=self.var_pag_inicial, width=10).grid(row=0, column=5, padx=10)
+        
+        self.progress = ttk.Progressbar(self.root, orient="horizontal", length=400, mode="determinate")
+        self.progress.pack(pady=5, padx=20, fill=tk.X)
 
         # --- Container de Botões ---
         btn_frame = tk.Frame(self.root)
@@ -226,6 +230,7 @@ class AppColetorPro:
         if not prazo_usuario or not pagInicial:
             self.logger("Operação cancelada: O prazo de entrega e página inicial são obrigatórios.", "AVISO")
             return
+
         self.logger("Iniciando varredura de vendas via /orders/search...")
         # --- AS PERGUNTAS (RODAM NA MAIN THREAD) ---
         chats, total_chats = self.buscar_vendas_paginadas(ML_SELLER_ID, token, offset_inicial=pagInicial)
@@ -233,6 +238,13 @@ class AppColetorPro:
         lim_rastreio = 0
         cod_rastreio = self.var_rastreio.get().strip()
         
+        # Configura o máximo da barra de progresso
+        self.progress["maximum"] = total_chats
+        self.progress["value"] = 0
+
+        # Perguntas (Na Main Thread para não dar erro)
+        # ... logic de simpledialog para lim_rastreio e lim_boleto ...
+            
         if env_rastreio:
             if not cod_rastreio:
                 messagebox.showerror("Erro", "Preencha o campo 'Cód. Rastreio'!")
@@ -277,7 +289,7 @@ class AppColetorPro:
             db = self.carregar_db()
             enviados = 0
 
-            for pedido in pedidos:
+            for i, pedido in enumerate(pedidos):
                 # Pegamos o ID da ordem (ou pack_id se preferir, mas seguindo sua instrução: order_id)
                 #se o array de pedido tiver na posição 10 parar o loop e encerrar para um teste
                 #if pedidos.index(pedido) >= 5:
@@ -293,6 +305,9 @@ class AppColetorPro:
                 # Se a ordem não existe no DB, inicializamos como dicionário vazio
                 if order_id not in db:
                     db[order_id] = {}
+                    
+                # Usamos after() para que a Main Thread faça a pintura do widget    
+                self.root.after(0, lambda v=i+1: self.progress.configure(value=v))    
                 
                 if not db[order_id].get('numero_cliente'):
                     db[order_id]['numero_cliente'] = pagInicial + pedidos.index(pedido) + 1 
@@ -323,7 +338,7 @@ class AppColetorPro:
                                 },
                                 "text": f"""
                                     ( Living Shop )
-                                    Boa tarde, tudo bem?
+                                    Olá, tudo bem?
 
                                     O seu painel importado chegou no Brasil. 🥳
                                     Porém, a receita federal taxou o seu produto no valor de R$ 138,98.
