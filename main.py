@@ -208,47 +208,13 @@ class AppColetorPro:
                 self.logger(f"Erro na requisição: {e}", "ERRO")
                 break
 
-        return todos_os_pedidos
+        return todos_os_pedidos, len(todos_os_pedidos)
     
     def iniciar_thread_processamento(self):
         """Captura os dados na Main Thread e inicia o background."""
         token = self.get_token_ml()
         if not token: return
-
-        # --- AS PERGUNTAS (RODAM NA MAIN THREAD) ---
-        env_rastreio = messagebox.askyesno("Enviar Rastreio", "Deseja enviar código de rastreio agora?")
-        lim_rastreio = 0
-        cod_rastreio = self.var_rastreio.get().strip()
         
-        if env_rastreio:
-            if not cod_rastreio:
-                messagebox.showerror("Erro", "Preencha o campo 'Cód. Rastreio'!")
-                return
-            lim_rastreio = simpledialog.askinteger("Limite", "Quantos rastreios?", minvalue=1)
-            if not lim_rastreio: return
-
-        env_boleto = messagebox.askyesno("Enviar Boleto", "Deseja enviar boletos agora?")
-        lim_boleto = 0
-        if env_boleto:
-            lim_boleto = simpledialog.askinteger("Limite", "Quantos boletos?", minvalue=1)
-            if not lim_boleto: return
-
-        # --- DISPARA A THREAD ---
-        # Passamos as respostas como argumentos para a thread
-        thread = threading.Thread(target=self.passo_1_solicitar, args=(token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto))
-        thread.daemon = True # Faz a thread fechar se você fechar a janela
-        thread.start()
-        self.logger("Thread de processamento iniciada em segundo plano...")
-    
-    # --- PASSO 1: SOLICITAÇÃO ---
-    def passo_1_solicitar(self, token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto):
-        token = self.get_token_ml()
-        if not token: 
-            return
-        
-        rastreios_contagem = 0
-        boletos_contagem = 0
-    
         # --- DEMAIS INPUTS ---
         prazo_usuario = self.var_prazo.get()
         pagInicial = self.var_pag_inicial.get()
@@ -260,13 +226,52 @@ class AppColetorPro:
         if not prazo_usuario or not pagInicial:
             self.logger("Operação cancelada: O prazo de entrega e página inicial são obrigatórios.", "AVISO")
             return
+        self.logger("Iniciando varredura de vendas via /orders/search...")
+        # --- AS PERGUNTAS (RODAM NA MAIN THREAD) ---
+        chats, total_chats = self.buscar_vendas_paginadas(ML_SELLER_ID, token, offset_inicial=pagInicial)
+        env_rastreio = messagebox.askyesno("Enviar Rastreio", "Deseja enviar código de rastreio agora?")
+        lim_rastreio = 0
+        cod_rastreio = self.var_rastreio.get().strip()
+        
+        if env_rastreio:
+            if not cod_rastreio:
+                messagebox.showerror("Erro", "Preencha o campo 'Cód. Rastreio'!")
+                return
+            lim_rastreio = simpledialog.askinteger("Limite", f"Quantas vendas recebera o rastreios? \nTotal de vendas: {total_chats}", minvalue=1)
+            if not lim_rastreio: return
+
+        env_boleto = messagebox.askyesno("Enviar Boleto", "Deseja enviar boletos agora?")
+        lim_boleto = 0
+        if env_boleto:
+            lim_boleto = simpledialog.askinteger("Limite", f"Quantos vendas recebera o boleto? \nTotal de vendas: {total_chats}", minvalue=1)
+            if not lim_boleto: return
+
+        # --- DISPARA A THREAD ---
+        # Passamos as respostas como argumentos para a thread
+        thread = threading.Thread(target=self.passo_1_solicitar, args=(token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, pagInicial, prazo_usuario, chats))
+        thread.daemon = True # Faz a thread fechar se você fechar a janela
+        thread.start()
+        self.logger("Thread de processamento iniciada em segundo plano...")
+    
+    # --- PASSO 1: SOLICITAÇÃO ---
+    def passo_1_solicitar(self, token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, pagInicial, prazo_usuario, chats):
+        token = self.get_token_ml()
+        if not token: 
+            return
+        
+        rastreios_contagem = 0
+        boletos_contagem = 0
+    
+        
         msg_padrao = f"Olá, tudo bem? O frete é grátis para todo Brasil e o prazo estimado de entrega é até {prazo_usuario}. Lembrando que os produtos são importados, vem de fora do país! Vamos fazer o envio e mandar o código de rastreio. \n \n \nA transportadora precisa do seu telefone pra preencher os seus dados de entrega e enviar o código de rastreio pra você acompanhar."
         
-        self.logger("Iniciando varredura de vendas via /orders/search...")
+        
         headers = {
             "Authorization": f"Bearer {token}"
         }
-        pedidos = self.buscar_vendas_paginadas(ML_SELLER_ID, token, offset_inicial=pagInicial)
+        pedidos = chats
+        pagInicial = int(pagInicial) - 1
+        #preciso salvar essa pagina inicial na planilha onde cada registro começa aparti dela e o proximo soma 1
         
         try:
             db = self.carregar_db()
@@ -288,6 +293,10 @@ class AppColetorPro:
                 # Se a ordem não existe no DB, inicializamos como dicionário vazio
                 if order_id not in db:
                     db[order_id] = {}
+                
+                if not db[order_id].get('numero_cliente'):
+                    db[order_id]['numero_cliente'] = pagInicial + pedidos.index(pedido) + 1 
+                
                 
                 if order_id in db and (db[order_id].get('rastreio_enviado') and db[order_id].get('data_rastreio')):
                     #data_rastreio = db[order_id].get('data_rastreio')
@@ -709,6 +718,7 @@ class AppColetorPro:
             elif d.get('rastreio_enviado'): etapa = "Etapa 2"
 
             dados_excel.append({
+                "Numero do Cliente": d.get('numero_cliente', 'N/A'),
                 "Order ID": order_id,
                 "Status": etapa,
                 "Produto": d.get('produto', 'N/A'),
