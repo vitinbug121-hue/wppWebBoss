@@ -185,7 +185,7 @@ class AppColetorPro:
             return
         
         atualizados = 0
-
+        
         for order_id, d in db.items():
             if d.get('boleto_enviado') and not d.get('boleto_pago'):
                url = f"https://api.mercadopago.com/v1/payments/{d.get('id_payment')}"
@@ -200,7 +200,7 @@ class AppColetorPro:
                         self.logger(f"Ordem {order_id}: Boleto marcado como pago.")
                else:
                    self.logger(f"Erro ao verificar status do pagamento da ordem {order_id}: {response.status_code} - {response.text}", "ERRO")
-                   break
+                   
 
         self.salvar_db(db)
         self.logger(f"Atualização finalizada. Total de boletos marcados como pagos: {atualizados}")    
@@ -313,6 +313,8 @@ class AppColetorPro:
         self.logger("Iniciando varredura de vendas via /orders/search...")
         # --- AS PERGUNTAS (RODAM NA MAIN THREAD) ---
         chats, total_chats = self.buscar_vendas_paginadas(config['ML_SELLER_ID'], token, offset_inicial=pagInicial)
+        
+    
         env_rastreio = messagebox.askyesno("Enviar Rastreio", "Deseja enviar código de rastreio agora?")
         lim_rastreio = 0
         cod_rastreio = self.var_rastreio.get().strip()
@@ -323,6 +325,8 @@ class AppColetorPro:
 
         # Perguntas (Na Main Thread para não dar erro)
         # ... logic de simpledialog para lim_rastreio e lim_boleto ...
+        
+        
             
         if env_rastreio:
             if not cod_rastreio:
@@ -336,16 +340,20 @@ class AppColetorPro:
         if env_boleto:
             lim_boleto = simpledialog.askinteger("Limite", f"Quantos vendas recebera o boleto? \nTotal de vendas: {total_chats}", minvalue=1)
             if not lim_boleto: return
+            env_erroBoleto = messagebox.askyesno("Enviar Mensagem", "Deseja enviar Mensagem Boleto incorreto ?")
+            if(not env_erroBoleto):
+                env_boleto_padrao = messagebox.askyesno("Mensagem Boleto", "Na msg do boleto enviar texto padrão?")
+            
 
         # --- DISPARA A THREAD ---
         # Passamos as respostas como argumentos para a thread
-        thread = threading.Thread(target=self.passo_1_solicitar, args=(token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, pagInicial, prazo_usuario, chats, config))
+        thread = threading.Thread(target=self.passo_1_solicitar, args=(token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, pagInicial, prazo_usuario, chats, config,env_erroBoleto,env_boleto_padrao))
         thread.daemon = True # Faz a thread fechar se você fechar a janela
         thread.start()
         self.logger("Thread de processamento iniciada em segundo plano...")
     
     # --- PASSO 1: SOLICITAÇÃO ---
-    def passo_1_solicitar(self, token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, pagInicial, prazo_usuario, chats, config):
+    def passo_1_solicitar(self, token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, pagInicial, prazo_usuario, chats, config,env_erroBoleto, env_ordem, ordensEspecificas, env_boleto_MGSpadrao):
         folder = self.get_pasta_conta()
         if not folder: return
         
@@ -388,6 +396,9 @@ class AppColetorPro:
                     db[order_id] = {}
                     
                 dados_pedido = db[order_id]    
+                
+                if(not db[order_id].get('buyer_id')):
+                    db[order_id]['buyer_id'] = buyer_id
                 # Usamos after() para que a Main Thread faça a pintura do widget    
                 self.root.after(0, lambda v=i+1: self.progress.configure(value=v))    
                 
@@ -395,12 +406,12 @@ class AppColetorPro:
                     dados_pedido['numero_cliente'] = pagInicial + pedidos.index(pedido) + 1 
                 
                 
-                if order_id in db and (dados_pedido.get('rastreio_enviado') and dados_pedido.get('data_rastreio')):
-                    data_rastreio = dados_pedido.get('data_rastreio')
+                if order_id in db and (dados_pedido.get('rastreio_enviado')):
+                    #data_rastreio = dados_pedido.get('data_rastreio')
                     try:
-                        data_envio = datetime.strptime(data_rastreio, "%d/%m/%Y %H:%M")
-                        diferenca = datetime.now() - data_envio
-                        if env_boleto and boletos_contagem < lim_boleto and diferenca.days > 1 and not dados_pedido.get('boleto_enviado'):
+                        #data_envio = datetime.strptime(data_rastreio, "%d/%m/%Y %H:%M")
+                        #diferenca = datetime.now() - data_envio
+                        if env_boleto and boletos_contagem < lim_boleto and not dados_pedido.get('boleto_enviado'):
                             self.logger(f"Enviando boleto para pagamento de taxa para a ordem {order_id}...")
                             caminho_excel = r"C:\Users\mathe\Meu Drive\Sistema JV V1\Nova pasta\dist\registros_pedidos.xlsx"
                             df = pd.read_excel(caminho_excel)
@@ -433,10 +444,15 @@ class AppColetorPro:
                                     "Prontinho, boleto gerado! Só copiar todo o código de barras abaixo e pagar pelo aplicativo do seu Banco: 👇"
                                 )
                             }
-                            # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
-                            envio = requests.post(url_msg, json=payloadBoleto, headers=headers)
-                            if envio.status_code in [200, 201]:
-                                
+                            envio = None
+                            envioOnlyboleto = False
+
+                            # --- ENVIO DA MENSAGEM ---
+                            if env_boleto_MGSpadrao:
+                                envio = requests.post(url_msg, json=payloadBoleto, headers=headers)
+                            else:
+                                envioOnlyboleto = True  
+                            if (envio is not None and envio.status_code in [200, 201]) or envioOnlyboleto:
                                 payloadBoletoCodigo = {
                                     "from": {
                                         "user_id": config['ML_SELLER_ID']
@@ -446,8 +462,8 @@ class AppColetorPro:
                                     },
                                     "text": f"{boleto_numero}"
                                 }
-                                envio = requests.post(url_msg, json=payloadBoletoCodigo, headers=headers)
-                                if(envio.status_code in [200, 201]):
+                                envioBoleto = requests.post(url_msg, json=payloadBoletoCodigo, headers=headers)
+                                if(envioBoleto.status_code in [200, 201]):
                                     df.at[indice_boleto, 'Boleto Usado'] = "Enviado"
                                     df.to_excel(caminho_excel, index=False)
                                     db[order_id]['boleto_enviado'] = True
@@ -462,6 +478,45 @@ class AppColetorPro:
                                     self.logger(f"Falha ao enviar código do boleto para a ordem {order_id}: {envio.text}", "ERRO")
                             else:
                                 self.logger(f"Falha ao enviar boleto para a ordem {order_id}: {envio.text}", "ERRO")
+                        elif dados_pedido.get('boleto_enviado') and not dados_pedido.get('boleto_pago') and env_erroBoleto:
+                            payloadBoleto = {
+                                "from": {
+                                    "user_id": config['ML_SELLER_ID']
+                                },
+                                "to": {
+                                    "user_id": buyer_id
+                                },
+                                "text": (
+                                    "Olá, tudo bem?\nPor favor, desconsidere o código de barras enviado anteriormente, pois houve uma atualização no sistema.\nVamos encaminhar outro. aguarde"
+                                )
+                            }
+                            # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
+                            envio = requests.post(url_msg, json=payloadBoleto, headers=headers)
+                            if envio.status_code in [200, 201]:
+                                db[order_id]['boleto_enviado'] = False
+                                db[order_id]['data_boleto'] = None
+                                self.salvar_db(db)
+                                self.logger(f"Reenvio: Mensagem de boleto reenviada para a ordem {order_id} apos erro no codigo de barras.")
+                                continue
+                        elif dados_pedido.get('boleto_enviado') and dados_pedido.get('boleto_pago') and not dados_pedido.get('boleto_pago_agradecimento'):
+                            payloadBoletoPago = {
+                                "from": {
+                                    "user_id": config['ML_SELLER_ID']
+                                },
+                                "to": {
+                                    "user_id": buyer_id
+                                },
+                                "text": (
+                                    "Obrigado, o pagamento da taxa foi realizado Vamos dar continuidade a entrega.\nO seu pedido vai chegar na terça dia 10 no período da tarde! 😉"
+                                )
+                            }
+                            # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
+                            envio = requests.post(url_msg, json=payloadBoletoPago, headers=headers)
+                            if envio.status_code in [200, 201]:
+                                db[order_id]['boleto_pago_agradecimento'] = True
+                                self.salvar_db(db)
+                                self.logger(f"Mensagem de boleto pago enviada para a ordem {order_id}.")
+                                continue           
                     except Exception as e:
                         self.logger(f"Erro ao verificar data de envio do rastreio para a ordem {order_id}: {str(e)}", "ERRO")
                 
@@ -511,7 +566,6 @@ class AppColetorPro:
                 
                 # --- TRATATIVA 2: Validar se a mensagem já existe no chat ---
                 conversaCompleta = self.obter_conversa_completa(order_id, order_id, config['ML_SELLER_ID'], token)
-                #res_historico = requests.get(url_msg, headers=headers).json()
                 if order_id in db and (dados_pedido.get('solicitado') and not dados_pedido.get('numero_extraido')):
                     for m in conversaCompleta:
                         texto = m.get('texto', '')
@@ -525,19 +579,20 @@ class AppColetorPro:
                                 db[order_id]['numero_extraido'] = True
                                 self.salvar_db(db)
                                 self.logger(f"Finalizado extração de telefone para a ordem {order_id}: {zap}")
-                                payloadReenvio = {
-                                        "from": {
-                                            "user_id": config['ML_SELLER_ID']
-                                        },
-                                        "to": {
-                                            "user_id": buyer_id
-                                        },
-                                        "text": "Olá! recebemos seu telefone. Obrigado! \nVamos dar continuidade ao processo de envio do seu pedido. \nAssim que o código de rastreio estiver disponível, enviaremos para você acompanhar a entrega. 😉"
-                                }
-                                    # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
-                                envio = requests.post(url_msg, json=payloadReenvio, headers=headers)
+                                if not dados_pedido.get('rastreio_enviado'):
+                                    payloadReenvio = {
+                                            "from": {
+                                                "user_id": config['ML_SELLER_ID']
+                                            },
+                                            "to": {
+                                                "user_id": buyer_id
+                                            },
+                                            "text": "Olá! recebemos seu telefone. Obrigado! \nVamos dar continuidade ao processo de envio do seu pedido. \nAssim que o código de rastreio estiver disponível, enviaremos para você acompanhar a entrega. 😉"
+                                    }
+                                        # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
+                                    envio = requests.post(url_msg, json=payloadReenvio, headers=headers)
                                 break
-                
+                         
                 if order_id in db:
                     data_solicitacao = dados_pedido.get('data_solicitacao')
                     if data_solicitacao:
