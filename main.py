@@ -146,7 +146,7 @@ class AppColetorPro:
         tk.Button(btn_frame, text="PROCESSAMENTO ALL", command=self.iniciar_thread_processamento, bg="#1976D2", fg="white", **estilo).grid(row=0, column=1, padx=5)
         tk.Button(btn_frame, text="DASHBOARD", command=self.abrir_dashboard_vendas, bg="#5007DA", fg="white", **estilo).grid(row=0, column=2, padx=5)
         tk.Button(btn_frame, text="EXPORTAR EXCEL", command=self.exportar_para_excel, bg="#083A33", fg="white", **estilo).grid(row=0, column=3, padx=5)
-        tk.Button(btn_frame, text="ATUALIZAR BLT PAGOS", command=self.atualizar_blt_pagos, bg="#189108", fg="white", **estilo).grid(row=0, column=4, padx=5)
+        tk.Button(btn_frame, text="ATUALIZAR BLT PAGOS", command=self.atualizar_blt_pagos_thread, bg="#189108", fg="white", **estilo).grid(row=0, column=4, padx=5)
 
         # --- Log ---
         self.log = scrolledtext.ScrolledText(self.root, height=25, width=140, font=("Consolas", 9), bg="#F5F5F5")
@@ -158,6 +158,14 @@ class AppColetorPro:
         self.log.see(tk.END)
         self.root.update_idletasks()
         
+        
+    def atualizar_blt_pagos_thread(self):    
+         # --- DISPARA A THREAD ---
+        # Passamos as respostas como argumentos para a thread
+        thread = threading.Thread(target=self.atualizar_blt_pagos, args=())
+        thread.daemon = True # Faz a thread fechar se você fechar a janela
+        thread.start()
+        self.logger("Thread de processamento iniciada em segundo plano...")
         
     def atualizar_blt_pagos(self):
         folder = self.get_pasta_conta()
@@ -184,14 +192,15 @@ class AppColetorPro:
                headers = {"Authorization": f"Bearer {access_token}"}
                response = requests.get(url, headers=headers)
                if response.status_code == 200:
-                   if(response.json().get('status') == 'approved'):
-                    db[order_id]['boleto_pago'] = True
-                    db[order_id]['data_boleto_pago'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                    atualizados += 1
-                    self.logger(f"Ordem {order_id}: Boleto marcado como pago.")
+                    resultado = response.json().get('status')
+                    if resultado == 'approved' or resultado == 'refunded':
+                        db[order_id]['boleto_pago'] = True
+                        db[order_id]['data_boleto_pago'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                        atualizados += 1
+                        self.logger(f"Ordem {order_id}: Boleto marcado como pago.")
                else:
                    self.logger(f"Erro ao verificar status do pagamento da ordem {order_id}: {response.status_code} - {response.text}", "ERRO")
-               break
+                   break
 
         self.salvar_db(db)
         self.logger(f"Atualização finalizada. Total de boletos marcados como pagos: {atualizados}")    
@@ -387,17 +396,20 @@ class AppColetorPro:
                 
                 
                 if order_id in db and (dados_pedido.get('rastreio_enviado') and dados_pedido.get('data_rastreio')):
-                    #data_rastreio = dados_pedido.get('data_rastreio')
+                    data_rastreio = dados_pedido.get('data_rastreio')
                     try:
-                       # data_envio = datetime.strptime(data_rastreio, "%d/%m/%Y %H:%M")
-                       # diferenca = datetime.now() - data_envio
-                        if env_boleto and boletos_contagem < lim_boleto:
+                        data_envio = datetime.strptime(data_rastreio, "%d/%m/%Y %H:%M")
+                        diferenca = datetime.now() - data_envio
+                        if env_boleto and boletos_contagem < lim_boleto and diferenca.days > 1 and not dados_pedido.get('boleto_enviado'):
                             self.logger(f"Enviando boleto para pagamento de taxa para a ordem {order_id}...")
-                            df = pd.read_excel(r"C:\Users\mathe\Meu Drive\Sistema JV V1\Nova pasta\dist\registros_pedidos.xlsx")
+                            caminho_excel = r"C:\Users\mathe\Meu Drive\Sistema JV V1\Nova pasta\dist\registros_pedidos.xlsx"
+                            df = pd.read_excel(caminho_excel)
                             boleto_numero = None
+                            indice_boleto = None
                             for index, row in df.iterrows():
-                                if str(row['Order ID']) == order_id and str(row['Boleto Usado']) == 'FALSE':
+                                if str(row['Boleto Usado']) == 'False':
                                     boleto_numero = str(row['Código'])
+                                    indice_boleto = index # Guarda o índice para marcar como usado depois
                                     break
                             if(not boleto_numero):
                                 self.logger(f"Não foi possível encontrar um boleto disponível para a ordem {order_id}. Verifique o Excel de registros.", "ERRO")
@@ -409,31 +421,45 @@ class AppColetorPro:
                                 "to": {
                                     "user_id": buyer_id
                                 },
-                                "text": f"""
-                                    ( Living Shop )
-                                    Olá, tudo bem?
-
-                                    O seu painel importado chegou no Brasil. 🥳
-                                    Porém, a receita federal taxou o seu produto no valor de R$ 138,98.
-
-                                    É necessário ser paga essa taxa, para liberar o seu pedido. Caso seja pago hoje, o seu pedido chegará nessa quarta, 25. 😉
-                                    
-                                    O pagamento é feito somente pelo boleto do Mercado Pago que enviamos, a transportadora só está aceitando boleto do Mercado Pago
-                                    com a segurança da plataforma!
-                                    
-                                    >>> {boleto_numero} <<<
-                                """
+                                "text": (
+                                    "Olá, tudo bem?\n\n"
+                                    "O seu painel importado chegou no Brasil. 🥳\n"
+                                    "Porém, a Receita Federal taxou o seu produto no valor de R$ 138,98.\n\n"
+                                    "É necessário realizar o pagamento desta taxa para liberar o seu pedido. "
+                                    "Caso seja pago hoje, a previsão de entrega é para terça-feira, dia 10. 😉\n\n"
+                                    "O pagamento é feito exclusivamente pelo boleto do Mercado Pago que enviamos. "
+                                    "A transportadora utiliza o sistema do Mercado Pago para garantir a segurança da plataforma!\n\n"
+                                    "Vamos gerar o boleto agora mesmo!\n\n"
+                                    "Prontinho, boleto gerado! Só copiar todo o código de barras abaixo e pagar pelo aplicativo do seu Banco: 👇"
+                                )
                             }
                             # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
                             envio = requests.post(url_msg, json=payloadBoleto, headers=headers)
                             if envio.status_code in [200, 201]:
-                                dados_pedido['boleto_enviado'] = True
-                                dados_pedido['data_boleto'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                                dados_pedido['codigo_boleto'] = boleto_numero
-                                dados_pedido['id_payment'] = str(row['id_payment'])
-                                rastreios_contagem += 1
-                                self.logger(f"Boleto enviado com sucesso para a ordem {order_id}!")
-                                continue
+                                
+                                payloadBoletoCodigo = {
+                                    "from": {
+                                        "user_id": config['ML_SELLER_ID']
+                                    },
+                                    "to": {
+                                        "user_id": buyer_id
+                                    },
+                                    "text": f"{boleto_numero}"
+                                }
+                                envio = requests.post(url_msg, json=payloadBoletoCodigo, headers=headers)
+                                if(envio.status_code in [200, 201]):
+                                    df.at[indice_boleto, 'Boleto Usado'] = "Enviado"
+                                    df.to_excel(caminho_excel, index=False)
+                                    db[order_id]['boleto_enviado'] = True
+                                    db[order_id]['data_boleto'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                                    db[order_id]['codigo_boleto'] = boleto_numero
+                                    db[order_id]['id_payment'] = str(row['id_payment'])
+                                    rastreios_contagem += 1
+                                    self.salvar_db(db)
+                                    self.logger(f"Boleto enviado com sucesso para a ordem {order_id}!")
+                                    continue
+                                else:
+                                    self.logger(f"Falha ao enviar código do boleto para a ordem {order_id}: {envio.text}", "ERRO")
                             else:
                                 self.logger(f"Falha ao enviar boleto para a ordem {order_id}: {envio.text}", "ERRO")
                     except Exception as e:
@@ -474,9 +500,9 @@ class AppColetorPro:
                             }
                             # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
                             envio = requests.post(url_msg, json=payloadRastreio, headers=headers)
-                            dados_pedido['rastreio_enviado'] = True
-                            dados_pedido['data_rastreio'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                            dados_pedido['codigo_rastreio'] = cod_rastreio
+                            db[order_id]['rastreio_enviado'] = True
+                            db[order_id]['data_rastreio'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                            db[order_id]['codigo_rastreio'] = cod_rastreio
                             boletos_contagem += 1
                             self.salvar_db(db)
                             continue
@@ -490,13 +516,14 @@ class AppColetorPro:
                     for m in conversaCompleta:
                         texto = m.get('texto', '')
                         # Regex robusto para capturar vários formatos de telefone BR
-                        match = re.search(r'(?:\+?55\s?)?\(?(\d{2})\)?\s*(9)?\s*(\d{4,5})[\s.-]?(\d{4})', texto)
+                        match = re.search(r'(?:\+?55\s*)?\(?(\d{2,3})\)?\s*(9[.\s-]*)?(\d{4,5})[\s.:-]*(\d{4})', texto)
                         if match:
-                                zap = "".join(match.groups())
+                                zap_bruto = "".join(g for g in match.groups() if g is not None)
+                                zap = "".join(re.findall(r'\d+', zap_bruto))
                                 #nome_cli = self.obter_nome_cliente(order_id, token)
-                                dados_pedido['zap_extraido'] = zap
-                                dados_pedido['numero_extraido'] = True
-                            
+                                db[order_id]['zap_extraido'] = zap
+                                db[order_id]['numero_extraido'] = True
+                                self.salvar_db(db)
                                 self.logger(f"Finalizado extração de telefone para a ordem {order_id}: {zap}")
                                 payloadReenvio = {
                                         "from": {
@@ -530,8 +557,8 @@ class AppColetorPro:
                                  # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
                                 #envio = requests.post(url_msg, json=payloadReenvio, headers=headers)
                                 if envio.status_code in [200, 201]:
-                                    dados_pedido['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                                    dados_pedido['tentativa_'] = dados_pedido.get('tentativa_', 0) + 1
+                                    db[order_id]['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                                    db[order_id]['tentativa_'] = dados_pedido.get('tentativa_', 0) + 1
                                     self.logger(f"Reenvio: Mensagem reenviada para {order_id} após 1 dia sem resposta.")
                                     continue
                         except Exception as e:
@@ -552,14 +579,15 @@ class AppColetorPro:
                 if ja_enviado_no_ml:
                     self.logger(f"Mensagem já constava no chat da Ordem {order_id}. Atualizando controle local.")
                     # Atualizamos o DB para não consultar esta ordem novamente na próxima execução
-                    dados_pedido['solicitado'] = True
-                    dados_pedido['buyer_id'] = pedido.get('buyer', {}).get('id')
-                    dados_pedido['pack_id'] = pedido.get('pack_id')
-                    dados_pedido['corProduto'] = corProduto
-                    dados_pedido['produto'] = nome_prod
-                    dados_pedido['valor'] = valor
-                    dados_pedido['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                    dados_pedido['data_solicitacao_inicial'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                    db[order_id]['solicitado'] = True
+                    db[order_id]['buyer_id'] = pedido.get('buyer', {}).get('id')
+                    db[order_id]['pack_id'] = pedido.get('pack_id')
+                    db[order_id]['corProduto'] = corProduto
+                    db[order_id]['produto'] = nome_prod
+                    db[order_id]['valor'] = valor
+                    db[order_id]['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                    db[order_id]['data_solicitacao_inicial'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                    self.salvar_db(db)
                     continue
                 
                 payload = {
@@ -575,14 +603,14 @@ class AppColetorPro:
                 envio = requests.post(url_msg, json=payload, headers=headers)
                 
                 if envio.status_code in [200, 201]:
-                    dados_pedido['solicitado'] = True
-                    dados_pedido['buyer_id'] = pedido.get('buyer', {}).get('id')
-                    dados_pedido['pack_id'] = pedido.get('pack_id')
-                    dados_pedido['corProduto'] = corProduto
-                    dados_pedido['produto'] = nome_prod
-                    dados_pedido['valor'] = valor
-                    dados_pedido['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                    dados_pedido['data_solicitacao_inicial'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                    db[order_id]['solicitado'] = True
+                    db[order_id]['buyer_id'] = pedido.get('buyer', {}).get('id')
+                    db[order_id]['pack_id'] = pedido.get('pack_id')
+                    db[order_id]['corProduto'] = corProduto
+                    db[order_id]['produto'] = nome_prod
+                    db[order_id]['valor'] = valor
+                    db[order_id]['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                    db[order_id]['data_solicitacao_inicial'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                     enviados += 1
                     self.logger(f"Ordem {order_id}: Mensagem enviada e registrada.")
                 else:
@@ -725,9 +753,10 @@ class AppColetorPro:
             messagebox.showinfo("Dashboard", "Banco de dados vazio.")
             return
 
-        etapas = {"Solicitado (E1)": [], "Rastreio (E2)": [], "Boleto (E3)": []}
+        etapas = {"Solicitado (E1)": [], "Rastreio (E2)": [], "Boleto (E3)": [], "Boleto Pago (E4)": []}
         for oid, dados in db.items():
-            if dados.get('boleto_enviado'): etapas["Boleto (E3)"].append(oid)
+            if dados.get('boleto_pago'): etapas["Boleto Pago (E4)"].append(oid)
+            elif dados.get('boleto_enviado'): etapas["Boleto (E3)"].append(oid)
             elif dados.get('rastreio_enviado'): etapas["Rastreio (E2)"].append(oid)
             elif dados.get('solicitado'): etapas["Solicitado (E1)"].append(oid)
 
@@ -745,7 +774,7 @@ class AppColetorPro:
         
         nomes = list(etapas.keys())
         valores = [len(v) for v in etapas.values()]
-        cores = ['#007bff', '#ffc107', '#28a745']
+        cores = ['#007bff', '#ffc107', '#28a745', "#6e1cbb"]  # Azul, Amarelo, Verde, Cinza
 
         bars = ax.bar(nomes, valores, color=cores, width=0.6)
         
@@ -811,7 +840,8 @@ class AppColetorPro:
                 "valor": d.get('valor', 'N/A'),
                 "numero":d.get('zap_extraido', 'N/A'),
                 "boleto_enviado": d.get('codigo_boleto', 'N/A'),
-                "boleto_Pago" : "Não"
+                "id_payment": d.get('id_payment', 'N/A'),
+                "boleto_Pago" : "Sim" if d.get('boleto_pago') else "Não"
             })
 
         df = pd.DataFrame(dados_excel)

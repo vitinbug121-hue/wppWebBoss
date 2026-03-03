@@ -994,7 +994,9 @@
         "data_solicitacao": "26/02/2026 10:29",
         "data_solicitacao_inicial": "21/02/2026 14:41",
         "numero_cliente": 658,
-        "tentativa_": 1
+        "tentativa_": 1,
+        "boleto_enviado": true,
+        "data_boleto": "02/03/2026 16/56"
     },
     "2000015214153168": {
         "solicitado": true,
