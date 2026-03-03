@@ -824,6 +824,13 @@ class AppColetorPro:
         if not db: return
         
         dados_excel = []
+        # Mantemos a ordem das colunas para facilitar a escrita depois
+        colunas = [
+            "Numero do Cliente", "Order ID", "Status", "Produto", "Data", 
+            "Rastreio", "corProduto", "valor", "numero", "boleto_enviado", 
+            "id_payment", "boleto_Pago"
+        ]
+
         for order_id, d in db.items():
             etapa = "Etapa 1"
             if d.get('boleto_enviado'): etapa = "Etapa 3"
@@ -838,19 +845,43 @@ class AppColetorPro:
                 "Rastreio": d.get('codigo_rastreio', 'Pendente'),
                 "corProduto": d.get('corProduto', 'N/A'),
                 "valor": d.get('valor', 'N/A'),
-                "numero":d.get('zap_extraido', 'N/A'),
+                "numero": d.get('zap_extraido', 'N/A'),
                 "boleto_enviado": d.get('codigo_boleto', 'N/A'),
                 "id_payment": d.get('id_payment', 'N/A'),
-                "boleto_Pago" : "Sim" if d.get('boleto_pago') else "Não"
+                "boleto_Pago": "Sim" if d.get('boleto_pago') else "Não"
             })
 
-        df = pd.DataFrame(dados_excel)
+        df = pd.DataFrame(dados_excel, columns=colunas)
         caminho = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("Excel", "*.xlsx")])
         
         if caminho:
-            df.to_excel(caminho, index=False)
+            # 1. Usar o engine xlsxwriter
+            writer = pd.ExcelWriter(caminho, engine='xlsxwriter')
+            df.to_excel(writer, index=False, sheet_name='Vendas')
+
+            workbook  = writer.book
+            worksheet = writer.sheets['Vendas']
+
+            # 2. Definir formato visual do link (Azul e Sublinhado)
+            format_link = workbook.add_format({'font_color': 'blue', 'underline': 1})
+
+            # 3. Identificar o índice da coluna "Order ID" (neste caso é a coluna B, índice 1)
+            col_idx = colunas.index("Order ID")
+
+            # 4. Sobrescrever apenas a coluna de Order ID com os links
+            base_url = "https://www.mercadolivre.com.br/vendas/{}/detalhe#source=excel"
+            
+            for row_num, order_id in enumerate(df['Order ID']):
+                url = base_url.format(order_id)
+                # row_num + 1 para pular o cabeçalho
+                worksheet.write_url(row_num + 1, col_idx, url, string=str(order_id), cell_format=format_link)
+
+            # 5. Salvar
+            writer.close()
+            
             self.logger(f"Excel salvo em: {caminho}", "SUCESSO")
-            messagebox.showinfo("Sucesso", "Arquivo Excel exportado!")    
+            messagebox.showinfo("Sucesso", "Arquivo Excel exportado com links!")
+   
             
          
 
