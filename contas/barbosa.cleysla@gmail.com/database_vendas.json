@@ -251,7 +251,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:38",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099645152 8 13740000013896",
         "id_payment": "147599903441",
@@ -283,10 +283,10 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:38",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
-        "data_boleto": null,
-        "codigo_boleto": "37690001040010567100200099645467 8 13740000013896",
-        "id_payment": "148310501452"
+        "boleto_enviado": true,
+        "data_boleto": "04/03/2026 19:54",
+        "codigo_boleto": "37690001040010567100200102015724 4 13770000013895",
+        "id_payment": "148674779706"
     },
     "2000015223576356": {
         "solicitado": true,
@@ -323,7 +323,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:38",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099645772 8 13740000013896",
         "id_payment": "148310574026"
@@ -387,7 +387,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:38",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099646747 1 13740000013896",
         "id_payment": "147600562455"
@@ -1626,10 +1626,12 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:38",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
-        "codigo_boleto": "37690001040010567100200099626897 7 13740000013896",
-        "id_payment": "148303422114"
+        "codigo_boleto": "37690001040010567100200102023686 9 13770000013895",
+        "id_payment": "148675454024",
+        "boleto_pago": true,
+        "data_boleto_pago": "04/03/2026 23:57"
     },
     "2000015216602770": {},
     "2000015216742528": {},
@@ -2221,10 +2223,10 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:38",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
-        "data_boleto": null,
-        "codigo_boleto": "37690001040010567100200099642092 4 13740000013896",
-        "id_payment": "148309340280"
+        "boleto_enviado": true,
+        "data_boleto": "04/03/2026 19:53",
+        "codigo_boleto": "37690001040010567100200102014958 7 13770000013895",
+        "id_payment": "148674910504"
     },
     "2000015222068456": {
         "solicitado": true,
@@ -2284,7 +2286,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:38",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099642969 5 13740000013896",
         "id_payment": "147599112537"
@@ -2304,7 +2306,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:38",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099643256 2 13740000013896",
         "id_payment": "147599197163"
@@ -2334,7 +2336,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:38",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099643645 3 13740000013896",
         "id_payment": "148309753798"
@@ -2354,7 +2356,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:38",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099644056 4 13740000013896",
         "id_payment": "147599385951"
@@ -2387,7 +2389,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:38",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099644304 5 13740000013896",
         "id_payment": "148310119018"
@@ -2407,7 +2409,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:38",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099644601 7 13740000013896",
         "id_payment": "147599724695"
@@ -2437,7 +2439,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:38",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099644817 1 13740000013896",
         "id_payment": "148310420140"
@@ -2481,7 +2483,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099647364 3 13740000013896",
         "id_payment": "148311197876"
@@ -2500,7 +2502,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099650194 4 13740000013896",
         "id_payment": "148312323870",
@@ -2565,7 +2567,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099651093 3 13740000013896",
         "id_payment": "148312806932"
@@ -2607,7 +2609,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099651382 7 13740000013896",
         "id_payment": "148312936624",
@@ -2640,7 +2642,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099651713 9 13740000013896",
         "id_payment": "148312947412"
@@ -2659,12 +2661,14 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
-        "data_boleto": null,
-        "codigo_boleto": "37690001040010567100200099652034 1 13740000013896",
-        "id_payment": "148313015538",
+        "boleto_enviado": true,
+        "data_boleto": "04/03/2026 19:55",
+        "codigo_boleto": "37690001040010567100200102016649 1 13770000013895",
+        "id_payment": "147962413069",
         "zap_extraido": "3769000104001",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "boleto_pago": true,
+        "data_boleto_pago": "04/03/2026 23:58"
     },
     "2000015226538006": {
         "solicitado": true,
@@ -2694,7 +2698,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099652372 5 13740000013896",
         "id_payment": "147602474073"
@@ -2794,7 +2798,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099653586 4 13740000013896",
         "id_payment": "147602997413"
@@ -2814,10 +2818,10 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
-        "data_boleto": null,
-        "codigo_boleto": "37690001040010567100200099653909 8 13740000013896",
-        "id_payment": "148313666910"
+        "boleto_enviado": true,
+        "data_boleto": "04/03/2026 19:55",
+        "codigo_boleto": "37690001040010567100200102017563 5 13770000013895",
+        "id_payment": "147962399619"
     },
     "2000015227441518": {
         "solicitado": true,
@@ -2835,10 +2839,12 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
-        "data_boleto": null,
-        "codigo_boleto": "37690001040010567100200099654212 1 13740000013896",
-        "id_payment": "147603195775"
+        "boleto_enviado": true,
+        "data_boleto": "04/03/2026 19:55",
+        "codigo_boleto": "37690001040010567100200102018413 3 13770000013895",
+        "id_payment": "148675011702",
+        "boleto_pago": true,
+        "data_boleto_pago": "04/03/2026 23:58"
     },
     "2000015227483626": {
         "solicitado": true,
@@ -2871,7 +2877,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099654477 5 13740000013896",
         "id_payment": "147603258087"
@@ -2896,10 +2902,10 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
-        "data_boleto": null,
-        "codigo_boleto": "37690001040010567100200099654717 8 13740000013896",
-        "id_payment": "147603379639"
+        "boleto_enviado": true,
+        "data_boleto": "04/03/2026 19:55",
+        "codigo_boleto": "37690001040010567100200102019387 1 13770000013895",
+        "id_payment": "148675328304"
     },
     "2000015228027320": {
         "solicitado": true,
@@ -2916,7 +2922,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099654949 7 13740000013896",
         "id_payment": "147603700329"
@@ -3000,7 +3006,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099655821 1 13740000013896",
         "id_payment": "148314308090"
@@ -3020,10 +3026,10 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
-        "data_boleto": null,
-        "codigo_boleto": "37690001040010567100200099656092 5 13740000013896",
-        "id_payment": "147604092743"
+        "boleto_enviado": true,
+        "data_boleto": "04/03/2026 19:55",
+        "codigo_boleto": "37690001040010567100200102020377 1 13770000013895",
+        "id_payment": "148675324794"
     },
     "2000015228760050": {
         "solicitado": true,
@@ -3039,7 +3045,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099656357 4 13740000013896",
         "id_payment": "148314557780",
@@ -3084,7 +3090,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099656936 1 13740000013896",
         "id_payment": "147604327131"
@@ -3104,7 +3110,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "42297115040006489731709004663226 1 13750000013896",
         "id_payment": "147620422351"
@@ -3148,7 +3154,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "42297115040006489731705942354522 8 13750000013896",
         "id_payment": "147620496531"
@@ -3170,9 +3176,9 @@
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
         "boleto_enviado": true,
-        "data_boleto": "02/03/2026 17:24",
-        "codigo_boleto": "42297115040006489731709004664620 7 13750000013896",
-        "id_payment": "147620471199",
+        "data_boleto": "04/03/2026 19:55",
+        "codigo_boleto": "37690001040010567100200102021243 4 13770000013895",
+        "id_payment": "147962794161",
         "boleto_pago": true,
         "data_boleto_pago": "03/03/2026 01:05",
         "boleto_pago_agradecimento": true
@@ -3193,10 +3199,10 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
-        "data_boleto": null,
-        "codigo_boleto": "42297115040006489731709004665221 4 13750000013896",
-        "id_payment": "147620656407"
+        "boleto_enviado": true,
+        "data_boleto": "04/03/2026 19:55",
+        "codigo_boleto": "37690001040010567100200102022134 5 13770000013895",
+        "id_payment": "147962786655"
     },
     "2000015229173702": {
         "solicitado": true,
@@ -3265,7 +3271,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "42297115040006489731705942359323 5 13750000013896",
         "id_payment": "148331105934"
@@ -3332,7 +3338,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100094614 5 13750000013896",
         "id_payment": "148427979210"
@@ -3375,10 +3381,12 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
-        "data_boleto": null,
-        "codigo_boleto": "37690001040010567100200100096635 4 13750000013896",
-        "id_payment": "147717577739"
+        "boleto_enviado": true,
+        "data_boleto": "04/03/2026 19:55",
+        "codigo_boleto": "37690001040010567100200102022910 7 13770000013895",
+        "id_payment": "148675465502",
+        "boleto_pago": true,
+        "data_boleto_pago": "04/03/2026 23:58"
     },
     "2000015229999842": {
         "solicitado": true,
@@ -3395,7 +3403,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100097112 8 13750000013896",
         "id_payment": "148428620706"
@@ -3458,7 +3466,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100099910 9 13750000013896",
         "id_payment": "148429227490"
@@ -3498,7 +3506,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100100668 6 13750000013896",
         "id_payment": "148429403490"
@@ -3518,7 +3526,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100101161 6 13750000013896",
         "id_payment": "147718421615",
@@ -3596,7 +3604,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100102375 5 13750000013896",
         "id_payment": "148429727352"
@@ -3636,7 +3644,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100103217 5 13750000013896",
         "id_payment": "148429893312"
@@ -3657,7 +3665,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100103639 1 13750000013896",
         "id_payment": "148429959372"
@@ -3701,7 +3709,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100104496 1 13750000013896",
         "id_payment": "148430180478"
@@ -3744,7 +3752,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100105345 1 13750000013896",
         "id_payment": "148430358160"
@@ -3806,7 +3814,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:40",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100106731 7 13750000013896",
         "id_payment": "148430554478",
@@ -3853,10 +3861,12 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:40",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
-        "data_boleto": null,
-        "codigo_boleto": "37690001040010567100200100107572 1 13750000013896",
-        "id_payment": "147719829803"
+        "boleto_enviado": true,
+        "data_boleto": "04/03/2026 19:55",
+        "codigo_boleto": "37690001040010567100200102023686 9 13770000013895",
+        "id_payment": "148675454024",
+        "boleto_pago": true,
+        "data_boleto_pago": "04/03/2026 23:58"
     },
     "2000015232950658": {
         "solicitado": true,
@@ -3896,7 +3906,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:40",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100108489 9 13750000013896",
         "id_payment": "147720110281"
@@ -3916,7 +3926,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:40",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100108943 2 13750000013896",
         "id_payment": "148430863166"
@@ -3955,7 +3965,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:40",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100109776 9 13750000013896",
         "id_payment": "148430981542",
@@ -4013,7 +4023,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:40",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100110592 9 13750000013896",
         "id_payment": "148431224156"
@@ -4057,7 +4067,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:40",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100110931 9 13750000013896",
         "id_payment": "147720497429"
@@ -4117,10 +4127,10 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:40",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
-        "codigo_boleto": "37690001040010567100200100111889 9 13750000013896",
-        "id_payment": "148431516172"
+        "codigo_boleto": "37690001040010567100200102024510 1 13770000013895",
+        "id_payment": "147962883029"
     },
     "2000015233420584": {
         "solicitado": true,
@@ -4137,7 +4147,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:40",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100112283 1 13750000013896",
         "id_payment": "147720719597"
@@ -4157,10 +4167,12 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:40",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100112754 3 13750000013896",
-        "id_payment": "147720801545"
+        "id_payment": "147720801545",
+        "boleto_pago": true,
+        "data_boleto_pago": "04/03/2026 20:04"
     },
     "2000015233529326": {
         "solicitado": true,
@@ -4176,7 +4188,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:40",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100113083 3 13750000013896",
         "id_payment": "147720873509",
@@ -4198,7 +4210,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:40",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100113356 1 13750000013896",
         "id_payment": "147721030129"
@@ -4217,7 +4229,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:40",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100113703 9 13750000013896",
         "id_payment": "148432046190",
@@ -4239,7 +4251,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:40",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100113968 2 13750000013896",
         "id_payment": "148432047236"
@@ -4302,7 +4314,7 @@
         "rastreio_enviado": true,
         "data_rastreio": "27/02/2026 15:40",
         "codigo_rastreio": "NN106086308BR",
-        "boleto_enviado": false,
+        "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100114750 6 13750000013896",
         "id_payment": "147721190073"
