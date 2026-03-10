@@ -162,7 +162,7 @@ class AppColetorPro:
         tk.Button(btn_frame, text="ENVIAR BOLETO", command=lambda: self.iniciar_thread_processamento(acao="boleto"), bg="#E91E63", fg="white", **estilo).grid(row=1, column=1, padx=5, pady=5)
         tk.Button(btn_frame, text="ERRO NO BOLETO", command=lambda: self.iniciar_thread_processamento(acao="erro_boleto"), bg="#F44336", fg="white", **estilo).grid(row=1, column=2, padx=5, pady=5)
         tk.Button(btn_frame, text="REENVIAR BOLETO", command=lambda: self.iniciar_thread_processamento(acao="reenviar_boleto"), bg="#795548", fg="white", **estilo).grid(row=1, column=3, padx=5, pady=5)
-        tk.Button(btn_frame, text="COBRAR DOBRADO", command=lambda: self.iniciar_thread_processamento(acao="cobrar_dobrado"), bg="#795548", fg="white", **estilo).grid(row=1, column=4, padx=5, pady=5)
+        tk.Button(btn_frame, text="COBRAR DOBRADO", command=lambda: self.iniciar_thread_processamento(acao="cobrar_dobrado"), bg="#3B0AAD", fg="white", **estilo).grid(row=1, column=4, padx=5, pady=5)
         tk.Button(btn_frame, text="AGRADECIMENTO", command=lambda: self.iniciar_thread_processamento(acao="agradecimento"), bg="#00BCD4", fg="white", **estilo).grid(row=1, column=5, padx=5, pady=5)
 
         # --- Log ---
@@ -219,7 +219,21 @@ class AppColetorPro:
                    if(response.status_code == 404):
                         db[order_id]['boleto_vencido'] = True
                    self.logger(f"Erro ao verificar status do pagamento da ordem {order_id}: {response.status_code} - {response.text}", "ERRO")
-                   
+            if d.get('boleto_pago') and d.get('cobrado_dobro') and not d.get('boleto_pago_dobro'):
+                url = f"https://api.mercadopago.com/v1/payments/{d.get('id_payment_dobro')}"
+                headers = {"Authorization": f"Bearer {access_token}"}
+                response = requests.get(url, headers=headers)
+                if response.status_code == 200:
+                    resultado = response.json().get('status')
+                    if resultado == 'approved' or resultado == 'refunded':
+                        db[order_id]['boleto_pago_dobro'] = True
+                        db[order_id]['data_boleto_pago_dobro'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                        atualizados += 1
+                        self.logger(f"Ordem {order_id}: Boleto marcado como pago o dobro.")
+                else:
+                   if(response.status_code == 404):
+                        db[order_id]['boleto_vencido_dobro'] = True
+                   self.logger(f"Erro ao verificar status do pagamento da ordem {order_id}: {response.status_code} - {response.text}", "ERRO")   
 
         self.salvar_db(db)
         self.logger(f"Atualização finalizada. Total de boletos marcados como pagos: {atualizados}")    
@@ -1061,13 +1075,17 @@ class AppColetorPro:
             messagebox.showinfo("Dashboard", "Banco de dados vazio.")
             return
 
-        etapas = {"Solicitado (E1)": [], "Rastreio (E2)": [], "Boleto (E3)": [], "Boleto Pago (E4)": [], "Boleto Vencido (E5)": []}
+        etapas = {"Solicitado (E1)": [], "Rastreio (E2)": [], "Boleto (E3)": [], "Boleto Pago (E4)": [], "Boleto Vencido (E5)": [], "Cobrança Dobrada (E6)": [], "Boleto Pago Dobro (E7)": []}
         for oid, dados in db.items():
-            if dados.get('boleto_pago'): etapas["Boleto Pago (E4)"].append(oid)
+            
+            if dados.get('boleto_pago_dobro'): etapas["Boleto Pago Dobro (E7)"].append(oid)
+            elif dados.get('cobrado_dobro'): etapas["Cobrança Dobrada (E6)"].append(oid)
+            elif dados.get('boleto_pago'): etapas["Boleto Pago (E4)"].append(oid)
             elif dados.get('boleto_vencido'): etapas["Boleto Vencido (E5)"].append(oid)
             elif dados.get('boleto_enviado'): etapas["Boleto (E3)"].append(oid)
             elif dados.get('rastreio_enviado'): etapas["Rastreio (E2)"].append(oid)
             elif dados.get('solicitado'): etapas["Solicitado (E1)"].append(oid)
+            
 
         dash_win = tk.Toplevel(self.root)
         dash_win.title("Status de Vendas - Visão Geral")
@@ -1158,7 +1176,8 @@ class AppColetorPro:
                 "boleto_enviado": d.get('codigo_boleto', 'N/A'),
                 "id_payment": d.get('id_payment', 'N/A'),
                 "boleto_Pago": "Sim" if d.get('boleto_pago') else "Não",
-                "boleto_vencido": "Sim" if d.get('boleto_vencido') else "Não"
+                "boleto_vencido": "Sim" if d.get('boleto_vencido') else "Não",
+                "cobrança_dobrada": "Sim" if d.get('cobrado_dobro') else "Não"
             })
 
         df = pd.DataFrame(dados_excel, columns=colunas)
