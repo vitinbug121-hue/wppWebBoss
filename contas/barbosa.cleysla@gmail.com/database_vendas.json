@@ -332,7 +332,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099645772 8 13740000013896",
-        "id_payment": "148310574026"
+        "id_payment": "148310574026",
+        "boleto_vencido": true
     },
     "2000015223713630": {
         "solicitado": true,
@@ -396,7 +397,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099646747 1 13740000013896",
-        "id_payment": "147600562455"
+        "id_payment": "147600562455",
+        "boleto_vencido": true
     },
     "2000015223946858": {},
     "2000015218164724": {
@@ -1349,7 +1351,8 @@
         "boleto_enviado": true,
         "zap_extraido": "3769000104001",
         "numero_extraido": true,
-        "data_boleto": "05/03/2026 19:04"
+        "data_boleto": "05/03/2026 19:04",
+        "boleto_vencido": true
     },
     "2000015214153168": {
         "solicitado": true,
@@ -1412,7 +1415,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100043025 6 13750000013896",
-        "id_payment": "148417058726"
+        "id_payment": "148417058726",
+        "boleto_vencido": true
     },
     "2000015214550224": {
         "solicitado": true,
@@ -1626,7 +1630,8 @@
         "boleto_enviado": true,
         "data_boleto": "02/03/2026 17:21",
         "codigo_boleto": "37690001040010567100200099587586 1 13740000013896",
-        "id_payment": "148287638570"
+        "id_payment": "148287638570",
+        "boleto_vencido": true
     },
     "2000015215398530": {},
     "2000015215382794": {
@@ -1848,7 +1853,8 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:10",
         "codigo_boleto": "42297115040006489731705953570529 9 13800000013895",
-        "id_payment": "147592579973"
+        "id_payment": "147592579973",
+        "boleto_vencido": true
     },
     "2000015216572440": {
         "solicitado": true,
@@ -2145,7 +2151,8 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:11",
         "codigo_boleto": "42297115040006489731709015934020 7 13800000013895",
-        "id_payment": "147596288509"
+        "id_payment": "147596288509",
+        "boleto_vencido": true
     },
     "2000015219732522": {},
     "2000015219620186": {
@@ -2427,7 +2434,8 @@
         "boleto_enviado": true,
         "data_boleto": "02/03/2026 17:22",
         "codigo_boleto": "37690001040010567100200099641169 1 13740000013896",
-        "id_payment": "147598263837"
+        "id_payment": "147598263837",
+        "boleto_vencido": true
     },
     "2000015221400362": {
         "solicitado": true,
@@ -2557,7 +2565,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099642969 5 13740000013896",
-        "id_payment": "147599112537"
+        "id_payment": "147599112537",
+        "boleto_vencido": true
     },
     "2000015222177940": {
         "solicitado": true,
@@ -2607,7 +2616,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099643645 3 13740000013896",
-        "id_payment": "148309753798"
+        "id_payment": "148309753798",
+        "boleto_vencido": true
     },
     "2000015222668012": {
         "solicitado": true,
@@ -2627,7 +2637,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099644056 4 13740000013896",
-        "id_payment": "147599385951"
+        "id_payment": "147599385951",
+        "boleto_vencido": true
     },
     "2000015222729688": {
         "solicitado": true,
@@ -2660,7 +2671,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099644304 5 13740000013896",
-        "id_payment": "148310119018"
+        "id_payment": "148310119018",
+        "boleto_vencido": true
     },
     "2000015222434400": {
         "solicitado": true,
@@ -2680,7 +2692,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099644601 7 13740000013896",
-        "id_payment": "147599724695"
+        "id_payment": "147599724695",
+        "boleto_vencido": true
     },
     "2000015222950146": {
         "solicitado": true,
@@ -2710,7 +2723,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099644817 1 13740000013896",
-        "id_payment": "148310420140"
+        "id_payment": "148310420140",
+        "boleto_vencido": true
     },
     "2000015224043376": {},
     "2000015224219706": {
@@ -2754,7 +2768,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099647364 3 13740000013896",
-        "id_payment": "148311197876"
+        "id_payment": "148311197876",
+        "boleto_vencido": true
     },
     "2000015224885600": {
         "solicitado": true,
@@ -2775,7 +2790,8 @@
         "codigo_boleto": "37690001040010567100200099650194 4 13740000013896",
         "id_payment": "148312323870",
         "zap_extraido": "3769000104001",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "boleto_vencido": true
     },
     "2000015224918620": {
         "solicitado": true,
@@ -2838,7 +2854,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099651093 3 13740000013896",
-        "id_payment": "148312806932"
+        "id_payment": "148312806932",
+        "boleto_vencido": true
     },
     "2000015216636782": {
         "solicitado": true,
@@ -2916,7 +2933,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099651713 9 13740000013896",
-        "id_payment": "148312947412"
+        "id_payment": "148312947412",
+        "boleto_vencido": true
     },
     "2000015226452006": {
         "solicitado": true,
@@ -2973,7 +2991,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099652372 5 13740000013896",
-        "id_payment": "147602474073"
+        "id_payment": "147602474073",
+        "boleto_vencido": true
     },
     "2000015226757970": {
         "solicitado": true,
@@ -3076,7 +3095,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099653586 4 13740000013896",
-        "id_payment": "147602997413"
+        "id_payment": "147602997413",
+        "boleto_vencido": true
     },
     "2000015226832750": {
         "solicitado": true,
@@ -3159,7 +3179,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099654477 5 13740000013896",
-        "id_payment": "147603258087"
+        "id_payment": "147603258087",
+        "boleto_vencido": true
     },
     "2000015227752362": {
         "zap_extraido": "75982526268",
@@ -3207,7 +3228,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099654949 7 13740000013896",
-        "id_payment": "147603700329"
+        "id_payment": "147603700329",
+        "boleto_vencido": true
     },
     "2000015228271078": {},
     "2000015228342070": {
@@ -3291,7 +3313,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099655821 1 13740000013896",
-        "id_payment": "148314308090"
+        "id_payment": "148314308090",
+        "boleto_vencido": true
     },
     "2000015228693822": {
         "solicitado": true,
@@ -3332,7 +3355,8 @@
         "codigo_boleto": "37690001040010567100200099656357 4 13740000013896",
         "id_payment": "148314557780",
         "zap_extraido": "3769000104001",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "boleto_vencido": true
     },
     "2000015228805304": {
         "solicitado": true,
@@ -3375,7 +3399,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200099656936 1 13740000013896",
-        "id_payment": "147604327131"
+        "id_payment": "147604327131",
+        "boleto_vencido": true
     },
     "2000015228999854": {
         "solicitado": true,
@@ -3395,7 +3420,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "42297115040006489731709004663226 1 13750000013896",
-        "id_payment": "147620422351"
+        "id_payment": "147620422351",
+        "boleto_vencido": true
     },
     "2000015228955758": {
         "solicitado": true,
@@ -3559,7 +3585,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "42297115040006489731705942359323 5 13750000013896",
-        "id_payment": "148331105934"
+        "id_payment": "148331105934",
+        "boleto_vencido": true
     },
     "2000015229372462": {
         "solicitado": true,
@@ -3626,7 +3653,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100094614 5 13750000013896",
-        "id_payment": "148427979210"
+        "id_payment": "148427979210",
+        "boleto_vencido": true
     },
     "2000015229734362": {
         "solicitado": true,
@@ -3692,7 +3720,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100097112 8 13750000013896",
-        "id_payment": "148428620706"
+        "id_payment": "148428620706",
+        "boleto_vencido": true
     },
     "2000015230172982": {
         "solicitado": true,
@@ -3758,7 +3787,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100099910 9 13750000013896",
-        "id_payment": "148429227490"
+        "id_payment": "148429227490",
+        "boleto_vencido": true
     },
     "2000015230314934": {
         "solicitado": true,
@@ -3778,7 +3808,8 @@
         "boleto_enviado": true,
         "data_boleto": "02/03/2026 17:24",
         "codigo_boleto": "37690001040010567100200100100270 5 13750000013896",
-        "id_payment": "147718338521"
+        "id_payment": "147718338521",
+        "boleto_vencido": true
     },
     "2000015230372094": {
         "solicitado": true,
@@ -3798,7 +3829,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100100668 6 13750000013896",
-        "id_payment": "148429403490"
+        "id_payment": "148429403490",
+        "boleto_vencido": true
     },
     "2000015230390364": {},
     "2000015230551758": {
@@ -3820,7 +3852,8 @@
         "codigo_boleto": "37690001040010567100200100101161 6 13750000013896",
         "id_payment": "147718421615",
         "zap_extraido": "3769000104001",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "boleto_vencido": true
     },
     "2000015230671590": {
         "solicitado": true,
@@ -3864,7 +3897,8 @@
         "boleto_enviado": true,
         "data_boleto": "02/03/2026 17:24",
         "codigo_boleto": "37690001040010567100200100101872 5 13750000013896",
-        "id_payment": "148429722250"
+        "id_payment": "148429722250",
+        "boleto_vencido": true
     },
     "2000015230911406": {
         "solicitado": true,
@@ -3942,7 +3976,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100103217 5 13750000013896",
-        "id_payment": "148429893312"
+        "id_payment": "148429893312",
+        "boleto_vencido": true
     },
     "2000015231483416": {
         "solicitado": true,
@@ -3963,7 +3998,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100103639 1 13750000013896",
-        "id_payment": "148429959372"
+        "id_payment": "148429959372",
+        "boleto_vencido": true
     },
     "2000015231674630": {
         "solicitado": true,
@@ -4007,7 +4043,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100104496 1 13750000013896",
-        "id_payment": "148430180478"
+        "id_payment": "148430180478",
+        "boleto_vencido": true
     },
     "2000015218755156": {
         "solicitado": true,
@@ -4096,7 +4133,8 @@
         "boleto_enviado": true,
         "data_boleto": "02/03/2026 17:25",
         "codigo_boleto": "37690001040010567100200100106152 1 13750000013896",
-        "id_payment": "148430470722"
+        "id_payment": "148430470722",
+        "boleto_vencido": true
     },
     "2000015232736856": {
         "solicitado": true,
@@ -4117,7 +4155,8 @@
         "codigo_boleto": "37690001040010567100200100106731 7 13750000013896",
         "id_payment": "148430554478",
         "zap_extraido": "3769000104001",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "boleto_vencido": true
     },
     "2000015232777902": {
         "solicitado": true,
@@ -4208,7 +4247,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100108489 9 13750000013896",
-        "id_payment": "147720110281"
+        "id_payment": "147720110281",
+        "boleto_vencido": true
     },
     "2000015232971836": {
         "solicitado": true,
@@ -4228,7 +4268,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100108943 2 13750000013896",
-        "id_payment": "148430863166"
+        "id_payment": "148430863166",
+        "boleto_vencido": true
     },
     "2000015233042542": {
         "solicitado": true,
@@ -4248,7 +4289,8 @@
         "boleto_enviado": true,
         "data_boleto": "02/03/2026 17:25",
         "codigo_boleto": "37690001040010567100200100109354 3 13750000013896",
-        "id_payment": "148430937148"
+        "id_payment": "148430937148",
+        "boleto_vencido": true
     },
     "2000015233066594": {
         "solicitado": true,
@@ -4269,7 +4311,8 @@
         "codigo_boleto": "37690001040010567100200100109776 9 13750000013896",
         "id_payment": "148430981542",
         "zap_extraido": "3769000104001",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "boleto_vencido": true
     },
     "2000015233094256": {
         "solicitado": true,
@@ -4305,7 +4348,8 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:12",
         "codigo_boleto": "42297115040006489731709015973424 1 13800000013895",
-        "id_payment": "147720319727"
+        "id_payment": "147720319727",
+        "boleto_vencido": true
     },
     "2000015233084932": {
         "solicitado": true,
@@ -4369,7 +4413,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100110931 9 13750000013896",
-        "id_payment": "147720497429"
+        "id_payment": "147720497429",
+        "boleto_vencido": true
     },
     "2000015233271102": {
         "solicitado": true,
@@ -4452,7 +4497,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100112283 1 13750000013896",
-        "id_payment": "147720719597"
+        "id_payment": "147720719597",
+        "boleto_vencido": true
     },
     "2000015233495242": {
         "solicitado": true,
@@ -4496,7 +4542,8 @@
         "codigo_boleto": "37690001040010567100200100113083 3 13750000013896",
         "id_payment": "147720873509",
         "zap_extraido": "3769000104001",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "boleto_vencido": true
     },
     "2000015233774558": {
         "solicitado": true,
@@ -4540,7 +4587,8 @@
         "codigo_boleto": "37690001040010567100200100113703 9 13750000013896",
         "id_payment": "148432046190",
         "zap_extraido": "3769000104001",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "boleto_vencido": true
     },
     "2000015233860540": {
         "solicitado": true,
@@ -4560,7 +4608,8 @@
         "boleto_enviado": true,
         "data_boleto": null,
         "codigo_boleto": "37690001040010567100200100113968 2 13750000013896",
-        "id_payment": "148432047236"
+        "id_payment": "148432047236",
+        "boleto_vencido": true
     },
     "2000015233981068": {},
     "2000015234005372": {
@@ -4593,7 +4642,8 @@
         "boleto_enviado": true,
         "data_boleto": "02/03/2026 17:25",
         "codigo_boleto": "37690001040010567100200100114388 1 13750000013896",
-        "id_payment": "147721143713"
+        "id_payment": "147721143713",
+        "boleto_vencido": true
     },
     "2000015234087208": {
         "solicitado": true,
@@ -7802,7 +7852,8 @@
         "data_boleto": "02/03/2026 17:21",
         "codigo_boleto": "MANUAL",
         "id_payment": "MANUAL",
-        "rastreio_enviado": true
+        "rastreio_enviado": true,
+        "boleto_vencido": true
     },
     "2000015204043854": {
         "solicitado": true,
