@@ -337,6 +337,11 @@ class AppColetorPro:
         if acao == "solicitar" or acao == "rastreio" and (not prazo_usuario or not pagInicial):
             self.logger("Erro: Prazo e Página Inicial são obrigatórios.", "ERRO")
             return
+        
+        if acao in ["boleto", "agradecimento", "cobrar_dobrado"]:
+            if not self.var_data_entrega.get().strip():
+                self.logger("Erro: Data de Entrega é obrigatória para esta ação.", "ERRO")
+                return
 
         self.logger(f"Iniciando ação: {acao.upper()}...")
         chats, total_chats = self.buscar_vendas_paginadas(config['ML_SELLER_ID'], token, offset_inicial=pagInicial)
@@ -621,6 +626,17 @@ class AppColetorPro:
                                 self.logger(f"Mensagem de boleto pago enviada para a ordem {order_id}.")
                                 continue           
                         elif dados_pedido.get('boleto_enviado') and reenviarBoleto:
+                                boleto_numero = None
+                                indice_boleto = None
+                                id_payment = None
+                                boleto_info = self.buscar_proximo_boleto()
+                                if boleto_info:
+                                    boleto_numero = boleto_info["numero"]
+                                    indice_boleto = boleto_info["indice"]
+                                    id_payment = boleto_info["id_payment"]
+                                if(not boleto_numero):
+                                    self.logger(f"Não foi possível encontrar um boleto disponível para a ordem {order_id}. Verifique o Excel de registros.", "ERRO")
+                                    break       
                                 payloadMsgpreBoleto = {
                                     "from": {
                                         "user_id": config['ML_SELLER_ID']
@@ -904,7 +920,7 @@ class AppColetorPro:
                 self.logger(f"Processamento da ordem {order_id} concluído. Próxima ordem...")
             # Salva o progresso no banco de dados local
             self.salvar_db(db)
-            self.logger(f"Fim do Passo 1. Novas solicitações enviadas: {enviados}")
+            self.logger(f"Fim da Execução. Novas solicitações enviadas: {enviados}")
 
         except Exception as e:
             self.logger(f"Erro no Passo 1: {str(e)}", "ERRO")
@@ -1177,7 +1193,11 @@ class AppColetorPro:
                 "id_payment": d.get('id_payment', 'N/A'),
                 "boleto_Pago": "Sim" if d.get('boleto_pago') else "Não",
                 "boleto_vencido": "Sim" if d.get('boleto_vencido') else "Não",
-                "cobrança_dobrada": "Sim" if d.get('cobrado_dobro') else "Não"
+                "cobrança_dobrada": "Sim" if d.get('cobrado_dobro') else "Não",
+                "boleto_pago_dobro": "Sim" if d.get('boleto_pago_dobro') else "Não",
+                "boleto_vencido_dobro": "Sim" if d.get('boleto_vencido_dobro') else "Não"
+                
+                
             })
 
         df = pd.DataFrame(dados_excel, columns=colunas)
