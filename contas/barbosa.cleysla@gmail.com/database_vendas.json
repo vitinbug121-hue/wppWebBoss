@@ -256,7 +256,10 @@
         "codigo_boleto": "37690001040010567100200104296983 1 13800000013895",
         "id_payment": "148296433139",
         "zap_extraido": "3769000104001",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:06",
+        "boleto_pago_agradecimento": true
     },
     "2000015223462918": {
         "solicitado": true,
@@ -449,7 +452,9 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:11",
         "codigo_boleto": "42297115040006489731709015908024 6 13800000013895",
-        "id_payment": "148980324270"
+        "id_payment": "148980324270",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:06"
     },
     "2000015211147472": {
         "solicitado": true,
@@ -549,7 +554,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:02",
         "codigo_boleto": "37690001040010567100200104013800 6 13800000013895",
-        "id_payment": "148259754177"
+        "id_payment": "148259754177",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:06",
+        "boleto_pago_agradecimento": true
     },
     "2000015207046804": {},
     "2000015207053748": {
@@ -745,7 +753,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:02",
         "codigo_boleto": "37690001040010567100200104021738 6 13800000013895",
-        "id_payment": "148975200908"
+        "id_payment": "148975200908",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:06",
+        "boleto_pago_agradecimento": true
     },
     "2000015209252208": {
         "solicitado": true,
@@ -781,7 +792,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:02",
         "codigo_boleto": "37690001040010567100200104023247 1 13800000013895",
-        "id_payment": "148975353272"
+        "id_payment": "148975353272",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:06",
+        "boleto_pago_agradecimento": true
     },
     "2000015209253746": {
         "solicitado": true,
@@ -905,9 +919,9 @@
         "numero_cliente": 632,
         "rastreio_enviado": true,
         "boleto_enviado": true,
-        "data_boleto": "05/03/2026 19:03",
-        "codigo_boleto": "37690001040010567100200104037114 1 13800000013895",
-        "id_payment": "148261787345",
+        "data_boleto": "09/03/2026 12:30",
+        "codigo_boleto": "42297115040006489731705961814927 6 13830000013895",
+        "id_payment": "148848218013",
         "boleto_pago": true,
         "data_boleto_pago": "06/03/2026 15:56",
         "boleto_pago_agradecimento": true
@@ -1086,7 +1100,8 @@
         "codigo_boleto": "37690001040010567100200104051230 6 13800000013895",
         "id_payment": "148264195797",
         "boleto_pago": true,
-        "data_boleto_pago": "05/03/2026 20:06"
+        "data_boleto_pago": "05/03/2026 20:06",
+        "boleto_pago_agradecimento": true
     },
     "2000015212794598": {
         "solicitado": true,
@@ -1104,7 +1119,9 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:04",
         "codigo_boleto": "37690001040010567100200104052261 7 13800000013895",
-        "id_payment": "148979086876"
+        "id_payment": "148979086876",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:06"
     },
     "2000015212781438": {
         "solicitado": true,
@@ -1350,9 +1367,12 @@
         "data_rastreio": "27/02/2026 15:15",
         "codigo_rastreio": "NN106086308BR",
         "codigo_boleto": "42297115040006489731705953528121 3 13800000013895",
-        "id_payment": "148265066211",
+        "id_payment": "147575873127",
         "boleto_enviado": true,
-        "data_boleto": "05/03/2026 19:04"
+        "data_boleto": "05/03/2026 19:04",
+        "boleto_pago": true,
+        "data_boleto_pago": "03/03/2026 MANUAL",
+        "boleto_pago_agradecimento": true
     },
     "2000015211627066": {
         "solicitado": true,
@@ -2304,9 +2324,12 @@
         "data_rastreio": "27/02/2026 15:38",
         "codigo_rastreio": "NN106086308BR",
         "boleto_enviado": true,
-        "data_boleto": "05/03/2026 16:54",
-        "codigo_boleto": "37690001040010567100200102027943 3 13770000013895",
-        "id_payment": "148676192310"
+        "data_boleto": "09/03/2026 12:31",
+        "codigo_boleto": "42297115040006489731709024158629 6 13830000013895",
+        "id_payment": "149565739252",
+        "boleto_pago": true,
+        "data_boleto_pago": "10/03/2026 00:07",
+        "boleto_pago_agradecimento": true
     },
     "2000015220554832": {
         "solicitado": true,
@@ -2552,9 +2575,9 @@
         "data_rastreio": "27/02/2026 15:38",
         "codigo_rastreio": "NN106086308BR",
         "boleto_enviado": true,
-        "data_boleto": null,
-        "codigo_boleto": "37690001040010567100200099643256 2 13740000013896",
-        "id_payment": "147599197163"
+        "data_boleto": "09/03/2026 12:31",
+        "codigo_boleto": "42297115040006489731705961830725 7 13830000013895",
+        "id_payment": "148848668293"
     },
     "2000015222432628": {
         "solicitado": true,
@@ -2859,7 +2882,10 @@
         "codigo_boleto": "37690001040010567100200104297544 5 13800000013895",
         "id_payment": "148296574649",
         "zap_extraido": "3769000104001",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:07",
+        "boleto_pago_agradecimento": true
     },
     "2000015226166938": {},
     "2000015226271788": {
@@ -3026,7 +3052,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:12",
         "codigo_boleto": "37690001040010567100200104061908 8 13800000013895",
-        "id_payment": "148266177221"
+        "id_payment": "147602729977",
+        "boleto_pago": true,
+        "data_boleto_pago": "03/03/2026 MANUAL",
+        "boleto_pago_agradecimento": true
     },
     "2000015227441536": {
         "solicitado": true,
@@ -3067,7 +3096,10 @@
         "boleto_enviado": true,
         "data_boleto": "04/03/2026 19:55",
         "codigo_boleto": "37690001040010567100200102017563 5 13770000013895",
-        "id_payment": "147962399619"
+        "id_payment": "147962399619",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:07",
+        "boleto_pago_agradecimento": true
     },
     "2000015227441518": {
         "solicitado": true,
@@ -3450,9 +3482,12 @@
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
         "boleto_enviado": true,
-        "data_boleto": "04/03/2026 19:55",
-        "codigo_boleto": "37690001040010567100200102022134 5 13770000013895",
-        "id_payment": "147962786655"
+        "data_boleto": "09/03/2026 12:31",
+        "codigo_boleto": "42297115040006489731709024171622 2 13830000013895",
+        "id_payment": "149566064552",
+        "boleto_pago": true,
+        "data_boleto_pago": "10/03/2026 00:07",
+        "boleto_pago_agradecimento": true
     },
     "2000015229173702": {
         "solicitado": true,
@@ -3861,7 +3896,10 @@
         "boleto_enviado": true,
         "data_boleto": "06/03/2026 17:52",
         "codigo_boleto": "37690001040010567100200104298377 1 13800000013895",
-        "id_payment": "149011862332"
+        "id_payment": "149011862332",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:07",
+        "boleto_pago_agradecimento": true
     },
     "2000015231233536": {
         "solicitado": true,
@@ -4010,9 +4048,12 @@
         "data_rastreio": "27/02/2026 15:39",
         "codigo_rastreio": "NN106086308BR",
         "boleto_enviado": true,
-        "data_boleto": null,
-        "codigo_boleto": "37690001040010567100200100105345 1 13750000013896",
-        "id_payment": "148430358160"
+        "data_boleto": "09/03/2026 12:31",
+        "codigo_boleto": "42297115040006489731709024178627 7 13830000013895",
+        "id_payment": "148848677421",
+        "boleto_pago": true,
+        "data_boleto_pago": "10/03/2026 00:08",
+        "boleto_pago_agradecimento": true
     },
     "2000015232568714": {
         "solicitado": true,
@@ -4282,9 +4323,9 @@
         "data_rastreio": "27/02/2026 15:40",
         "codigo_rastreio": "NN106086308BR",
         "boleto_enviado": true,
-        "data_boleto": null,
-        "codigo_boleto": "37690001040010567100200100110592 9 13750000013896",
-        "id_payment": "148431224156"
+        "data_boleto": "09/03/2026 12:31",
+        "codigo_boleto": "42297115040006489731709024187420 1 13830000013895",
+        "id_payment": "148848679965"
     },
     "2000015233140380": {
         "solicitado": true,
@@ -4475,7 +4516,10 @@
         "boleto_enviado": true,
         "data_boleto": "06/03/2026 17:52",
         "codigo_boleto": "37690001040010567100200104299011 7 13800000013895",
-        "id_payment": "149011863046"
+        "id_payment": "149011863046",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:07",
+        "boleto_pago_agradecimento": true
     },
     "2000015233954680": {
         "solicitado": true,
@@ -4579,7 +4623,10 @@
         "boleto_enviado": true,
         "data_boleto": "06/03/2026 17:52",
         "codigo_boleto": "37690001040010567100200104299540 8 13800000013895",
-        "id_payment": "148296828827"
+        "id_payment": "148296828827",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:07",
+        "boleto_pago_agradecimento": true
     },
     "2000015230856482": {
         "solicitado": true,
@@ -4879,7 +4926,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:14",
         "codigo_boleto": "37690001040010567100200104085469 7 13800000013895",
-        "id_payment": "148983819710"
+        "id_payment": "148983819710",
+        "boleto_pago": true,
+        "data_boleto_pago": "10/03/2026 00:08",
+        "boleto_pago_agradecimento": true
     },
     "2000015235550402": {
         "solicitado": true,
@@ -5001,7 +5051,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:14",
         "codigo_boleto": "42297115040006489731705953805727 1 13800000013895",
-        "id_payment": "148269303495"
+        "id_payment": "148269303495",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:35",
+        "boleto_pago_agradecimento": true
     },
     "2000015236457226": {
         "solicitado": true,
@@ -5268,7 +5321,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:14",
         "codigo_boleto": "37690001040010567100200104105234 9 13800000013895",
-        "id_payment": "148274128895"
+        "id_payment": "148274128895",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:35",
+        "boleto_pago_agradecimento": true
     },
     "2000015237561342": {
         "solicitado": true,
@@ -5572,7 +5628,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:15",
         "codigo_boleto": "23793380296000271945255006333300 8 13800000013895",
-        "id_payment": "148274950933"
+        "id_payment": "148274950933",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:08",
+        "boleto_pago_agradecimento": true
     },
     "2000015239523514": {
         "solicitado": true,
@@ -5704,7 +5763,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:16",
         "codigo_boleto": "23793380296000271726678006333302 3 13800000013895",
-        "id_payment": "148275371503"
+        "id_payment": "148275371503",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:08",
+        "boleto_pago_agradecimento": true
     },
     "2000015240346368": {
         "solicitado": true,
@@ -5744,7 +5806,9 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:16",
         "codigo_boleto": "23793380296000271728232006333309 8 13800000013895",
-        "id_payment": "148275515485"
+        "id_payment": "148275515485",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:08"
     },
     "2000015240565938": {
         "solicitado": true,
@@ -5774,7 +5838,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:16",
         "codigo_boleto": "23793380296000271728296006333304 4 13800000013895",
-        "id_payment": "148990310912"
+        "id_payment": "148990310912",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:08",
+        "boleto_pago_agradecimento": true
     },
     "2000015240689044": {
         "solicitado": true,
@@ -6037,7 +6104,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:17",
         "codigo_boleto": "37690001040010567100200104232509 8 13800000013895",
-        "id_payment": "149002083888"
+        "id_payment": "149002083888",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:08",
+        "boleto_pago_agradecimento": true
     },
     "2000015242603522": {
         "solicitado": true,
@@ -6174,7 +6244,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:17",
         "codigo_boleto": "37690001040010567100200104236948 5 13800000013895",
-        "id_payment": "148287692809"
+        "id_payment": "148287692809",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:08",
+        "boleto_pago_agradecimento": true
     },
     "2000015243648166": {
         "solicitado": true,
@@ -6368,7 +6441,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:18",
         "codigo_boleto": "37690001040010567100200104265632 5 13800000013895",
-        "id_payment": "149005795020"
+        "id_payment": "149005795020",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:08",
+        "boleto_pago_agradecimento": true
     },
     "2000015244480166": {
         "solicitado": true,
@@ -6448,7 +6524,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:18",
         "codigo_boleto": "37690001040010567100200104267372 9 13800000013895",
-        "id_payment": "148291093907"
+        "id_payment": "148291093907",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:36",
+        "boleto_pago_agradecimento": true
     },
     "2000015244708370": {
         "solicitado": true,
@@ -6492,7 +6571,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:18",
         "codigo_boleto": "37690001040010567100200104268750 8 13800000013895",
-        "id_payment": "148291346963"
+        "id_payment": "148291346963",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:08",
+        "boleto_pago_agradecimento": true
     },
     "2000015244723612": {
         "solicitado": true,
@@ -6558,7 +6640,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:18",
         "codigo_boleto": "37690001040010567100200104269964 7 13800000013895",
-        "id_payment": "148291536623"
+        "id_payment": "148291536623",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:36",
+        "boleto_pago_agradecimento": true
     },
     "2000015244947720": {
         "solicitado": true,
@@ -6688,7 +6773,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:19",
         "codigo_boleto": "37690001040010567100200104273487 4 13800000013895",
-        "id_payment": "149006851086"
+        "id_payment": "149006851086",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:08",
+        "boleto_pago_agradecimento": true
     },
     "2000015245216704": {
         "solicitado": true,
@@ -6708,7 +6796,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:19",
         "codigo_boleto": "37690001040010567100200104274246 3 13800000013895",
-        "id_payment": "149007030462"
+        "id_payment": "149007030462",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:08",
+        "boleto_pago_agradecimento": true
     },
     "2000015245318852": {
         "solicitado": true,
@@ -6810,7 +6901,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:19",
         "codigo_boleto": "42297115040006489731705953922126 3 13800000013895",
-        "id_payment": "149007492156"
+        "id_payment": "149007492156",
+        "boleto_pago": true,
+        "data_boleto_pago": "10/03/2026 00:08",
+        "boleto_pago_agradecimento": true
     },
     "2000015245473136": {
         "solicitado": true,
@@ -7211,7 +7305,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:20",
         "codigo_boleto": "37690001040010567100200104279302 1 13800000013895",
-        "id_payment": "149009014708"
+        "id_payment": "149009014708",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:08",
+        "boleto_pago_agradecimento": true
     },
     "2000015247019190": {},
     "2000015247073104": {
@@ -7269,7 +7366,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:20",
         "codigo_boleto": "37690001040010567100200104280524 9 13800000013895",
-        "id_payment": "149009051902"
+        "id_payment": "149009051902",
+        "boleto_pago": true,
+        "data_boleto_pago": "10/03/2026 00:09",
+        "boleto_pago_agradecimento": true
     },
     "2000015247396052": {
         "solicitado": true,
@@ -7299,7 +7399,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:20",
         "codigo_boleto": "37690001040010567100200104281142 2 13800000013895",
-        "id_payment": "148294330795"
+        "id_payment": "148294330795",
+        "boleto_pago": true,
+        "data_boleto_pago": "10/03/2026 00:09",
+        "boleto_pago_agradecimento": true
     },
     "2000015247894464": {
         "solicitado": true,
@@ -7404,7 +7507,9 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:21",
         "codigo_boleto": "37690001040010567100200104284195 2 13800000013895",
-        "id_payment": "149009583190"
+        "id_payment": "149009583190",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:09"
     },
     "2000015248304388": {
         "solicitado": true,
@@ -7591,7 +7696,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:21",
         "codigo_boleto": "37690001040010567100200104289632 1 13800000013895",
-        "id_payment": "148295502103"
+        "id_payment": "148295502103",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:09",
+        "boleto_pago_agradecimento": true
     },
     "2000015249316512": {
         "solicitado": true,
@@ -7818,7 +7926,8 @@
         "codigo_boleto": "37690001040010567100200102072519 5 13770000013895",
         "id_payment": "148678517896",
         "boleto_pago": true,
-        "data_boleto_pago": "06/03/2026 00:54"
+        "data_boleto_pago": "06/03/2026 00:54",
+        "boleto_pago_agradecimento": true
     },
     "2000015178474976": {
         "solicitado": true,
@@ -7911,7 +8020,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:01",
         "codigo_boleto": "37690001040010567100200104010004 9 13800000013895",
-        "id_payment": "148259327841"
+        "id_payment": "148259327841",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:09",
+        "boleto_pago_agradecimento": true
     },
     "2000015206319122": {
         "solicitado": true,
@@ -7968,7 +8080,10 @@
         "boleto_enviado": true,
         "data_boleto": "05/03/2026 19:01",
         "codigo_boleto": "37690001040010567100200104012893 3 13800000013895",
-        "id_payment": "148974444690"
+        "id_payment": "148974444690",
+        "boleto_pago": true,
+        "data_boleto_pago": "09/03/2026 12:09",
+        "boleto_pago_agradecimento": true
     },
     "2000015203012974": {
         "solicitado": true,
