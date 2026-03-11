@@ -81,6 +81,7 @@ class AppColetorPro:
         self.root.geometry("1100x800")
         self.auth_ml = GerenciadorTokenML()
         
+        
         self.setup_ui()
         
         # # ALTERAÇÃO: Função central para validar e-mail e retornar a pasta correta
@@ -121,6 +122,7 @@ class AppColetorPro:
         self.var_email = tk.StringVar()
         self.var_ordem_ids = tk.StringVar()
         self.var_data_entrega = tk.StringVar()
+        self.rodar_reclamacao_var = tk.BooleanVar(value=False)
 
         tk.Label(input_frame, text="Prazo Entrega:").grid(row=0, column=0, sticky="w", padx=5)
         tk.Entry(input_frame, textvariable=self.var_prazo, width=15).grid(row=0, column=1, padx=10)
@@ -157,6 +159,18 @@ class AppColetorPro:
         tk.Button(btn_frame, text="EXPORTAR EXCEL", command=self.exportar_para_excel, bg="#083A33", fg="white", **estilo).grid(row=0, column=3, padx=5, pady=5)
         tk.Button(btn_frame, text="ATUALIZAR PAGOS", command=self.atualizar_blt_pagos_thread, bg="#189108", fg="white", **estilo).grid(row=0, column=4, padx=5, pady=5)
 
+        btn_frame_reclamacao = ttk.Frame(self.root)
+        btn_frame_reclamacao.pack(pady=10, fill='x', padx=20)
+
+        # reclamação
+        self.chk_reclamacao = ttk.Checkbutton(
+            btn_frame_reclamacao, 
+            text="Rodar apenas Reclamações?", 
+            variable=self.rodar_reclamacao_var
+        )
+        self.chk_reclamacao.pack(pady=10, padx=20)
+
+        
         # Linha 2: Ações Específicas (Substituindo os Yes/No)
         tk.Button(btn_frame, text="ENVIAR RASTREIO", command=lambda: self.iniciar_thread_processamento(acao="rastreio"), bg="#FF9800", fg="white", **estilo).grid(row=1, column=0, padx=5, pady=5)
         tk.Button(btn_frame, text="ENVIAR BOLETO", command=lambda: self.iniciar_thread_processamento(acao="boleto"), bg="#E91E63", fg="white", **estilo).grid(row=1, column=1, padx=5, pady=5)
@@ -342,9 +356,16 @@ class AppColetorPro:
             if not self.var_data_entrega.get().strip():
                 self.logger("Erro: Data de Entrega é obrigatória para esta ação.", "ERRO")
                 return
-
+            
+        executar_reclamacao = self.rodar_reclamacao_var.get()
+        if executar_reclamacao: 
+            self.logger("Modo RECLAMAÇÕES ativado: Serão processados apenas os pedidos com reclamações abertas.")
+            chats, total_chats = self.buscar_todas_reclamacoes(token, offset=pagInicial)
+        else:
+            self.logger("Modo COMUM ativado: Serão processados todos os pedidos.")
+            chats, total_chats = self.buscar_vendas_paginadas(config['ML_SELLER_ID'], token, offset_inicial=pagInicial)
+        
         self.logger(f"Iniciando ação: {acao.upper()}...")
-        chats, total_chats = self.buscar_vendas_paginadas(config['ML_SELLER_ID'], token, offset_inicial=pagInicial)
         
         self.progress["maximum"] = total_chats
         self.progress["value"] = 0
@@ -403,14 +424,14 @@ class AppColetorPro:
             target=self.passo_1_solicitar, 
             args=(token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, 
                   pagInicial, prazo_usuario, chats, config, env_erroBoleto, tipo_proc, 
-                  env_boleto_agradecimento, reenviarBoleto, solicitar,cobrar_dobrado)
+                  env_boleto_agradecimento, reenviarBoleto, solicitar,cobrar_dobrado,executar_reclamacao )
         )
         thread.daemon = True
         thread.start()
         self.logger(f"Thread de {acao} iniciada...")
     
     # --- PASSO 1: SOLICITAÇÃO ---
-    def passo_1_solicitar(self, token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, pagInicial, prazo_usuario, chats, config,env_erroBoleto, tipo,env_boleto_agradecimento,reenviarBoleto,solicitar,cobrar_dobrado):
+    def passo_1_solicitar(self, token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, pagInicial, prazo_usuario, chats, config,env_erroBoleto, tipo,env_boleto_agradecimento,reenviarBoleto,solicitar,cobrar_dobrado,executar_reclamacao):
         folder = self.get_pasta_conta()
         if not folder: return
         
@@ -431,7 +452,10 @@ class AppColetorPro:
             enviados = 0
 
             for i, pedido in enumerate(pedidos):
-                order_id = str(pedido['id'])
+                if executar_reclamacao:
+                    order_id = str(pedido['resource_id'])
+                else:
+                    order_id = str(pedido['id'])    
                 if(tipo == "by_id"):
                     ordem_ids_input = self.var_ordem_ids.get().strip()
                     if not ordem_ids_input:
@@ -1083,6 +1107,56 @@ class AppColetorPro:
             db_path = os.path.join(folder, "database_vendas.json")
             with open(db_path, 'w', encoding='utf-8') as f:
                 json.dump(db, f, indent=4)
+                
+    def buscar_todas_reclamacoes(self, token, offset=0):
+        reclamacoes_completas = []
+        limit = 50
+        offset = 0
+        
+        while True:
+                # Filtramos apenas pelas abertas (opened)
+                url = f"https://api.mercadolibre.com/post-purchase/v1/claims/search?status=opened&limit={limit}&offset={offset}"
+                headers = {'Authorization': f'Bearer {token}', 'Accept': 'application/json'}
+                
+                try:
+                    self.logger(f"Buscando offset {offset}...")   
+                    response = requests.get(url, headers=headers)
+                    if response.status_code != 200:
+                        self.logger(f"Erro API Claims: {response.status_code}", "ERRO")
+                        break
+                     
+                    dados = response.json()
+                    claims_da_pagina = dados.get('data', [])
+                    reclamacoes_completas.extend(claims_da_pagina)
+                    
+                    paging = dados.get('paging', {})
+                    total = paging.get('total', 0)
+                    
+                    offset += limit
+                    time.sleep(1)
+                    if offset >= total:
+                        self.logger(f"Busca finalizada. Total capturado: {len(reclamacoes_completas)}")
+                        break
+                      
+                except Exception as e:
+                    self.logger(f"Erro na conexão de claims: {e}", "ERRO")
+                    break
+                
+        return reclamacoes_completas, len(reclamacoes_completas) 
+    
+    def enviar_msg_reclamacao(self, token, claim_id, texto):
+        url = f"https://api.mercadolibre.com/post-purchase/v1/claims/{claim_id}/actions/send-message"
+        headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
+        payload = {
+            "receiver_role": "buyer",
+            "message": texto
+        }
+        
+        try:
+            res = requests.post(url, json=payload, headers=headers)
+            return res.status_code in [200, 201]
+        except:
+            return False          
         
     # --- NOVAS FUNCIONALIDADES: DASHBOARD E EXCEL ---
     def abrir_dashboard_vendas(self):
