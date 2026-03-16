@@ -17,6 +17,7 @@ from matplotlib.ticker import MaxNLocator
 import time
 import sys
 import threading
+import logging
 
 # Load variables from .env file
 load_dotenv()
@@ -80,7 +81,7 @@ class AppColetorPro:
         self.root.title("SISTEMA FULL DATA - ML & WHATSAPP API")
         self.root.geometry("1100x800")
         self.auth_ml = GerenciadorTokenML()
-        
+        logging.getLogger().setLevel(logging.CRITICAL) # Silencia logs automáticos de bibliotecas externas
         
         self.setup_ui()
         
@@ -184,10 +185,44 @@ class AppColetorPro:
         self.log.pack(pady=10, padx=20)
 
     def logger(self, msg, tag="INFO"):
-        time = datetime.now().strftime("%H:%M:%S")
-        self.log.insert(tk.END, f"[{time}] [{tag}] {msg}\n")
+        # 1. Tentar configurar o logging para a pasta da conta atual
+        email = self.var_email.get().strip()
+        if email:
+            # Caminho: contas/email@clinte.com/logs/
+            log_dir = os.path.join(ACCOUNTS_DIR, email, 'logs')
+            if not os.path.exists(log_dir):
+                os.makedirs(log_dir)
+            
+            log_path = os.path.join(log_dir, f"log_{datetime.now().strftime('%Y-%m-%d')}.txt")
+            
+            # Configura o logger para escrever neste arquivo específico
+            # Usamos o nome do email como nome do logger para evitar conflitos de handlers
+            file_logger = logging.getLogger(email)
+            if not file_logger.handlers:
+                file_handler = logging.FileHandler(log_path, encoding='utf-8')
+                formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', datefmt='%H:%M:%S')
+                file_handler.setFormatter(formatter)
+                file_logger.addHandler(file_handler)
+                file_logger.setLevel(logging.INFO)
+
+            # Registra a mensagem no arquivo
+            if tag == "ERRO":
+                file_logger.error(msg)
+            elif tag == "ALERTA":
+                file_logger.warning(msg)
+            else:
+                file_logger.info(msg)
+
+        # 2. Atualização visual no ScrolledText (Tkinter)
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        self.log.insert(tk.END, f"[{timestamp}] [{tag}] {msg}\n")
         self.log.see(tk.END)
-        self.root.update_idletasks()
+        
+        # Força a atualização da interface para não "congelar"
+        try:
+            self.root.update_idletasks()
+        except:
+            pass
         
         
     def atualizar_blt_pagos_thread(self):    
@@ -457,6 +492,7 @@ class AppColetorPro:
                 valor = ""
                 corProduto = ""   
                 claim_id = None
+
                 
                 
                 if executar_reclamacao:
@@ -468,6 +504,10 @@ class AppColetorPro:
                     nome_prod = str(pedido['payments'][0]['reason']) 
                     valor = str(pedido['total_amount'])
                     corProduto = str(pedido['order_items'][0]['item']['variation_attributes'][0]['value_name']) 
+                    
+                    if order_id not in db:
+                        self.logger(f"Ordem {order_id} ignorada (não está na lista do banco de dados).")
+                        continue
                     
                     if(not db[order_id].get('buyer_id')):
                         db[order_id]['buyer_id'] = buyer_id
