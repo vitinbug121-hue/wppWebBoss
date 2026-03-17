@@ -2268,7 +2268,10 @@
         "data_boleto": "13/03/2026 00:41",
         "codigo_boleto": "37690001040010567100200110422540 3 13870000013894",
         "id_payment": "150126199078",
-        "boleto_vencido": true
+        "boleto_vencido": true,
+        "boleto_pago": true,
+        "data_boleto_pago": "06/03/2026 00:54",
+        "boleto_pago_agradecimento": true
     },
     "2000015220115512": {
         "solicitado": true,
@@ -2860,7 +2863,10 @@
         "data_boleto": "13/03/2026 00:41",
         "codigo_boleto": "37690001040010567100200110422961 9 13870000013894",
         "id_payment": "150126452426",
-        "boleto_vencido": true
+        "boleto_vencido": true,
+        "boleto_pago": true,
+        "data_boleto_pago": "06/03/2026 00:54",
+        "boleto_pago_agradecimento": true
     },
     "2000015216636782": {
         "solicitado": true,
@@ -7938,7 +7944,10 @@
         "data_boleto": "13/03/2026 00:46",
         "codigo_boleto": "37690001040010567100200110423043 3 13870000013894",
         "id_payment": "150126454628",
-        "boleto_vencido": true
+        "boleto_vencido": true,
+        "boleto_pago": true,
+        "data_boleto_pago": "06/03/2026 00:54",
+        "boleto_pago_agradecimento": true
     },
     "2000015204875574": {
         "solicitado": true,
@@ -7991,7 +8000,10 @@
         "data_boleto": "13/03/2026 00:46",
         "codigo_boleto": "37690001040010567100200110423217 3 13870000013894",
         "id_payment": "150126488592",
-        "boleto_vencido": true
+        "boleto_vencido": true,
+        "boleto_pago": true,
+        "data_boleto_pago": "06/03/2026 00:54",
+        "boleto_pago_agradecimento": true
     },
     "2000015205066854": {
         "solicitado": true,
