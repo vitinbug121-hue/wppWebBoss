@@ -1,3 +1,4 @@
+from logging import config
 import textwrap
 import tkinter as tk
 from tkinter import scrolledtext, messagebox, simpledialog, filedialog
@@ -18,6 +19,7 @@ import time
 import sys
 import threading
 import logging
+import subprocess
 
 # Load variables from .env file
 load_dotenv()
@@ -80,6 +82,7 @@ class AppColetorPro:
         self.root = root
         self.root.title("SISTEMA FULL DATA - ML & WHATSAPP API")
         self.root.geometry("1100x800")
+        self.wpp_ativo = False  # Estado inicial: desligado
         self.auth_ml = GerenciadorTokenML()
         logging.getLogger().setLevel(logging.CRITICAL) # Silencia logs automáticos de bibliotecas externas
         
@@ -124,6 +127,7 @@ class AppColetorPro:
         self.var_ordem_ids = tk.StringVar()
         self.var_data_entrega = tk.StringVar()
         self.rodar_reclamacao_var = tk.BooleanVar(value=False)
+        self.rodar_wa_var = tk.BooleanVar(value=False)
 
         tk.Label(input_frame, text="Prazo Entrega:").grid(row=0, column=0, sticky="w", padx=5)
         tk.Entry(input_frame, textvariable=self.var_prazo, width=15).grid(row=0, column=1, padx=10)
@@ -154,14 +158,18 @@ class AppColetorPro:
         estilo = {"width": 22, "height": 2, "font": ("Arial", 9, "bold")}
 
         # Linha 1: Comandos Gerais
-        tk.Button(btn_frame, text="AUTORIZAR ML", command=self.fluxo_autorizacao_ml, bg="#9C27B0", fg="white", **estilo).grid(row=0, column=0, padx=5, pady=5)
-        tk.Button(btn_frame, text="PRIMEIRA MSG E WPP", command=lambda: self.iniciar_thread_processamento(acao="solicitar"), bg="#1976D2", fg="white", **estilo).grid(row=0, column=1, padx=5, pady=5)
-        tk.Button(btn_frame, text="DASHBOARD", command=self.abrir_dashboard_vendas, bg="#5007DA", fg="white", **estilo).grid(row=0, column=2, padx=5, pady=5)
-        tk.Button(btn_frame, text="EXPORTAR EXCEL", command=self.exportar_para_excel, bg="#083A33", fg="white", **estilo).grid(row=0, column=3, padx=5, pady=5)
-        tk.Button(btn_frame, text="ATUALIZAR PAGOS", command=self.atualizar_blt_pagos_thread, bg="#189108", fg="white", **estilo).grid(row=0, column=4, padx=5, pady=5)
-
+        tk.Button(btn_frame, text="AUTORIZAR ML", command=self.fluxo_autorizacao_ml, bg="#002357", fg="white", **estilo).grid(row=0, column=0, padx=5, pady=5)
+        tk.Button(btn_frame, text="PRIMEIRA MSG E WPP", command=lambda: self.iniciar_thread_processamento(acao="solicitar"), bg="#002357", fg="white", **estilo).grid(row=0, column=1, padx=5, pady=5)
+        tk.Button(btn_frame, text="DASHBOARD", command=self.abrir_dashboard_vendas, bg="#002357", fg="white", **estilo).grid(row=0, column=2, padx=5, pady=5)
+        tk.Button(btn_frame, text="EXPORTAR EXCEL", command=self.exportar_para_excel, bg="#002357", fg="white", **estilo).grid(row=0, column=3, padx=5, pady=5)
+        tk.Button(btn_frame, text="ATUALIZAR PAGOS", command=self.atualizar_blt_pagos_thread, bg="#002357", fg="white", **estilo).grid(row=0, column=4, padx=5, pady=5)
+        tk.Button(btn_frame, text="CHAMAR WPP", command=self.iniciar_thread_wpp_inicial, bg="#002357", fg="white", **estilo).grid(row=0, column=5, padx=5, pady=5)
+        self.btn_wpp = tk.Button(btn_frame, text="LOGAR WPP", command=self.ativarWpp, bg="#FF0000", fg="white", **estilo)
+        self.btn_wpp.grid(row=0, column=6, padx=5, pady=5)
+        
+        
         btn_frame_reclamacao = ttk.Frame(self.root)
-        btn_frame_reclamacao.pack(pady=10, fill='x', padx=20)
+        btn_frame_reclamacao.pack(pady=10)
 
         # reclamação
         self.chk_reclamacao = ttk.Checkbutton(
@@ -169,19 +177,26 @@ class AppColetorPro:
             text="Rodar apenas Reclamações?", 
             variable=self.rodar_reclamacao_var
         )
-        self.chk_reclamacao.pack(pady=10, padx=20)
+        self.chk_reclamacao.pack(side=tk.LEFT, padx=20)
+        # WPP
+        self.chk_wa = ttk.Checkbutton(
+            btn_frame_reclamacao, 
+            text="Rodar via WhatsApp?", 
+            variable=self.rodar_wa_var
+        )
+        self.chk_wa.pack(side=tk.LEFT, padx=20)
 
         
         # Linha 2: Ações Específicas (Substituindo os Yes/No)
-        tk.Button(btn_frame, text="ENVIAR RASTREIO", command=lambda: self.iniciar_thread_processamento(acao="rastreio"), bg="#FF9800", fg="white", **estilo).grid(row=1, column=0, padx=5, pady=5)
-        tk.Button(btn_frame, text="ENVIAR BOLETO", command=lambda: self.iniciar_thread_processamento(acao="boleto"), bg="#E91E63", fg="white", **estilo).grid(row=1, column=1, padx=5, pady=5)
-        tk.Button(btn_frame, text="ERRO NO BOLETO", command=lambda: self.iniciar_thread_processamento(acao="erro_boleto"), bg="#F44336", fg="white", **estilo).grid(row=1, column=2, padx=5, pady=5)
-        tk.Button(btn_frame, text="REENVIAR BOLETO", command=lambda: self.iniciar_thread_processamento(acao="reenviar_boleto"), bg="#795548", fg="white", **estilo).grid(row=1, column=3, padx=5, pady=5)
-        tk.Button(btn_frame, text="COBRAR DOBRADO", command=lambda: self.iniciar_thread_processamento(acao="cobrar_dobrado"), bg="#3B0AAD", fg="white", **estilo).grid(row=1, column=4, padx=5, pady=5)
-        tk.Button(btn_frame, text="AGRADECIMENTO", command=lambda: self.iniciar_thread_processamento(acao="agradecimento"), bg="#00BCD4", fg="white", **estilo).grid(row=1, column=5, padx=5, pady=5)
+        tk.Button(btn_frame, text="ENVIAR RASTREIO", command=lambda: self.iniciar_thread_processamento(acao="rastreio"), bg="#002357", fg="white", **estilo).grid(row=1, column=0, padx=5, pady=5)
+        tk.Button(btn_frame, text="ENVIAR BOLETO", command=lambda: self.iniciar_thread_processamento(acao="boleto"), bg="#002357", fg="white", **estilo).grid(row=1, column=1, padx=5, pady=5)
+        tk.Button(btn_frame, text="ERRO NO BOLETO", command=lambda: self.iniciar_thread_processamento(acao="erro_boleto"), bg="#002357", fg="white", **estilo).grid(row=1, column=2, padx=5, pady=5)
+        tk.Button(btn_frame, text="REENVIAR BOLETO", command=lambda: self.iniciar_thread_processamento(acao="reenviar_boleto"), bg="#002357", fg="white", **estilo).grid(row=1, column=3, padx=5, pady=5)
+        tk.Button(btn_frame, text="COBRAR DOBRADO", command=lambda: self.iniciar_thread_processamento(acao="cobrar_dobrado"), bg="#002357", fg="white", **estilo).grid(row=1, column=4, padx=5, pady=5)
+        tk.Button(btn_frame, text="AGRADECIMENTO", command=lambda: self.iniciar_thread_processamento(acao="agradecimento"), bg="#002357", fg="white", **estilo).grid(row=1, column=5, padx=5, pady=5)
 
         # --- Log ---
-        self.log = scrolledtext.ScrolledText(self.root, height=25, width=140, font=("Consolas", 9), bg="#F5F5F5")
+        self.log = scrolledtext.ScrolledText(self.root, height=50, width=190, font=("Consolas", 9), bg="#F5F5F5")
         self.log.pack(pady=10, padx=20)
 
     def logger(self, msg, tag="INFO"):
@@ -223,7 +238,39 @@ class AppColetorPro:
             self.root.update_idletasks()
         except:
             pass
-        
+    
+    
+    def ativarWpp(self): 
+        try:
+            if not self.wpp_ativo:
+                # --- LÓGICA PARA LIGAR ---
+                subprocess.Popen(r'docker-compose up -d', shell=True)
+                time.sleep(2)  # Espera o Docker iniciar (ajuste conforme necessário)
+                
+                url = f"http://localhost:8080/manager/"
+                webbrowser.open(url)
+                self.wpp_ativo = True
+                self.btn_wpp.config(
+                    text="WPP ATIVO", 
+                    bg="#25D366", # Verde WhatsApp
+                    fg="white"
+                )
+                self.logger("WhatsApp/Docker iniciado com sucesso.", "SUCESSO")
+            else:
+                # --- LÓGICA PARA DESLIGAR ---
+                subprocess.Popen(r'docker-compose stop', shell=True)
+                
+                self.wpp_ativo = False
+                self.btn_wpp.config(
+                    text="LOGAR WPP", 
+                    bg="#FF0000", # Volta para o Vermelho
+                    fg="white"
+                )
+                self.logger("WhatsApp/Docker interrompido.", "AVISO")
+                
+        except Exception as e:  
+            messagebox.showerror("Erro no WhatsApp", f"Falha ao alterar estado do serviço: {e}")
+            self.logger(f"Erro ao alternar WPP: {e}", "ERRO") 
         
     def atualizar_blt_pagos_thread(self):    
          # --- DISPARA A THREAD ---
@@ -426,6 +473,13 @@ class AppColetorPro:
             tipo_proc = "by_id"
             self.logger(f"Iniciando processamento by IDs")
 
+        if self.rodar_wa_var.get():
+            if self.wpp_ativo:
+               self.logger("Processamento via WhatsApp selecionado. As mensagens serão enviadas usando a API do WhatsApp.")
+            else:
+               self.logger("Erro: Para enviar mensagens via WhatsApp, o serviço deve estar ativo. Por favor, ative o WhatsApp antes de iniciar esta ação.", "ERRO")
+               return
+        
         # Define as flags de acordo com o botão apertado
         if acao == "rastreio":
             if not cod_rastreio:
@@ -650,7 +704,7 @@ class AppColetorPro:
                                     break       
                                 # -- AVISO PRÉ BOLETO
                                 text = ("Vamos gerar o boleto agora mesmo!\n\nProntinho, boleto gerado! Só copiar todo o código de barras abaixo e pagar pelo aplicativo do seu Banco: 👇")
-                                envioMsgpreBoleto = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                                envioMsgpreBoleto = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)                    
                                 if envioMsgpreBoleto:   
                                     # -- NUMERO BOLETO   
                                     text = f"{boleto_numero}"
@@ -890,9 +944,29 @@ class AppColetorPro:
             return True
         except Exception as e:
             self.logger(f"Erro ao atualizar planilha: {e}")
-            return False    
+            return False   
+    def enviarMSG(self, order_id, buyer_id, texto_ml, headers=None, seller_id=None, reclamacao=False, claim_id=None,template_wa=None, vars_wa=[]):
+        """
+        Decide se envia via Mercado Livre ou WhatsApp Template.
+        """
+        db = self.carregar_db()
+        dados = db.get(order_id, {})
         
-    def enviarMSG(self, order_id, buyer_id, texto, headers, ML_SELLER_ID, reclamacao, claim_id): 
+        # Se o flag de WhatsApp estiver ativo E tivermos um template definido
+        if self.rodar_wa_var.get():
+            if not template_wa:
+                self.logger("Erro: Template WhatsApp não definido para envio dual.", "ERRO")
+                return False
+            if not dados.get('zap_extraido'):
+                self.logger(f"Erro: Para enviar via WhatsApp, é necessário ter o número do cliente extraído para a ordem {order_id}.", "ERRO")
+                return False
+            self.logger(f"Enviando via WhatsApp para {order_id}...")
+            res = self.enviar_wa_template(dados, template_wa, vars_wa)
+            return res
+        else:
+            return self.enviarMsgML(order_id, buyer_id, texto_ml, headers, seller_id, reclamacao, claim_id)     
+        
+    def enviarMsgML(self, order_id, buyer_id, texto, headers, ML_SELLER_ID, reclamacao, claim_id): 
         if reclamacao:
             url_msg = f"https://api.mercadolibre.com/post-purchase/v1/claims/{claim_id}/actions/send-message"
             payload = { 
@@ -970,49 +1044,64 @@ class AppColetorPro:
         return conversa_unificada
 
     # --- PASSO 3: DISPARO WHATSAPP META ---
-    def passo_3_disparar_wa(self):
-        self.logger("Iniciando fila de disparos via Meta Cloud API...")
+    def enviar_wa_template(self, d, template_name, variaveis_body):
+        """
+        Envia um template oficial via Meta API.
+        d: dicionário com dados da ordem.
+        template_name: nome do template aprovado na Meta.
+        variaveis_body: lista de strings para preencher os {{1}}, {{2}} do template.
+        """
+        numero = d.get('zap_extraido')
+        if not numero: return False
+        
+        if not numero.startswith('55'): numero = '55' + numero
+        
+        url_wa = f"https://graph.facebook.com/v18.0/{WA_PHONE_ID}/messages"
+        headers_wa = {"Authorization": f"Bearer {WA_TOKEN}", "Content-Type": "application/json"}
+        
+        # Monta os parâmetros dinamicamente
+        parametros = [{"type": "text", "text": str(v)} for v in variaveis_body]
+        
+        payload = {
+            "messaging_product": "whatsapp",
+            "to": numero,
+            "type": "template",
+            "template": {
+                "name": template_name,
+                "language": {"code": "pt_BR"},
+                "components": [{"type": "body", "parameters": parametros}]
+            }
+        }
+
+        try:
+            res = requests.post(url_wa, json=payload, headers=headers_wa, timeout=10)
+            return res.status_code in [200, 201]
+        except Exception as e:
+            self.logger(f"Erro WhatsApp: {str(e)}", "ERRO")
+            return False
+        
+    def iniciar_thread_wpp_inicial(self):
+     threading.Thread(target=self.processar_chamada_wpp_inicial, daemon=True).start()
+
+    def processar_chamada_wpp_inicial(self):
         db = self.carregar_db()
-        disparos = 0
-
+        self.logger("Iniciando contato inicial via WhatsApp...")
+        sucesso = 0
+        
         for order_id, d in db.items():
-            if d.get('zap_extraido') and not d.get('contatado_wa'):
-                numero = d['zap_extraido']
-                if not numero.startswith('55'): numero = '55' + numero
-
-                url_wa = f"https://graph.facebook.com/v18.0/{WA_PHONE_ID}/messages"
-                headers_wa = {"Authorization": f"Bearer {WA_TOKEN}", "Content-Type": "application/json"}
-                
-                payload = {
-                    "messaging_product": "whatsapp",
-                    "to": numero,
-                    "type": "template",
-                    "template": {
-                        "name": WA_TEMPLATE_NAME,
-                        "language": {"code": "pt_BR"},
-                        "components": [
-                            {"type": "body", "parameters": [
-                                {"type": "text", "text": d.get('nome_cliente', 'Cliente')},
-                                {"type": "text", "text": (d.get('produto')[:30] + '...') if d.get('produto') else 'seu pedido'}
-                            ]}
-                        ]
-                    }
-                }
-
-                try:
-                    res = requests.post(url_wa, json=payload, headers=headers_wa, timeout=10)
-                    if res.status_code in [200, 201]:
-                        db[order_id]['contatado_wa'] = True
-                        db[order_id]['data_wa'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                        disparos += 1
-                        self.logger(f"WhatsApp enviado com sucesso para {numero}!")
-                    else:
-                        self.logger(f"Falha API Meta ({res.status_code}): {res.text}", "ERRO")
-                except Exception as e:
-                    self.logger(f"Erro de conexão Meta: {str(e)}", "ERRO")
-
+            # Filtro: Tem número extraído E não pagou boleto E não foi contatado via WA
+            if d.get('numero_extraido') and not d.get('boleto_pago') and not d.get('contatado_wa'):
+                # Template sugerido: 'primeiro_contato_loja'
+                # Variáveis: {{1}} Nome, {{2}} Produto
+                if self.enviar_wa_template(d, "atendimento_cliente_ml", [d.get('nome_cliente', 'Cliente'), d.get('produto', 'seu pedido')]):
+                    db[order_id]['contatado_wa'] = True
+                    db[order_id]['data_wa_inicial'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                    sucesso += 1
+                    self.logger(f"WA enviado para {order_id}")
+                    time.sleep(2) # Delay para evitar detecção de bot
+        
         self.salvar_db(db)
-        self.logger(f"Fim do Passo 3. Total de clientes chamados: {disparos}")
+        self.logger(f"Finalizado. {sucesso} clientes contatados.")    
 
     # --- AUXILIARES ML ---
     def obter_produto_ml(self, order_id, token):
