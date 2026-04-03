@@ -292,47 +292,79 @@ class AppColetorPro:
         config = self.carregar_config_cliente(folder)
         if not config: return
         
-        access_token = config.get("TOKEN_MP")
-        if not access_token:
+        # Lista todos os tokens disponíveis
+        tokens = [valor for chave, valor in config.items() if chave.startswith("TOKEN_MP") and valor]
+        if not tokens:
             self.logger("Token do Mercado Pago não encontrado.", "ERRO")
             return
-        
+            
         atualizados = 0
         
         for order_id, d in db.items():
+            # --- LÓGICA PARA BOLETO NORMAL ---
             if d.get('boleto_enviado') and not d.get('boleto_pago'):
-               url = f"https://api.mercadopago.com/v1/payments/{d.get('id_payment')}"
-               headers = {"Authorization": f"Bearer {access_token}"}
-               response = requests.get(url, headers=headers)
-               if response.status_code == 200:
-                    resultado = response.json().get('status')
-                    if resultado == 'approved' or resultado == 'refunded':
-                        db[order_id]['boleto_pago'] = True
-                        db[order_id]['data_boleto_pago'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                        atualizados += 1
-                        self.logger(f"Ordem {order_id}: Boleto marcado como pago.")
-               else:
-                   if(response.status_code == 404):
+                payment_id = d.get('id_payment')
+                encontrado_em_algum_token = False
+                ultimo_erro = ""
+
+                for token in tokens:
+                    url = f"https://api.mercadopago.com/v1/payments/{payment_id}"
+                    headers = {"Authorization": f"Bearer {token}"}
+                    response = requests.get(url, headers=headers)
+                    
+                    if response.status_code == 200:
+                        encontrado_em_algum_token = True
+                        resultado = response.json().get('status')
+                        if resultado in ['approved', 'refunded']:
+                            db[order_id]['boleto_pago'] = True
+                            db[order_id]['data_boleto_pago'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                            atualizados += 1
+                            self.logger(f"Ordem {order_id}: Boleto marcado como pago.")
+                        break  # Se achou o pagamento (200), para de testar outros tokens
+                    
+                    else:
+                        # Guarda o erro caso nenhum token funcione
+                        ultimo_erro = f"{response.status_code} - {response.text}"
+
+                # Se após testar todos os tokens, não houve sucesso (200)
+                if not encontrado_em_algum_token:
+                    # Se o último erro capturado foi 404, marca como vencido
+                    if "404" in ultimo_erro:
                         db[order_id]['boleto_vencido'] = True
-                   self.logger(f"Erro ao verificar status do pagamento da ordem {order_id}: {response.status_code} - {response.text}", "ERRO")
+                        self.logger(f"Ordem {order_id}: Boleto não encontrado (vencido).", "AVISO")
+                    else:
+                        self.logger(f"Erro ao verificar ordem {order_id}: {ultimo_erro}", "ERRO")
+
+            # --- LÓGICA PARA BOLETO DOBRO ---
             if d.get('boleto_pago') and d.get('cobrado_dobro') and not d.get('boleto_pago_dobro'):
-                url = f"https://api.mercadopago.com/v1/payments/{d.get('id_payment_dobro')}"
-                headers = {"Authorization": f"Bearer {access_token}"}
-                response = requests.get(url, headers=headers)
-                if response.status_code == 200:
-                    resultado = response.json().get('status')
-                    if resultado == 'approved' or resultado == 'refunded':
-                        db[order_id]['boleto_pago_dobro'] = True
-                        db[order_id]['data_boleto_pago_dobro'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                        atualizados += 1
-                        self.logger(f"Ordem {order_id}: Boleto marcado como pago o dobro.")
-                else:
-                   if(response.status_code == 404):
+                payment_id_dobro = d.get('id_payment_dobro')
+                encontrado_dobro = False
+                ultimo_erro_dobro = ""
+
+                for token in tokens:
+                    url = f"https://api.mercadopago.com/v1/payments/{payment_id_dobro}"
+                    headers = {"Authorization": f"Bearer {token}"}
+                    response = requests.get(url, headers=headers)
+
+                    if response.status_code == 200:
+                        encontrado_dobro = True
+                        resultado = response.json().get('status')
+                        if resultado in ['approved', 'refunded']:
+                            db[order_id]['boleto_pago_dobro'] = True
+                            db[order_id]['data_boleto_pago_dobro'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                            atualizados += 1
+                            self.logger(f"Ordem {order_id}: Boleto dobro pago.")
+                        break
+                    else:
+                        ultimo_erro_dobro = f"{response.status_code} - {response.text}"
+
+                if not encontrado_dobro:
+                    if "404" in ultimo_erro_dobro:
                         db[order_id]['boleto_vencido_dobro'] = True
-                   self.logger(f"Erro ao verificar status do pagamento da ordem {order_id}: {response.status_code} - {response.text}", "ERRO")   
+                    self.logger(f"Erro boleto dobro {order_id}: {ultimo_erro_dobro}", "ERRO")
 
         self.salvar_db(db)
-        self.logger(f"Atualização finalizada. Total de boletos marcados como pagos: {atualizados}")    
+        self.logger(f"Atualização finalizada. Pagos: {atualizados}")  
 
     # --- LÓGICA DE AUTENTICAÇÃO ---
     def fluxo_autorizacao_ml(self):
@@ -454,6 +486,7 @@ class AppColetorPro:
 
         # Inicializa todas as flags como False
         env_rastreio = False
+        rodar_wpp = False
         lim_rastreio = 0
         env_boleto = False
         lim_boleto = 0
@@ -475,6 +508,7 @@ class AppColetorPro:
 
         if self.rodar_wa_var.get():
             if self.wpp_ativo:
+               rodar_wpp = True
                self.logger("Processamento via WhatsApp selecionado. As mensagens serão enviadas usando a API do WhatsApp.")
             else:
                self.logger("Erro: Para enviar mensagens via WhatsApp, o serviço deve estar ativo. Por favor, ative o WhatsApp antes de iniciar esta ação.", "ERRO")
@@ -513,14 +547,14 @@ class AppColetorPro:
             target=self.passo_1_solicitar, 
             args=(token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, 
                   pagInicial, prazo_usuario, chats, config, env_erroBoleto, tipo_proc, 
-                  env_boleto_agradecimento, reenviarBoleto, solicitar,cobrar_dobrado,executar_reclamacao )
+                  env_boleto_agradecimento, reenviarBoleto, solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp )
         )
         thread.daemon = True
         thread.start()
         self.logger(f"Thread de {acao} iniciada...")
     
     # --- PASSO 1: SOLICITAÇÃO ---
-    def passo_1_solicitar(self, token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, pagInicial, prazo_usuario, chats, config,env_erroBoleto, tipo,env_boleto_agradecimento,reenviarBoleto,solicitar,cobrar_dobrado,executar_reclamacao):
+    def passo_1_solicitar(self, token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, pagInicial, prazo_usuario, chats, config,env_erroBoleto, tipo,env_boleto_agradecimento,reenviarBoleto,solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp):
         folder = self.get_pasta_conta()
         if not folder: return
         
@@ -945,7 +979,7 @@ class AppColetorPro:
         except Exception as e:
             self.logger(f"Erro ao atualizar planilha: {e}")
             return False   
-    def enviarMSG(self, order_id, buyer_id, texto_ml, headers=None, seller_id=None, reclamacao=False, claim_id=None,template_wa=None, vars_wa=[]):
+    def enviarMSG(self, order_id, buyer_id, texto_ml, headers=None, seller_id=None, reclamacao=False, claim_id=None):
         """
         Decide se envia via Mercado Livre ou WhatsApp Template.
         """
@@ -954,14 +988,11 @@ class AppColetorPro:
         
         # Se o flag de WhatsApp estiver ativo E tivermos um template definido
         if self.rodar_wa_var.get():
-            if not template_wa:
-                self.logger("Erro: Template WhatsApp não definido para envio dual.", "ERRO")
-                return False
             if not dados.get('zap_extraido'):
                 self.logger(f"Erro: Para enviar via WhatsApp, é necessário ter o número do cliente extraído para a ordem {order_id}.", "ERRO")
                 return False
             self.logger(f"Enviando via WhatsApp para {order_id}...")
-            res = self.enviar_wa_template(dados, template_wa, vars_wa)
+            res = self.enviar_wa_template(dados,texto_ml, order_id)
             return res
         else:
             return self.enviarMsgML(order_id, buyer_id, texto_ml, headers, seller_id, reclamacao, claim_id)     
@@ -1044,37 +1075,27 @@ class AppColetorPro:
         return conversa_unificada
 
     # --- PASSO 3: DISPARO WHATSAPP META ---
-    def enviar_wa_template(self, d, template_name, variaveis_body):
-        """
-        Envia um template oficial via Meta API.
-        d: dicionário com dados da ordem.
-        template_name: nome do template aprovado na Meta.
-        variaveis_body: lista de strings para preencher os {{1}}, {{2}} do template.
-        """
-        numero = d.get('zap_extraido')
-        if not numero: return False
+    def enviar_wa_template(self, dados, msg, order_id):
+        numero = dados.get('zap_extraido')
         
         if not numero.startswith('55'): numero = '55' + numero
+        self.logger(f"Enviando WhatsApp para {order_id} no número {numero}")
         
-        url_wa = f"https://graph.facebook.com/v18.0/{WA_PHONE_ID}/messages"
-        headers_wa = {"Authorization": f"Bearer {WA_TOKEN}", "Content-Type": "application/json"}
+        instance = dados.get('zap_instancia')
         
-        # Monta os parâmetros dinamicamente
-        parametros = [{"type": "text", "text": str(v)} for v in variaveis_body]
+        url_wa = "https://127.0.0.1:8080/message/sendText/{instance}"
         
         payload = {
-            "messaging_product": "whatsapp",
-            "to": numero,
-            "type": "template",
-            "template": {
-                "name": template_name,
-                "language": {"code": "pt_BR"},
-                "components": [{"type": "body", "parameters": parametros}]
-            }
+            "number": numero,
+            "text": msg,
+        }
+        headers = {
+            "apikey": dados.get('zap_api_key'),
+            "Content-Type": "application/json"
         }
 
         try:
-            res = requests.post(url_wa, json=payload, headers=headers_wa, timeout=10)
+            res = requests.post(url_wa, json=payload, headers=headers)
             return res.status_code in [200, 201]
         except Exception as e:
             self.logger(f"Erro WhatsApp: {str(e)}", "ERRO")
