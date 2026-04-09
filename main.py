@@ -1006,7 +1006,11 @@ class AppColetorPro:
             }
             try:
                 envio = requests.post(url_msg, json=payload, headers=headers)
-                return envio.status_code in [200, 201]
+                if envio.status_code in [200, 201]:
+                    # Se reclamação foi enviada com sucesso, enviar mensagem de encerramento
+                    self.enviar_msg_encerrar_reclamacao(order_id, buyer_id, headers, ML_SELLER_ID, claim_id)
+                    return True
+                return False
             except Exception as e:
                 self.logger(f"Erro ao enviar mensagem de reclamação para {buyer_id}: {str(e)}", "ERRO")
                 return False
@@ -1027,6 +1031,53 @@ class AppColetorPro:
             except Exception as e:
                 self.logger(f"Erro ao enviar mensagem COMUM para {buyer_id}: {str(e)}", "ERRO")
                 return False
+    
+    def enviar_msg_encerrar_reclamacao(self, order_id, buyer_id, headers, ML_SELLER_ID, claim_id):
+        """
+        Envia mensagem para o cliente encerrar a reclamação.
+        Máximo 2x por ordem, apenas se o boleto ainda não foi enviado.
+        """
+        db = self.carregar_db()
+        dados_pedido = db.get(order_id, {})
+        
+        # Verificar se boleto já foi enviado
+        if dados_pedido.get('boleto_enviado'):
+            self.logger(f"Ordem {order_id}: Boleto já enviado, não enviando msg de encerramento.")
+            return False
+        
+        # Obter contador de envios
+        qtd_envios = dados_pedido.get('QtdenvioEncerrarReclamacao', 0)
+        
+        # Não enviar se já atingiu limite de 2x
+        if qtd_envios >= 2:
+            self.logger(f"Ordem {order_id}: Limite de 2 mensagens de encerramento atingido.")
+            return False
+        
+        # Preparar e enviar a mensagem
+        msg_encerramento = "Para seguir com andamento do pedido, por favor encerre a reclamação."
+        url_msg = f"https://api.mercadolibre.com/post-purchase/v1/claims/{claim_id}/actions/send-message"
+        
+        payload = {
+            "receiver_role": "complainant",
+            "message": msg_encerramento
+        }
+        
+        try:
+            envio = requests.post(url_msg, json=payload, headers=headers)
+            
+            if envio.status_code in [200, 201]:
+                # Incrementar contador e salvar
+                db[order_id]['QtdenvioEncerrarReclamacao'] = qtd_envios + 1
+                self.salvar_db(db)
+                self.logger(f"Ordem {order_id}: Mensagem de encerramento enviada ({qtd_envios + 1}/2).")
+                return True
+            else:
+                self.logger(f"Erro ao enviar mensagem de encerramento para {order_id}: Status {envio.status_code}", "AVISO")
+                return False
+                
+        except Exception as e:
+            self.logger(f"Erro ao enviar mensagem de encerramento para {order_id}: {str(e)}", "ERRO")
+            return False
             
     def obter_conversa_completa(self, order_id, pack_id, seller_id, token):
         headers = {"Authorization": f"Bearer {token}"}
@@ -1190,20 +1241,7 @@ class AppColetorPro:
                     break
                 
         return reclamacoes_completas, len(reclamacoes_completas) 
-    
-    def enviar_msg_reclamacao(self, token, claim_id, texto):
-        url = f"https://api.mercadolibre.com/post-purchase/v1/claims/{claim_id}/actions/send-message"
-        headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'}
-        payload = {
-            "receiver_role": "buyer",
-            "message": texto
-        }
         
-        try:
-            res = requests.post(url, json=payload, headers=headers)
-            return res.status_code in [200, 201]
-        except:
-            return False          
         
     # --- NOVAS FUNCIONALIDADES: DASHBOARD E EXCEL ---
     def abrir_dashboard_vendas(self):
