@@ -1155,25 +1155,188 @@ class AppColetorPro:
     def iniciar_thread_wpp_inicial(self):
      threading.Thread(target=self.processar_chamada_wpp_inicial, daemon=True).start()
 
+    # --- SISTEMA DE WHATSAPP DISTRIBUÍDO ---
+    def carregar_config_wpp(self):
+        """
+        Carrega a configuração dos 5 WhatsApps do arquivo config_wpp.json
+        """
+        config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config_wpp.json')
+        try:
+            if not os.path.exists(config_path):
+                self.logger(f"Arquivo config_wpp.json não encontrado em {config_path}", "ERRO")
+                return None
+            
+            with open(config_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            self.logger(f"Erro ao carregar config_wpp.json: {str(e)}", "ERRO")
+            return None
+
+    def salvar_config_wpp(self, config_wpp):
+        """
+        Salva a configuração atualizada dos WhatsApps
+        """
+        config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config_wpp.json')
+        try:
+            with open(config_path, 'w', encoding='utf-8') as f:
+                json.dump(config_wpp, f, indent=4, ensure_ascii=False)
+            return True
+        except Exception as e:
+            self.logger(f"Erro ao salvar config_wpp.json: {str(e)}", "ERRO")
+            return False
+
+    def obter_whatsapp_disponivel(self, config_wpp):
+        """
+        Obtém o próximo WhatsApp disponível que não atingiu o limite de 200 conversas.
+        Retorna: dict com dados do WhatsApp ou None se todos estão cheios
+        """
+        try:
+            whatsapps = config_wpp.get('whatsapps', [])
+            
+            for wa in whatsapps:
+                if wa.get('ativo') and wa.get('contador_enviados', 0) < wa.get('limite', 200):
+                    return wa
+            
+            # Se chegou aqui, todos estão cheios
+            self.logger("ALERTA: Todos os 5 WhatsApps atingiram o limite de 200 conversas!", "AVISO")
+            return None
+            
+        except Exception as e:
+            self.logger(f"Erro ao obter WhatsApp disponível: {str(e)}", "ERRO")
+            return None
+
+    def enviar_msg_wpp_inicial(self, numero, produto, valor, wa_config):
+        """
+        Envia mensagem inicial via WhatsApp para apresentação da loja.
+        """
+        try:
+            numero_formatado = numero if numero.startswith('55') else f'55{numero}'
+            
+            msg = (f"Ola, somos a loja bossx4! 👋\n"
+                   f"Vi que você comprou o produto: {produto}\n"
+                   f"No valor de: R$ {valor}\n\n"
+                   f"Vamos dar seguimento à sua entrega por aqui! 📦\n"
+                   f"Por favor, adicione nosso número para não perder as atualizações do pedido. 😊")
+            
+            # Monta a URL da API ZAP
+            porta = wa_config.get('porta', '8080')
+            instancia = wa_config.get('instancia')
+            url_wa = f"https://127.0.0.1:{porta}/message/sendText/{instancia}"
+            
+            payload = {
+                "number": numero_formatado,
+                "text": msg,
+            }
+            
+            headers = {
+                "apikey": wa_config.get('token'),
+                "Content-Type": "application/json"
+            }
+            
+            response = requests.post(url_wa, json=payload, headers=headers, timeout=15, verify=False)
+            
+            if response.status_code in [200, 201]:
+                self.logger(f"Mensagem inicial enviada via WhatsApp ({numero_formatado}) - Instância {instancia}")
+                return True
+            else:
+                self.logger(f"Erro ao enviar via WhatsApp ({numero_formatado}): Status {response.status_code}", "AVISO")
+                return False
+                
+        except requests.exceptions.Timeout:
+            self.logger(f"Timeout ao enviar mensagem para {numero} (WhatsApp {wa_config.get('numero')})", "ERRO")
+            return False
+        except Exception as e:
+            self.logger(f"Erro ao enviar mensagem WhatsApp para {numero}: {str(e)}", "ERRO")
+            return False
+
     def processar_chamada_wpp_inicial(self):
-        db = self.carregar_db()
-        self.logger("Iniciando contato inicial via WhatsApp...")
-        sucesso = 0
-        
-        for order_id, d in db.items():
-            # Filtro: Tem número extraído E não pagou boleto E não foi contatado via WA
-            if d.get('numero_extraido') and not d.get('boleto_pago') and not d.get('contatado_wa'):
-                # Template sugerido: 'primeiro_contato_loja'
-                # Variáveis: {{1}} Nome, {{2}} Produto
-                if self.enviar_wa_template(d, "atendimento_cliente_ml", [d.get('nome_cliente', 'Cliente'), d.get('produto', 'seu pedido')]):
-                    db[order_id]['contatado_wa'] = True
-                    db[order_id]['data_wa_inicial'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                    sucesso += 1
-                    self.logger(f"WA enviado para {order_id}")
-                    time.sleep(2) # Delay para evitar detecção de bot
-        
-        self.salvar_db(db)
-        self.logger(f"Finalizado. {sucesso} clientes contatados.")    
+        """
+        Processa chamadas iniciais via WhatsApp de forma distribuída entre 5 instâncias.
+        Máximo 200 mensagens por WhatsApp para evitar bloqueios por spam.
+        """
+        try:
+            db = self.carregar_db()
+            config_wpp = self.carregar_config_wpp()
+            
+            if not db:
+                self.logger("Banco de dados vazio. Nenhum contato a processar.", "AVISO")
+                return
+            
+            if not config_wpp:
+                self.logger("Falha ao carregar configuração dos WhatsApps.", "ERRO")
+                return
+            
+            self.logger("🚀 Iniciando contato inicial via WhatsApp (Sistema Distribuído)...")
+            
+            sucess_count = 0
+            erro_count = 0
+            skip_count = 0
+            
+            for order_id, dados in db.items():
+                try:
+                    # Validar condições
+                    if not dados.get('numero_extraido'):
+                        continue  # Sem número, pular
+                    
+                    if dados.get('boleto_pago'):
+                        continue  # Já pagou, pular
+                    
+                    if dados.get('contatado_wa'):
+                        skip_count += 1
+                        continue  # Já foi contatado, pular
+                    
+                    # Obter WhatsApp disponível
+                    wa_disponivel = self.obter_whatsapp_disponivel(config_wpp)
+                    if not wa_disponivel:
+                        self.logger(f"Abortando: Nenhum WhatsApp disponível. Já processados: {sucess_count}", "AVISO")
+                        break
+                    
+                    # Preparar dados
+                    numero = dados.get('numero_extraido')
+                    produto = dados.get('produto', 'seu produto')
+                    valor = dados.get('valor', 'valor não informado')
+                    
+                    # Enviar mensagem
+                    if self.enviar_msg_wpp_inicial(numero, produto, valor, wa_disponivel):
+                        # Atualizar DB com informações do WhatsApp utilizado
+                        db[order_id]['contatado_wa'] = True
+                        db[order_id]['zap_instancia'] = wa_disponivel.get('instancia')
+                        db[order_id]['zap_api_key'] = wa_disponivel.get('token')
+                        db[order_id]['porta'] = wa_disponivel.get('porta')
+                        db[order_id]['numero_wpp_usado'] = wa_disponivel.get('numero')
+                        db[order_id]['data_contatado_wa'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                        
+                        # Atualizar contador no config_wpp
+                        for wa in config_wpp.get('whatsapps', []):
+                            if wa.get('numero') == wa_disponivel.get('numero'):
+                                wa['contador_enviados'] = wa.get('contador_enviados', 0) + 1
+                                self.logger(f"WhatsApp {wa['numero']}: {wa['contador_enviados']}/200 mensagens enviadas")
+                                break
+                        
+                        sucess_count += 1
+                        
+                        # Pequeno delay para não sobrecarregar - ALTERAR DPS EM PROD
+                        time.sleep(0.5)
+                    else:
+                        erro_count += 1
+                
+                except Exception as e:
+                    self.logger(f"Erro ao processar ordem {order_id}: {str(e)}", "ERRO")
+                    erro_count += 1
+                    continue
+            
+            # Salvar atualizações
+            self.salvar_db(db)
+            self.salvar_config_wpp(config_wpp)
+            
+            # Log final
+            self.logger(f"✅ Processamento concluído!", "SUCESSO")
+            self.logger(f"   ✓ Enviados: {sucess_count}")
+            self.logger(f"   ⊘ Pulados (já contatados): {skip_count}")
+            self.logger(f"   ✗ Erros: {erro_count}")
+            
+        except Exception as e:
+            self.logger(f"Erro fatal em processar_chamada_wpp_inicial: {str(e)}", "ERRO")    
 
     # --- AUXILIARES ML ---
     def obter_produto_ml(self, order_id, token):

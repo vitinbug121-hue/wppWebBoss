@@ -1,0 +1,49 @@
+{
+  "whatsapps": [
+    {
+      "numero": 1,
+      "instancia": "INSTANCE_1",
+      "token": "SEU_TOKEN_1",
+      "porta": "8080",
+      "contador_enviados": 0,
+      "limite": 200,
+      "ativo": true
+    },
+    {
+      "numero": 2,
+      "instancia": "INSTANCE_2",
+      "token": "SEU_TOKEN_2",
+      "porta": "8081",
+      "contador_enviados": 0,
+      "limite": 200,
+      "ativo": true
+    },
+    {
+      "numero": 3,
+      "instancia": "INSTANCE_3",
+      "token": "SEU_TOKEN_3",
+      "porta": "8082",
+      "contador_enviados": 0,
+      "limite": 200,
+      "ativo": true
+    },
+    {
+      "numero": 4,
+      "instancia": "INSTANCE_4",
+      "token": "SEU_TOKEN_4",
+      "porta": "8083",
+      "contador_enviados": 0,
+      "limite": 200,
+      "ativo": true
+    },
+    {
+      "numero": 5,
+      "instancia": "INSTANCE_5",
+      "token": "SEU_TOKEN_5",
+      "porta": "8084",
+      "contador_enviados": 0,
+      "limite": 200,
+      "ativo": true
+    }
+  ]
+}
