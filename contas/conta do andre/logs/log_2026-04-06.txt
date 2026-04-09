@@ -1,5 +1,0 @@
-23:43:40 [INFO] WhatsApp/Docker iniciado com sucesso.
-23:44:03 [INFO] WhatsApp/Docker interrompido.
-23:44:08 [INFO] WhatsApp/Docker iniciado com sucesso.
-23:47:59 [INFO] WhatsApp/Docker interrompido.
-23:48:04 [INFO] WhatsApp/Docker iniciado com sucesso.

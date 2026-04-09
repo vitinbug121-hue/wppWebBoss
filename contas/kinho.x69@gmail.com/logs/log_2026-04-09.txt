@@ -1,0 +1,111 @@
+15:38:59 [INFO] Navegador aberto. Autorize e cole o código 'TG-...' abaixo.
+15:39:31 [INFO] Navegador aberto. Autorize e cole o código 'TG-...' abaixo.
+15:40:25 [INFO] Navegador aberto. Autorize e cole o código 'TG-...' abaixo.
+15:41:15 [INFO] Tokens salvos com sucesso!
+15:42:29 [ERROR] Erro: Prazo e Página Inicial são obrigatórios.
+15:42:35 [ERROR] Erro: Prazo e Página Inicial são obrigatórios.
+15:43:27 [ERROR] Erro: Prazo e Página Inicial são obrigatórios.
+15:43:52 [ERROR] Erro: Prazo e Página Inicial são obrigatórios.
+15:50:19 [INFO] Modo COMUM ativado: Serão processados todos os pedidos.
+15:50:21 [INFO] Buscando offset 0...
+15:50:21 [ERROR] Erro na requisição: 403 Client Error: Forbidden for url: https://api.mercadolibre.com/orders/search?seller=605466785&order.status=paid&offset=0&limit=50
+15:55:01 [INFO] Modo COMUM ativado: Serão processados todos os pedidos.
+15:55:01 [INFO] Buscando offset 0...
+15:55:02 [INFO] Busca finalizada. Total capturado: 33
+15:55:02 [INFO] Iniciando ação: SOLICITAR...
+15:55:08 [INFO] Thread de solicitar iniciada...
+15:55:25 [INFO] Iniciando ação: SOLICITAR...
+15:55:39 [INFO] Thread de solicitar iniciada...
+15:55:39 [INFO] Ordem 2000015881269646 ignorada (não está na lista do banco de dados).
+15:56:46 [INFO] Modo COMUM ativado: Serão processados todos os pedidos.
+15:56:46 [INFO] Buscando offset 0...
+15:56:46 [INFO] Busca finalizada. Total capturado: 33
+15:56:46 [INFO] Iniciando ação: SOLICITAR...
+15:56:49 [INFO] Thread de solicitar iniciada...
+15:57:01 [INFO] Ordem 2000015881269646 ignorada (não está na lista do banco de dados).
+15:58:40 [INFO] Modo COMUM ativado: Serão processados todos os pedidos.
+15:58:40 [INFO] Buscando offset 0...
+15:58:40 [INFO] Busca finalizada. Total capturado: 33
+15:58:40 [INFO] Iniciando ação: SOLICITAR...
+15:58:43 [INFO] Thread de solicitar iniciada...
+15:58:43 [ERROR] Erro no Passo 1: '2000015881269646'
+15:58:59 [INFO] Modo COMUM ativado: Serão processados todos os pedidos.
+15:58:59 [INFO] Buscando offset 0...
+15:58:59 [INFO] Busca finalizada. Total capturado: 33
+15:58:59 [INFO] Iniciando ação: SOLICITAR...
+15:59:02 [INFO] Thread de solicitar iniciada...
+16:01:11 [INFO] Modo COMUM ativado: Serão processados todos os pedidos.
+16:01:11 [INFO] Buscando offset 0...
+16:01:12 [INFO] Busca finalizada. Total capturado: 33
+16:01:12 [INFO] Iniciando ação: SOLICITAR...
+16:01:13 [INFO] Thread de solicitar iniciada...
+16:02:34 [INFO] Verificando histórico de mensagens para Ordem: 2000015881269646
+16:02:44 [INFO] Mensagem já constava no chat da Ordem 2000015881269646. Atualizando controle local.
+16:03:09 [INFO] Verificando histórico de mensagens para Ordem: 2000015886509230
+16:03:09 [INFO] Mensagem já constava no chat da Ordem 2000015886509230. Atualizando controle local.
+16:03:09 [INFO] Verificando histórico de mensagens para Ordem: 2000015888605074
+16:03:09 [INFO] Mensagem já constava no chat da Ordem 2000015888605074. Atualizando controle local.
+16:03:10 [INFO] Verificando histórico de mensagens para Ordem: 2000015890646322
+16:03:10 [INFO] Mensagem já constava no chat da Ordem 2000015890646322. Atualizando controle local.
+16:03:11 [INFO] Verificando histórico de mensagens para Ordem: 2000015891377220
+16:03:11 [INFO] Mensagem já constava no chat da Ordem 2000015891377220. Atualizando controle local.
+16:03:12 [INFO] Verificando histórico de mensagens para Ordem: 2000015894289144
+16:03:12 [INFO] Mensagem já constava no chat da Ordem 2000015894289144. Atualizando controle local.
+16:03:12 [INFO] Verificando histórico de mensagens para Ordem: 2000015894763166
+16:03:12 [INFO] Mensagem já constava no chat da Ordem 2000015894763166. Atualizando controle local.
+16:03:13 [INFO] Verificando histórico de mensagens para Ordem: 2000015895909404
+16:03:13 [INFO] Mensagem já constava no chat da Ordem 2000015895909404. Atualizando controle local.
+16:03:14 [INFO] Verificando histórico de mensagens para Ordem: 2000015897891774
+16:03:14 [INFO] Mensagem já constava no chat da Ordem 2000015897891774. Atualizando controle local.
+16:03:15 [INFO] Verificando histórico de mensagens para Ordem: 2000015898376556
+16:03:15 [INFO] Mensagem já constava no chat da Ordem 2000015898376556. Atualizando controle local.
+16:03:16 [INFO] Verificando histórico de mensagens para Ordem: 2000015898943904
+16:03:16 [INFO] Mensagem já constava no chat da Ordem 2000015898943904. Atualizando controle local.
+16:03:18 [INFO] Verificando histórico de mensagens para Ordem: 2000015899825002
+16:03:18 [INFO] Mensagem já constava no chat da Ordem 2000015899825002. Atualizando controle local.
+16:03:18 [INFO] Verificando histórico de mensagens para Ordem: 2000015900658876
+16:03:18 [INFO] Mensagem já constava no chat da Ordem 2000015900658876. Atualizando controle local.
+16:03:20 [INFO] Verificando histórico de mensagens para Ordem: 2000015901004152
+16:03:20 [INFO] Mensagem já constava no chat da Ordem 2000015901004152. Atualizando controle local.
+16:03:21 [INFO] Verificando histórico de mensagens para Ordem: 2000015901562230
+16:03:21 [INFO] Mensagem já constava no chat da Ordem 2000015901562230. Atualizando controle local.
+16:03:22 [INFO] Verificando histórico de mensagens para Ordem: 2000015902181420
+16:03:22 [INFO] Mensagem já constava no chat da Ordem 2000015902181420. Atualizando controle local.
+16:03:24 [INFO] Verificando histórico de mensagens para Ordem: 2000015902267998
+16:03:24 [INFO] Mensagem já constava no chat da Ordem 2000015902267998. Atualizando controle local.
+16:03:25 [INFO] Verificando histórico de mensagens para Ordem: 2000015902398888
+16:03:25 [INFO] Mensagem já constava no chat da Ordem 2000015902398888. Atualizando controle local.
+16:03:26 [INFO] Verificando histórico de mensagens para Ordem: 2000015903807860
+16:03:26 [INFO] Mensagem já constava no chat da Ordem 2000015903807860. Atualizando controle local.
+16:03:26 [INFO] Verificando histórico de mensagens para Ordem: 2000015904923666
+16:03:26 [INFO] Mensagem já constava no chat da Ordem 2000015904923666. Atualizando controle local.
+16:03:27 [INFO] Verificando histórico de mensagens para Ordem: 2000015905626194
+16:03:27 [INFO] Mensagem já constava no chat da Ordem 2000015905626194. Atualizando controle local.
+16:03:28 [INFO] Verificando histórico de mensagens para Ordem: 2000015905756656
+16:03:28 [INFO] Mensagem já constava no chat da Ordem 2000015905756656. Atualizando controle local.
+16:03:28 [INFO] Verificando histórico de mensagens para Ordem: 2000015905904790
+16:03:28 [INFO] Mensagem já constava no chat da Ordem 2000015905904790. Atualizando controle local.
+16:03:29 [INFO] Verificando histórico de mensagens para Ordem: 2000015906299002
+16:03:29 [INFO] Mensagem já constava no chat da Ordem 2000015906299002. Atualizando controle local.
+16:03:29 [INFO] Verificando histórico de mensagens para Ordem: 2000015906578542
+16:03:29 [INFO] Mensagem já constava no chat da Ordem 2000015906578542. Atualizando controle local.
+16:03:31 [INFO] Verificando histórico de mensagens para Ordem: 2000015906684920
+16:03:31 [INFO] Mensagem já constava no chat da Ordem 2000015906684920. Atualizando controle local.
+16:03:31 [INFO] Verificando histórico de mensagens para Ordem: 2000015908491848
+16:03:31 [INFO] Mensagem já constava no chat da Ordem 2000015908491848. Atualizando controle local.
+16:03:32 [INFO] Verificando histórico de mensagens para Ordem: 2000015909156524
+16:03:32 [INFO] Mensagem já constava no chat da Ordem 2000015909156524. Atualizando controle local.
+16:03:33 [INFO] Verificando histórico de mensagens para Ordem: 2000015909254170
+16:03:33 [INFO] Mensagem já constava no chat da Ordem 2000015909254170. Atualizando controle local.
+16:03:34 [INFO] Verificando histórico de mensagens para Ordem: 2000015909331038
+16:03:34 [INFO] Mensagem já constava no chat da Ordem 2000015909331038. Atualizando controle local.
+16:03:35 [INFO] Verificando histórico de mensagens para Ordem: 2000015909765132
+16:03:36 [INFO] Ordem 2000015909765132: Mensagem enviada e registrada.
+16:03:36 [INFO] Processamento da ordem 2000015909765132 concluído. Próxima ordem...
+16:03:36 [INFO] Verificando histórico de mensagens para Ordem: 2000015909806664
+16:03:37 [INFO] Ordem 2000015909806664: Mensagem enviada e registrada.
+16:03:37 [INFO] Processamento da ordem 2000015909806664 concluído. Próxima ordem...
+16:03:38 [INFO] Verificando histórico de mensagens para Ordem: 2000015910145072
+16:03:39 [INFO] Ordem 2000015910145072: Mensagem enviada e registrada.
+16:03:39 [INFO] Processamento da ordem 2000015910145072 concluído. Próxima ordem...
+16:03:39 [INFO] Fim da Execução. Novas solicitações enviadas: 3

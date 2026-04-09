@@ -462,7 +462,8 @@ class AppColetorPro:
         prazo_usuario = self.var_prazo.get()
         pagInicial = self.var_pag_inicial.get()
         
-        if acao == "solicitar" or acao == "rastreio" and (not prazo_usuario or not pagInicial):
+        if acao == "solicitar" or acao == "rastreio":
+          if not prazo_usuario or not pagInicial:
             self.logger("Erro: Prazo e Página Inicial são obrigatórios.", "ERRO")
             return
         
@@ -593,12 +594,9 @@ class AppColetorPro:
                     valor = str(pedido['total_amount'])
                     corProduto = str(pedido['order_items'][0]['item']['variation_attributes'][0]['value_name']) 
                     
-                    if order_id not in db:
-                        self.logger(f"Ordem {order_id} ignorada (não está na lista do banco de dados).")
-                        continue
-                    
-                    if(not db[order_id].get('buyer_id')):
-                        db[order_id]['buyer_id'] = buyer_id
+                    #if order_id not in db:
+                        #self.logger(f"Ordem {order_id} ignorada (não está na lista do banco de dados).")
+                        #continue
                        
                 if(tipo == "by_id"):
                     ordem_ids_input = self.var_ordem_ids.get().strip()
@@ -606,20 +604,20 @@ class AppColetorPro:
                         self.logger("Erro: Para processamento por ID, o campo 'Ordem IDs' deve ser preenchido.", "ERRO")
                         return
                     ordem_ids = [oid.strip() for oid in ordem_ids_input.split(",")]
-                    if order_id not in ordem_ids:
-                        self.logger(f"Ordem {order_id} ignorada (não está na lista de IDs).")
-                        continue
+                    
                 
                 # APOS 2 OU 3 DIAS DO ENVIO DO CODIGO DE RASTREIO, ENVIAR MSG E BOLETO PARA PAGAMENTO DE TAXA E SALVAR NO DB QUE O BOLETO FOI ENVIADO
                 url_msg = f"https://api.mercadolibre.com/messages/packs/{order_id}/sellers/{config['ML_SELLER_ID']}?tag=post_sale"
                 # Se a ordem não existe no DB, inicializamos como dicionário vazio
                 if order_id not in db:
-                    self.logger(f"Ordem {order_id} ignorada (não está na lista do banco de dados).")
-                    continue
-                    #db[order_id] = {}
+                    #self.logger(f"Ordem {order_id} ignorada (não está na lista do banco de dados).")
+                    #continue
+                    db[order_id] = {}
                     
                 dados_pedido = db[order_id]    
                 
+                if(not db[order_id].get('buyer_id')):
+                        db[order_id]['buyer_id'] = buyer_id
                 
                 # Usamos after() para que a Main Thread faça a pintura do widget    
                 self.root.after(0, lambda v=i+1: self.progress.configure(value=v))    
@@ -1054,7 +1052,7 @@ class AppColetorPro:
             return False
         
         # Preparar e enviar a mensagem
-        msg_encerramento = "Para seguir com andamento do pedido, por favor encerre a reclamação."
+        msg_encerramento = "Poderia encerrar a reclamação, Esse passo é necessário para que o sistema libere a continuidade da sua entrega."
         url_msg = f"https://api.mercadolibre.com/post-purchase/v1/claims/{claim_id}/actions/send-message"
         
         payload = {
