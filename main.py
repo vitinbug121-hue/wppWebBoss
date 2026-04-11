@@ -933,7 +933,7 @@ class AppColetorPro:
                         self.salvar_db(db)
                         self.logger(f"Ordem {order_id}: Mensagem enviada e registrada.")
                     else:
-                        self.logger(f"Falha ao enviar mensagem para {order_id}: {envio.text}", "AVISO")
+                        self.logger(f"Falha ao enviar mensagem para {order_id}", "AVISO")
 
                 self.logger(f"Processamento da ordem {order_id} concluído. Próxima ordem...")
             # Salva o progresso no banco de dados local
