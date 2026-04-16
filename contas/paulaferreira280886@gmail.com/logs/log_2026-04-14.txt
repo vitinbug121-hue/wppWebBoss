@@ -1,0 +1,19 @@
+21:11:49 [INFO] Navegador aberto. Autorize e cole o código 'TG-...' abaixo.
+21:12:10 [ERROR] Erro na troca de código: {"message":"code_verifier is a required parameter","error":"invalid_request","status":400,"cause":[]}
+21:12:19 [INFO] Navegador aberto. Autorize e cole o código 'TG-...' abaixo.
+21:12:35 [ERROR] Erro na troca de código: {"message":"code_verifier is a required parameter","error":"invalid_request","status":400,"cause":[]}
+21:12:52 [INFO] Navegador aberto. Autorize e cole o código 'TG-...' abaixo.
+21:13:38 [ERROR] Erro na troca de código: {"message":"code_verifier is a required parameter","error":"invalid_request","status":400,"cause":[]}
+21:15:13 [INFO] Navegador aberto. Autorize e cole o código 'TG-...' abaixo.
+21:15:24 [ERROR] Erro na troca de código: {"message":"code_verifier is a required parameter","error":"invalid_request","status":400,"cause":[]}
+21:16:08 [INFO] Navegador aberto. Autorize e cole o código 'TG-...' abaixo.
+21:16:57 [ERROR] Erro na troca de código: {"message":"code_verifier is a required parameter","error":"invalid_request","status":400,"cause":[]}
+21:26:28 [INFO] Navegador aberto. Autorize e cole o código 'TG-...' abaixo.
+21:28:10 [ERROR] Erro na troca de código: {"message":"code_verifier is a required parameter","error":"invalid_request","status":400,"cause":[]}
+21:35:29 [INFO] Navegador aberto. Autorize e cole o código 'TG-...' abaixo.
+21:42:20 [INFO] Navegador aberto. Autorize e cole o código 'TG-...' abaixo.
+21:44:15 [ERROR] Erro na troca de código: {"message":"code_verifier is a required parameter","error":"invalid_request","status":400,"cause":[]}
+21:56:55 [INFO] Navegador aberto. Autorize e cole o código 'TG-...' abaixo.
+21:57:58 [ERROR] Erro na troca de código: {"message":"the client_id does not match the original","error":"invalid_grant","status":400,"cause":[]}
+22:11:35 [INFO] Navegador aberto. Autorize e cole o código 'TG-...' abaixo.
+22:11:52 [INFO] Tokens salvos com sucesso!

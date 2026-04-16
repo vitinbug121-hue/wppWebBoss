@@ -10,7 +10,14 @@
         "data_solicitacao": "09/04/2026 16:02",
         "data_solicitacao_inicial": "09/04/2026 16:02",
         "zap_extraido": "54999427451",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 15:34",
+        "codigo_rastreio": "CNBR00121807622",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:29",
+        "codigo_boleto": "37690001040010567100200133928143 5 14220000013896",
+        "id_payment": "154828551826"
     },
     "2000015886509230": {
         "buyer_id": 2120912522,
@@ -21,7 +28,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "09/04/2026 16:03",
-        "data_solicitacao_inicial": "09/04/2026 16:03"
+        "data_solicitacao_inicial": "09/04/2026 16:03",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:09",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:29",
+        "codigo_boleto": "37690001040010567100200133928143 5 14220000013896",
+        "id_payment": "154828551826"
     },
     "2000015888605074": {
         "buyer_id": 112637499,
@@ -32,7 +46,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "09/04/2026 16:03",
-        "data_solicitacao_inicial": "09/04/2026 16:03"
+        "data_solicitacao_inicial": "09/04/2026 16:03",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:44",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:29",
+        "codigo_boleto": "37690001040010567100200133928143 5 14220000013896",
+        "id_payment": "154828551826"
     },
     "2000015890646322": {
         "buyer_id": 38075755,
@@ -45,7 +66,10 @@
         "data_solicitacao": "09/04/2026 16:03",
         "data_solicitacao_inicial": "09/04/2026 16:03",
         "zap_extraido": "21970829757",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 18:20",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "2000015891377220": {
         "buyer_id": 675891587,
@@ -69,7 +93,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "09/04/2026 16:03",
-        "data_solicitacao_inicial": "09/04/2026 16:03"
+        "data_solicitacao_inicial": "09/04/2026 16:03",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:49",
+        "codigo_boleto": "37690001040010567100200133928242 2 14220000013896",
+        "id_payment": "154828780198"
     },
     "2000015894763166": {
         "buyer_id": 2421002141,
@@ -80,7 +111,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "09/04/2026 16:03",
-        "data_solicitacao_inicial": "09/04/2026 16:03"
+        "data_solicitacao_inicial": "09/04/2026 16:03",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:55",
+        "codigo_boleto": "37690001040010567100200133928317 5 14220000013896",
+        "id_payment": "154078296303"
     },
     "2000015895909404": {
         "buyer_id": 751559155,
@@ -93,7 +131,14 @@
         "data_solicitacao": "09/04/2026 16:03",
         "data_solicitacao_inicial": "09/04/2026 16:03",
         "zap_extraido": "85987478710",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:55",
+        "codigo_boleto": "37690001040010567100200133928390 1 14220000013896",
+        "id_payment": "154828806318"
     },
     "2000015897891774": {
         "buyer_id": 789229550,
@@ -104,7 +149,16 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "09/04/2026 16:03",
-        "data_solicitacao_inicial": "09/04/2026 16:03"
+        "data_solicitacao_inicial": "09/04/2026 16:03",
+        "zap_extraido": "74998120138",
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:56",
+        "codigo_boleto": "37690001040010567100200133928481 1 14220000013896",
+        "id_payment": "154078077751"
     },
     "2000015898376556": {
         "buyer_id": 28652589,
@@ -115,7 +169,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "09/04/2026 16:03",
-        "data_solicitacao_inicial": "09/04/2026 16:03"
+        "data_solicitacao_inicial": "09/04/2026 16:03",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:56",
+        "codigo_boleto": "37690001040010567100200133928572 9 14220000013896",
+        "id_payment": "154078262977"
     },
     "2000015898943904": {
         "buyer_id": 1312304416,
@@ -150,7 +211,14 @@
         "data_solicitacao": "09/04/2026 16:03",
         "data_solicitacao_inicial": "09/04/2026 16:03",
         "zap_extraido": "17988147827",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:56",
+        "codigo_boleto": "37690001040010567100200133928663 8 14220000013896",
+        "id_payment": "154078275081"
     },
     "2000015901004152": {
         "buyer_id": 3271755249,
@@ -172,7 +240,10 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "09/04/2026 16:03",
-        "data_solicitacao_inicial": "09/04/2026 16:03"
+        "data_solicitacao_inicial": "09/04/2026 16:03",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 23:00",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "2000015902181420": {
         "buyer_id": 445027625,
@@ -183,7 +254,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "09/04/2026 16:03",
-        "data_solicitacao_inicial": "09/04/2026 16:03"
+        "data_solicitacao_inicial": "09/04/2026 16:03",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:56",
+        "codigo_boleto": "37690001040010567100200133928713 4 14220000013896",
+        "id_payment": "154828683634"
     },
     "2000015902267998": {
         "buyer_id": 236549355,
@@ -194,7 +272,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "09/04/2026 16:03",
-        "data_solicitacao_inicial": "09/04/2026 16:03"
+        "data_solicitacao_inicial": "09/04/2026 16:03",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:56",
+        "codigo_boleto": "37690001040010567100200133928796 1 14220000013896",
+        "id_payment": "154828904576"
     },
     "2000015902398888": {
         "buyer_id": 1008187921,
@@ -231,7 +316,14 @@
         "data_solicitacao": "09/04/2026 16:03",
         "data_solicitacao_inicial": "09/04/2026 16:03",
         "zap_extraido": "21987647016",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:56",
+        "codigo_boleto": "37690001040010567100200133928838 8 14220000013896",
+        "id_payment": "154828749604"
     },
     "2000015905626194": {
         "buyer_id": 3316899053,
@@ -244,7 +336,14 @@
         "data_solicitacao": "09/04/2026 16:03",
         "data_solicitacao_inicial": "09/04/2026 16:03",
         "zap_extraido": "81992038863",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:02",
+        "codigo_boleto": "37690001040010567100200134300938 2 14220000013895",
+        "id_payment": "154147704289"
     },
     "2000015905756656": {
         "buyer_id": 221801621,
@@ -257,7 +356,14 @@
         "data_solicitacao": "09/04/2026 16:03",
         "data_solicitacao_inicial": "09/04/2026 16:03",
         "zap_extraido": "11992824566",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:56",
+        "codigo_boleto": "37690001040010567100200133929042 4 14220000013896",
+        "id_payment": "154078343479"
     },
     "2000015905904790": {
         "buyer_id": 232315798,
@@ -270,7 +376,14 @@
         "data_solicitacao": "09/04/2026 16:03",
         "data_solicitacao_inicial": "09/04/2026 16:03",
         "zap_extraido": "21982584241",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:56",
+        "codigo_boleto": "37690001040010567100200133929117 7 14220000013896",
+        "id_payment": "154078447067"
     },
     "2000015906299002": {
         "buyer_id": 495053491,
@@ -283,7 +396,14 @@
         "data_solicitacao": "09/04/2026 16:03",
         "data_solicitacao_inicial": "09/04/2026 16:03",
         "zap_extraido": "99984140390",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:56",
+        "codigo_boleto": "37690001040010567100200133929208 6 14220000013896",
+        "id_payment": "154828913340"
     },
     "2000015906578542": {
         "buyer_id": 262539896,
@@ -296,7 +416,14 @@
         "data_solicitacao": "09/04/2026 16:03",
         "data_solicitacao_inicial": "09/04/2026 16:03",
         "zap_extraido": "11977557969",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:56",
+        "codigo_boleto": "37690001040010567100200133929299 1 14220000013896",
+        "id_payment": "154829264322"
     },
     "2000015906684920": {
         "buyer_id": 616145430,
@@ -309,7 +436,17 @@
         "data_solicitacao": "09/04/2026 16:03",
         "data_solicitacao_inicial": "09/04/2026 16:03",
         "zap_extraido": "98984792455",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:56",
+        "codigo_boleto": "37690001040010567100200133931675 1 14220000013895",
+        "id_payment": "154079291229",
+        "boleto_pago": true,
+        "data_boleto_pago": "15/04/2026 23:30",
+        "boleto_pago_agradecimento": true
     },
     "2000015908491848": {
         "buyer_id": 348884574,
@@ -322,7 +459,14 @@
         "data_solicitacao": "09/04/2026 16:03",
         "data_solicitacao_inicial": "09/04/2026 16:03",
         "zap_extraido": "62995674092",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:56",
+        "codigo_boleto": "37690001040010567100200133931782 5 14220000013895",
+        "id_payment": "154830169448"
     },
     "2000015909156524": {
         "buyer_id": 301224843,
@@ -335,7 +479,17 @@
         "data_solicitacao": "09/04/2026 16:03",
         "data_solicitacao_inicial": "09/04/2026 16:03",
         "zap_extraido": "71997234731",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:02",
+        "codigo_boleto": "37690001040010567100200134301514 3 14220000013895",
+        "id_payment": "154147703173",
+        "boleto_pago": true,
+        "data_boleto_pago": "15/04/2026 23:30",
+        "boleto_pago_agradecimento": true
     },
     "2000015909254170": {
         "buyer_id": 2692594472,
@@ -346,7 +500,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "09/04/2026 16:03",
-        "data_solicitacao_inicial": "09/04/2026 16:03"
+        "data_solicitacao_inicial": "09/04/2026 16:03",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 23:02",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:56",
+        "codigo_boleto": "37690001040010567100200133931808 7 14220000013895",
+        "id_payment": "154079233869"
     },
     "2000015909331038": {
         "buyer_id": 176223310,
@@ -359,7 +520,14 @@
         "data_solicitacao": "09/04/2026 16:03",
         "data_solicitacao_inicial": "09/04/2026 16:03",
         "zap_extraido": "21964380219",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:56",
+        "codigo_boleto": "37690001040010567100200133931857 8 14220000013895",
+        "id_payment": "154830084050"
     },
     "2000015909765132": {
         "buyer_id": 1459359532,
@@ -372,7 +540,14 @@
         "data_solicitacao": "09/04/2026 16:03",
         "data_solicitacao_inicial": "09/04/2026 16:03",
         "zap_extraido": "91985658623",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:57",
+        "codigo_boleto": "37690001040010567100200133931915 2 14220000013895",
+        "id_payment": "154079315675"
     },
     "2000015909806664": {
         "buyer_id": 2491655971,
@@ -385,7 +560,17 @@
         "data_solicitacao": "09/04/2026 16:03",
         "data_solicitacao_inicial": "09/04/2026 16:03",
         "zap_extraido": "13997717329",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:57",
+        "codigo_boleto": "37690001040010567100200133931931 9 14220000013895",
+        "id_payment": "154079387633",
+        "boleto_pago": true,
+        "data_boleto_pago": "15/04/2026 23:30",
+        "boleto_pago_agradecimento": true
     },
     "2000015910145072": {
         "buyer_id": 400467277,
@@ -396,7 +581,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "09/04/2026 16:03",
-        "data_solicitacao_inicial": "09/04/2026 16:03"
+        "data_solicitacao_inicial": "09/04/2026 16:03",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:57",
+        "codigo_boleto": "37690001040010567100200133932004 5 14220000013895",
+        "id_payment": "154079451395"
     },
     "2000015916510154": {
         "buyer_id": "241899926",
@@ -409,7 +601,14 @@
         "data_solicitacao": "10/04/2026 01:04",
         "data_solicitacao_inicial": "10/04/2026 01:04",
         "zap_extraido": "11954099649",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:58",
+        "codigo_boleto": "37690001040010567100200133936138 2 14220000013895",
+        "id_payment": "154832812324"
     },
     "2000015912030366": {
         "buyer_id": 673213528,
@@ -420,7 +619,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "10/04/2026 09:16",
-        "data_solicitacao_inicial": "10/04/2026 09:16"
+        "data_solicitacao_inicial": "10/04/2026 09:16",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:57",
+        "codigo_boleto": "37690001040010567100200133932053 6 14220000013895",
+        "id_payment": "154079415781"
     },
     "2000015912622864": {
         "buyer_id": "499495158",
@@ -431,7 +637,10 @@
         "produto": "",
         "valor": "",
         "data_solicitacao": "10/04/2026 09:28",
-        "data_solicitacao_inicial": "10/04/2026 09:28"
+        "data_solicitacao_inicial": "10/04/2026 09:28",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "2000015912711672": {
         "buyer_id": 1970771043,
@@ -444,7 +653,14 @@
         "data_solicitacao": "10/04/2026 09:20",
         "data_solicitacao_inicial": "10/04/2026 09:20",
         "zap_extraido": "54981107104",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:45",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:57",
+        "codigo_boleto": "37690001040010567100200133932145 5 14220000013895",
+        "id_payment": "154830410896"
     },
     "2000015913190184": {
         "buyer_id": 592577538,
@@ -457,7 +673,17 @@
         "data_solicitacao": "10/04/2026 09:20",
         "data_solicitacao_inicial": "10/04/2026 09:20",
         "zap_extraido": "13996695342",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:57",
+        "codigo_boleto": "37690001040010567100200133932228 6 14220000013895",
+        "id_payment": "154079547497",
+        "boleto_pago": true,
+        "data_boleto_pago": "15/04/2026 23:30",
+        "boleto_pago_agradecimento": true
     },
     "2000015907459382": {
         "buyer_id": 268173063,
@@ -468,7 +694,16 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "10/04/2026 09:20",
-        "data_solicitacao_inicial": "10/04/2026 09:20"
+        "data_solicitacao_inicial": "10/04/2026 09:20",
+        "zap_extraido": "88997079134",
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:57",
+        "codigo_boleto": "37690001040010567100200133932970 8 14220000013895",
+        "id_payment": "154830788642"
     },
     "2000015913608316": {
         "buyer_id": 145856302,
@@ -481,7 +716,14 @@
         "data_solicitacao": "10/04/2026 09:20",
         "data_solicitacao_inicial": "10/04/2026 09:20",
         "zap_extraido": "54992041633",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:57",
+        "codigo_boleto": "37690001040010567100200133933036 6 14220000013895",
+        "id_payment": "154830942270"
     },
     "2000015913647088": {
         "buyer_id": 138325237,
@@ -494,7 +736,10 @@
         "data_solicitacao": "10/04/2026 09:20",
         "data_solicitacao_inicial": "10/04/2026 09:20",
         "zap_extraido": "49999142479",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "2000015913811766": {
         "buyer_id": 3264532987,
@@ -505,7 +750,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "10/04/2026 09:20",
-        "data_solicitacao_inicial": "10/04/2026 09:20"
+        "data_solicitacao_inicial": "10/04/2026 09:20",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:57",
+        "codigo_boleto": "37690001040010567100200133933093 5 14220000013895",
+        "id_payment": "154830802760"
     },
     "2000015914056686": {
         "buyer_id": 1568920788,
@@ -518,7 +770,14 @@
         "data_solicitacao": "10/04/2026 09:21",
         "data_solicitacao_inicial": "10/04/2026 09:21",
         "zap_extraido": "21965832864",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:57",
+        "codigo_boleto": "37690001040010567100200133933903 7 14220000013895",
+        "id_payment": "154080427749"
     },
     "2000015914071548": {
         "buyer_id": 649475550,
@@ -531,7 +790,14 @@
         "data_solicitacao": "10/04/2026 09:21",
         "data_solicitacao_inicial": "10/04/2026 09:21",
         "zap_extraido": "31986538088",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:57",
+        "codigo_boleto": "37690001040010567100200133933986 2 14220000013895",
+        "id_payment": "154831201760"
     },
     "2000015914267610": {
         "buyer_id": "216576045",
@@ -544,7 +810,14 @@
         "data_solicitacao": "10/04/2026 09:26",
         "data_solicitacao_inicial": "10/04/2026 09:26",
         "zap_extraido": "42998255590",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:57",
+        "codigo_boleto": "37690001040010567100200133934026 4 14220000013895",
+        "id_payment": "154080830241"
     },
     "2000015914916760": {
         "buyer_id": 1377864093,
@@ -570,7 +843,14 @@
         "data_solicitacao": "10/04/2026 09:21",
         "data_solicitacao_inicial": "10/04/2026 09:21",
         "zap_extraido": "55992021282",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:57",
+        "codigo_boleto": "37690001040010567100200133934109 5 14220000013895",
+        "id_payment": "154080583441"
     },
     "2000015915284554": {
         "buyer_id": 414521133,
@@ -583,7 +863,17 @@
         "data_solicitacao": "10/04/2026 09:21",
         "data_solicitacao_inicial": "10/04/2026 09:21",
         "zap_extraido": "11980908532",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:57",
+        "codigo_boleto": "37690001040010567100200133934158 6 14220000013895",
+        "id_payment": "154080583553",
+        "boleto_pago": true,
+        "data_boleto_pago": "15/04/2026 23:30",
+        "boleto_pago_agradecimento": true
     },
     "2000015914243072": {
         "buyer_id": "1031672087",
@@ -596,7 +886,10 @@
         "data_solicitacao": "10/04/2026 09:28",
         "data_solicitacao_inicial": "10/04/2026 09:28",
         "zap_extraido": "99981941069",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "2000015915936702": {
         "buyer_id": 653779139,
@@ -609,7 +902,14 @@
         "data_solicitacao": "10/04/2026 09:21",
         "data_solicitacao_inicial": "10/04/2026 09:21",
         "zap_extraido": "91981762109",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:58",
+        "codigo_boleto": "37690001040010567100200133934224 9 14220000013895",
+        "id_payment": "154080599443"
     },
     "2000015916310052": {
         "buyer_id": 28165363,
@@ -622,7 +922,17 @@
         "data_solicitacao": "10/04/2026 09:21",
         "data_solicitacao_inicial": "10/04/2026 09:21",
         "zap_extraido": "31987972240",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:58",
+        "codigo_boleto": "37690001040010567100200133936013 9 14220000013895",
+        "id_payment": "154832622718",
+        "boleto_pago": true,
+        "data_boleto_pago": "15/04/2026 23:30",
+        "boleto_pago_agradecimento": true
     },
     "2000015916287342": {
         "buyer_id": 226828828,
@@ -633,7 +943,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "10/04/2026 09:21",
-        "data_solicitacao_inicial": "10/04/2026 09:21"
+        "data_solicitacao_inicial": "10/04/2026 09:21",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:58",
+        "codigo_boleto": "37690001040010567100200133936096 4 14220000013895",
+        "id_payment": "154832509296"
     },
     "2000015917011636": {
         "buyer_id": 312959772,
@@ -646,7 +963,17 @@
         "data_solicitacao": "10/04/2026 09:21",
         "data_solicitacao_inicial": "10/04/2026 09:21",
         "zap_extraido": "19996261750",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:58",
+        "codigo_boleto": "37690001040010567100200133936161 7 14220000013895",
+        "id_payment": "154832770534",
+        "boleto_pago": true,
+        "data_boleto_pago": "15/04/2026 23:30",
+        "boleto_pago_agradecimento": true
     },
     "2000015917120292": {
         "buyer_id": 406637859,
@@ -657,7 +984,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "10/04/2026 09:21",
-        "data_solicitacao_inicial": "10/04/2026 09:21"
+        "data_solicitacao_inicial": "10/04/2026 09:21",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:58",
+        "codigo_boleto": "37690001040010567100200133936922 2 14220000013895",
+        "id_payment": "154082263249"
     },
     "2000015917526716": {
         "buyer_id": 1978315526,
@@ -670,7 +1004,14 @@
         "data_solicitacao": "10/04/2026 09:21",
         "data_solicitacao_inicial": "10/04/2026 09:21",
         "zap_extraido": "71999557516",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:58",
+        "codigo_boleto": "37690001040010567100200134257450 1 14220000013895",
+        "id_payment": "154139611187"
     },
     "2000015917557574": {
         "buyer_id": "345656595",
@@ -681,7 +1022,10 @@
         "produto": "",
         "valor": "",
         "data_solicitacao": "10/04/2026 09:26",
-        "data_solicitacao_inicial": "10/04/2026 09:26"
+        "data_solicitacao_inicial": "10/04/2026 09:26",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 18:20",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "2000015917819470": {
         "buyer_id": "1671751309",
@@ -694,7 +1038,10 @@
         "data_solicitacao": "10/04/2026 09:28",
         "data_solicitacao_inicial": "10/04/2026 09:28",
         "zap_extraido": "21971654076",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "2000015917884492": {
         "buyer_id": 2327424391,
@@ -707,7 +1054,14 @@
         "data_solicitacao": "10/04/2026 09:21",
         "data_solicitacao_inicial": "10/04/2026 09:21",
         "zap_extraido": "34991255951",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:58",
+        "codigo_boleto": "37690001040010567100200134258672 7 14220000013895",
+        "id_payment": "154139731413"
     },
     "2000015917917494": {
         "buyer_id": 280794053,
@@ -718,7 +1072,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "10/04/2026 09:21",
-        "data_solicitacao_inicial": "10/04/2026 09:21"
+        "data_solicitacao_inicial": "10/04/2026 09:21",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:58",
+        "codigo_boleto": "37690001040010567100200134259704 3 14220000013895",
+        "id_payment": "154891247964"
     },
     "2000015918937652": {
         "buyer_id": 376109242,
@@ -744,7 +1105,14 @@
         "data_solicitacao": "10/04/2026 09:21",
         "data_solicitacao_inicial": "10/04/2026 09:21",
         "zap_extraido": "97984003666",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:58",
+        "codigo_boleto": "37690001040010567100200134266063 8 14220000013895",
+        "id_payment": "154141116591"
     },
     "2000015920678850": {
         "buyer_id": "2351270206",
@@ -755,7 +1123,10 @@
         "produto": "",
         "valor": "",
         "data_solicitacao": "10/04/2026 09:28",
-        "data_solicitacao_inicial": "10/04/2026 09:28"
+        "data_solicitacao_inicial": "10/04/2026 09:28",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "2000015920642468": {
         "buyer_id": 794770955,
@@ -766,7 +1137,17 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "10/04/2026 20:40",
-        "data_solicitacao_inicial": "10/04/2026 20:40"
+        "data_solicitacao_inicial": "10/04/2026 20:40",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:58",
+        "codigo_boleto": "37690001040010567100200134266584 1 14220000013895",
+        "id_payment": "154141123343",
+        "boleto_pago": true,
+        "data_boleto_pago": "15/04/2026 23:30",
+        "boleto_pago_agradecimento": true
     },
     "2000015921628460": {
         "buyer_id": 3206346758,
@@ -779,7 +1160,14 @@
         "data_solicitacao": "10/04/2026 20:40",
         "data_solicitacao_inicial": "10/04/2026 20:40",
         "zap_extraido": "83993567781",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:58",
+        "codigo_boleto": "37690001040010567100200134267186 8 14220000013895",
+        "id_payment": "154892438432"
     },
     "2000015922218458": {
         "buyer_id": 259522130,
@@ -792,7 +1180,14 @@
         "data_solicitacao": "10/04/2026 20:40",
         "data_solicitacao_inicial": "10/04/2026 20:40",
         "zap_extraido": "75982475524",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:58",
+        "codigo_boleto": "37690001040010567100200134267731 1 14220000013895",
+        "id_payment": "154141293579"
     },
     "2000015922591228": {
         "buyer_id": 99222527,
@@ -803,7 +1198,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "10/04/2026 20:40",
-        "data_solicitacao_inicial": "10/04/2026 20:40"
+        "data_solicitacao_inicial": "10/04/2026 20:40",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:58",
+        "codigo_boleto": "37690001040010567100200134268200 6 14220000013895",
+        "id_payment": "154141343603"
     },
     "2000015922705322": {
         "buyer_id": 419865455,
@@ -814,7 +1216,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "10/04/2026 20:40",
-        "data_solicitacao_inicial": "10/04/2026 20:40"
+        "data_solicitacao_inicial": "10/04/2026 20:40",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:59",
+        "codigo_boleto": "37690001040010567100200134268747 5 14220000013895",
+        "id_payment": "154892577598"
     },
     "2000015923012848": {
         "buyer_id": 344845425,
@@ -827,7 +1236,17 @@
         "data_solicitacao": "10/04/2026 20:40",
         "data_solicitacao_inicial": "10/04/2026 20:40",
         "zap_extraido": "64992667100",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:59",
+        "codigo_boleto": "37690001040010567100200134269299 6 14220000013895",
+        "id_payment": "154892816202",
+        "boleto_pago": true,
+        "data_boleto_pago": "15/04/2026 23:30",
+        "boleto_pago_agradecimento": true
     },
     "2000015923140412": {
         "buyer_id": 672002797,
@@ -838,7 +1257,17 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "10/04/2026 20:40",
-        "data_solicitacao_inicial": "10/04/2026 20:40"
+        "data_solicitacao_inicial": "10/04/2026 20:40",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:59",
+        "codigo_boleto": "37690001040010567100200134269950 4 14220000013895",
+        "id_payment": "154892695824",
+        "boleto_pago": true,
+        "data_boleto_pago": "15/04/2026 23:30",
+        "boleto_pago_agradecimento": true
     },
     "2000015923426444": {
         "buyer_id": 2908939716,
@@ -849,7 +1278,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "10/04/2026 20:40",
-        "data_solicitacao_inicial": "10/04/2026 20:40"
+        "data_solicitacao_inicial": "10/04/2026 20:40",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:59",
+        "codigo_boleto": "37690001040010567100200134270586 8 14220000013895",
+        "id_payment": "154892924952"
     },
     "2000015924813682": {
         "buyer_id": 834611180,
@@ -862,7 +1298,10 @@
         "data_solicitacao": "10/04/2026 20:40",
         "data_solicitacao_inicial": "10/04/2026 20:40",
         "zap_extraido": "98984196238",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "2000015924921352": {
         "buyer_id": 1073818837,
@@ -873,7 +1312,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "10/04/2026 20:40",
-        "data_solicitacao_inicial": "10/04/2026 20:40"
+        "data_solicitacao_inicial": "10/04/2026 20:40",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:59",
+        "codigo_boleto": "37690001040010567100200134271030 7 14220000013895",
+        "id_payment": "154892927816"
     },
     "2000015925796742": {
         "buyer_id": 278670464,
@@ -886,7 +1332,10 @@
         "data_solicitacao": "10/04/2026 20:40",
         "data_solicitacao_inicial": "10/04/2026 20:40",
         "zap_extraido": "31975670635",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 23:02",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "2000015926837886": {
         "buyer_id": 805644883,
@@ -897,7 +1346,10 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "10/04/2026 20:40",
-        "data_solicitacao_inicial": "10/04/2026 20:40"
+        "data_solicitacao_inicial": "10/04/2026 20:40",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "2000015927191436": {
         "buyer_id": 113214245,
@@ -910,7 +1362,14 @@
         "data_solicitacao": "10/04/2026 20:40",
         "data_solicitacao_inicial": "10/04/2026 20:40",
         "zap_extraido": "55999203638",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:59",
+        "codigo_boleto": "37690001040010567100200134271873 8 14220000013895",
+        "id_payment": "154141871565"
     },
     "2000015927147882": {
         "buyer_id": "555886111",
@@ -921,7 +1380,10 @@
         "produto": "",
         "valor": "",
         "data_solicitacao": "10/04/2026 20:43",
-        "data_solicitacao_inicial": "10/04/2026 20:43"
+        "data_solicitacao_inicial": "10/04/2026 20:43",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "2000015927415260": {
         "buyer_id": 107364132,
@@ -934,7 +1396,17 @@
         "data_solicitacao": "10/04/2026 20:40",
         "data_solicitacao_inicial": "10/04/2026 20:40",
         "zap_extraido": "61996931383",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:59",
+        "codigo_boleto": "37690001040010567100200134272459 9 14220000013895",
+        "id_payment": "154893203068",
+        "boleto_pago": true,
+        "data_boleto_pago": "15/04/2026 23:30",
+        "boleto_pago_agradecimento": true
     },
     "2000015928094486": {
         "buyer_id": 548061848,
@@ -945,7 +1417,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "10/04/2026 20:41",
-        "data_solicitacao_inicial": "10/04/2026 20:41"
+        "data_solicitacao_inicial": "10/04/2026 20:41",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:59",
+        "codigo_boleto": "37690001040010567100200134272988 1 14220000013895",
+        "id_payment": "154142128357"
     },
     "2000015928125812": {
         "buyer_id": 215929324,
@@ -958,7 +1437,14 @@
         "data_solicitacao": "10/04/2026 20:41",
         "data_solicitacao_inicial": "10/04/2026 20:41",
         "zap_extraido": "63984282461",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:59",
+        "codigo_boleto": "37690001040010567100200134273499 8 14220000013895",
+        "id_payment": "154142137127"
     },
     "2000015928376172": {
         "buyer_id": "776294184",
@@ -969,7 +1455,10 @@
         "produto": "",
         "valor": "",
         "data_solicitacao": "10/04/2026 20:43",
-        "data_solicitacao_inicial": "10/04/2026 20:43"
+        "data_solicitacao_inicial": "10/04/2026 20:43",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "2000015928765850": {
         "buyer_id": "260417360",
@@ -982,7 +1471,14 @@
         "data_solicitacao": "10/04/2026 20:43",
         "data_solicitacao_inicial": "10/04/2026 20:43",
         "zap_extraido": "85981484848",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:59",
+        "codigo_boleto": "37690001040010567100200134274273 3 14220000013895",
+        "id_payment": "154142161789"
     },
     "2000015929019522": {
         "buyer_id": 792822500,
@@ -995,7 +1491,14 @@
         "data_solicitacao": "10/04/2026 20:41",
         "data_solicitacao_inicial": "10/04/2026 20:41",
         "zap_extraido": "21969968617",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:59",
+        "codigo_boleto": "37690001040010567100200134274877 7 14220000013895",
+        "id_payment": "154142327105"
     },
     "2000015929466186": {
         "buyer_id": 3022614910,
@@ -1006,7 +1509,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "10/04/2026 20:41",
-        "data_solicitacao_inicial": "10/04/2026 20:41"
+        "data_solicitacao_inicial": "10/04/2026 20:41",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:59",
+        "codigo_boleto": "37690001040010567100200134275270 1 14220000013895",
+        "id_payment": "154893796606"
     },
     "2000015929641532": {
         "buyer_id": 1476915423,
@@ -1019,10 +1529,17 @@
         "data_solicitacao": "10/04/2026 20:41",
         "data_solicitacao_inicial": "10/04/2026 20:41",
         "zap_extraido": "42988872544",
-        "numero_extraido": true
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:59",
+        "codigo_boleto": "37690001040010567100200134275874 3 14220000013895",
+        "id_payment": "154142518735"
     },
     "2000015929687908": {
-        "buyer_id": null,
+        "buyer_id": "772333086",
         "numero_cliente": 80,
         "solicitado": true,
         "pack_id": null,
@@ -1030,7 +1547,16 @@
         "produto": "",
         "valor": "",
         "data_solicitacao": "11/04/2026 15:28",
-        "data_solicitacao_inicial": "11/04/2026 15:28"
+        "data_solicitacao_inicial": "11/04/2026 15:28",
+        "zap_extraido": "21959540708",
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:59",
+        "codigo_boleto": "37690001040010567100200134276773 2 14220000013895",
+        "id_payment": "154142674351"
     },
     "2000015929879974": {
         "buyer_id": 232762775,
@@ -1041,7 +1567,19 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:26",
-        "data_solicitacao_inicial": "11/04/2026 15:26"
+        "data_solicitacao_inicial": "11/04/2026 15:26",
+        "zap_extraido": "42988244072",
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 13:59",
+        "codigo_boleto": "37690001040010567100200134278233 6 14220000013895",
+        "id_payment": "154142848565",
+        "boleto_pago": true,
+        "data_boleto_pago": "15/04/2026 23:30",
+        "boleto_pago_agradecimento": true
     },
     "2000015929920656": {
         "buyer_id": 422035769,
@@ -1052,10 +1590,22 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:26",
-        "data_solicitacao_inicial": "11/04/2026 15:26"
+        "data_solicitacao_inicial": "11/04/2026 15:26",
+        "zap_extraido": "99984157715",
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:00",
+        "codigo_boleto": "37690001040010567100200134278837 1 14220000013895",
+        "id_payment": "154894374160",
+        "boleto_pago": true,
+        "data_boleto_pago": "15/04/2026 23:30",
+        "boleto_pago_agradecimento": true
     },
     "2000015929921246": {
-        "buyer_id": null,
+        "buyer_id": "2423687084",
         "numero_cliente": 83,
         "solicitado": true,
         "pack_id": null,
@@ -1063,7 +1613,10 @@
         "produto": "",
         "valor": "",
         "data_solicitacao": "11/04/2026 15:27",
-        "data_solicitacao_inicial": "11/04/2026 15:27"
+        "data_solicitacao_inicial": "11/04/2026 15:27",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 18:20",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "2000015930366496": {
         "buyer_id": 161006346,
@@ -1074,7 +1627,10 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:26",
-        "data_solicitacao_inicial": "11/04/2026 15:26"
+        "data_solicitacao_inicial": "11/04/2026 15:26",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 18:20",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "2000015930398192": {
         "buyer_id": 341524572,
@@ -1085,7 +1641,16 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:26",
-        "data_solicitacao_inicial": "11/04/2026 15:26"
+        "data_solicitacao_inicial": "11/04/2026 15:26",
+        "zap_extraido": "21992274672",
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:00",
+        "codigo_boleto": "37690001040010567100200134279355 6 14220000013895",
+        "id_payment": "154142943093"
     },
     "2000015930617108": {
         "buyer_id": 130354945,
@@ -1096,7 +1661,10 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:26",
-        "data_solicitacao_inicial": "11/04/2026 15:26"
+        "data_solicitacao_inicial": "11/04/2026 15:26",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 23:02",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "2000015930759016": {
         "buyer_id": 473133260,
@@ -1107,7 +1675,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:26",
-        "data_solicitacao_inicial": "11/04/2026 15:26"
+        "data_solicitacao_inicial": "11/04/2026 15:26",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:00",
+        "codigo_boleto": "37690001040010567100200134279884 7 14220000013895",
+        "id_payment": "154142967807"
     },
     "2000015930759528": {
         "buyer_id": 1516730271,
@@ -1118,10 +1693,17 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:26",
-        "data_solicitacao_inicial": "11/04/2026 15:26"
+        "data_solicitacao_inicial": "11/04/2026 15:26",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:00",
+        "codigo_boleto": "37690001040010567100200134280460 1 14220000013895",
+        "id_payment": "154143121385"
     },
     "2000015931228436": {
-        "buyer_id": null,
+        "buyer_id": "209608331",
         "numero_cliente": 89,
         "solicitado": true,
         "pack_id": null,
@@ -1129,7 +1711,10 @@
         "produto": "",
         "valor": "",
         "data_solicitacao": "11/04/2026 15:27",
-        "data_solicitacao_inicial": "11/04/2026 15:27"
+        "data_solicitacao_inicial": "11/04/2026 15:27",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 22:58",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "2000015931394032": {
         "buyer_id": 1974471802,
@@ -1140,7 +1725,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:26",
-        "data_solicitacao_inicial": "11/04/2026 15:26"
+        "data_solicitacao_inicial": "11/04/2026 15:26",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:00",
+        "codigo_boleto": "37690001040010567100200134281120 1 14220000013895",
+        "id_payment": "154894525462"
     },
     "2000015931310390": {
         "buyer_id": 717659734,
@@ -1151,10 +1743,17 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:26",
-        "data_solicitacao_inicial": "11/04/2026 15:26"
+        "data_solicitacao_inicial": "11/04/2026 15:26",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:00",
+        "codigo_boleto": "37690001040010567100200134281765 8 14220000013895",
+        "id_payment": "154143398347"
     },
     "2000015931807854": {
-        "buyer_id": null,
+        "buyer_id": "808599469",
         "numero_cliente": 92,
         "solicitado": true,
         "pack_id": null,
@@ -1162,7 +1761,10 @@
         "produto": "",
         "valor": "",
         "data_solicitacao": "11/04/2026 15:27",
-        "data_solicitacao_inicial": "11/04/2026 15:27"
+        "data_solicitacao_inicial": "11/04/2026 15:27",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 22:59",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "2000015932488268": {
         "buyer_id": 783283468,
@@ -1173,14 +1775,35 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:26",
-        "data_solicitacao_inicial": "11/04/2026 15:26"
+        "data_solicitacao_inicial": "11/04/2026 15:26",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:00",
+        "codigo_boleto": "37690001040010567100200134282342 9 14220000013895",
+        "id_payment": "154143494409"
     },
     "2000015934362864": {
-        "buyer_id": "261940530",
-        "numero_cliente": 94
+        "buyer_id": 261940530,
+        "numero_cliente": 94,
+        "solicitado": true,
+        "pack_id": null,
+        "corProduto": "Cinza",
+        "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
+        "valor": "309.5",
+        "data_solicitacao": "13/04/2026 11:12",
+        "data_solicitacao_inicial": "13/04/2026 11:12",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:00",
+        "codigo_boleto": "37690001040010567100200134283050 1 14220000013895",
+        "id_payment": "154143443631"
     },
     "2000015934491248": {
-        "buyer_id": null,
+        "buyer_id": "1016131272",
         "numero_cliente": 95,
         "solicitado": true,
         "pack_id": null,
@@ -1188,7 +1811,14 @@
         "produto": "",
         "valor": "",
         "data_solicitacao": "11/04/2026 15:27",
-        "data_solicitacao_inicial": "11/04/2026 15:27"
+        "data_solicitacao_inicial": "11/04/2026 15:27",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:46",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:00",
+        "codigo_boleto": "37690001040010567100200134283589 2 14220000013895",
+        "id_payment": "154143573375"
     },
     "2000015934790634": {
         "buyer_id": 215150109,
@@ -1199,7 +1829,19 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:26",
-        "data_solicitacao_inicial": "11/04/2026 15:26"
+        "data_solicitacao_inicial": "11/04/2026 15:26",
+        "zap_extraido": "55996350227",
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:47",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:00",
+        "codigo_boleto": "37690001040010567100200134284231 6 14220000013895",
+        "id_payment": "154894967260",
+        "boleto_pago": true,
+        "data_boleto_pago": "15/04/2026 23:30",
+        "boleto_pago_agradecimento": true
     },
     "2000015934884360": {
         "buyer_id": 244883167,
@@ -1210,7 +1852,19 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:26",
-        "data_solicitacao_inicial": "11/04/2026 15:26"
+        "data_solicitacao_inicial": "11/04/2026 15:26",
+        "zap_extraido": "62991765744",
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:47",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:00",
+        "codigo_boleto": "37690001040010567100200134284959 3 14220000013895",
+        "id_payment": "154143773651",
+        "boleto_pago": true,
+        "data_boleto_pago": "15/04/2026 23:30",
+        "boleto_pago_agradecimento": true
     },
     "2000015935004090": {
         "buyer_id": 380813482,
@@ -1221,10 +1875,19 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:26",
-        "data_solicitacao_inicial": "11/04/2026 15:26"
+        "data_solicitacao_inicial": "11/04/2026 15:26",
+        "zap_extraido": "82999402660",
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:47",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:00",
+        "codigo_boleto": "37690001040010567100200134285477 1 14220000013895",
+        "id_payment": "154144006481"
     },
     "2000015935090422": {
-        "buyer_id": null,
+        "buyer_id": "3282459806",
         "numero_cliente": 99,
         "solicitado": true,
         "pack_id": null,
@@ -1232,7 +1895,10 @@
         "produto": "",
         "valor": "",
         "data_solicitacao": "11/04/2026 15:27",
-        "data_solicitacao_inicial": "11/04/2026 15:27"
+        "data_solicitacao_inicial": "11/04/2026 15:27",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 18:20",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "2000015935171094": {
         "buyer_id": 492282203,
@@ -1243,7 +1909,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:27",
-        "data_solicitacao_inicial": "11/04/2026 15:27"
+        "data_solicitacao_inicial": "11/04/2026 15:27",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:47",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:00",
+        "codigo_boleto": "37690001040010567100200134286046 2 14220000013895",
+        "id_payment": "154144005309"
     },
     "2000015935210796": {
         "buyer_id": 764911979,
@@ -1254,7 +1927,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:27",
-        "data_solicitacao_inicial": "11/04/2026 15:27"
+        "data_solicitacao_inicial": "11/04/2026 15:27",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:47",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:00",
+        "codigo_boleto": "37690001040010567100200134286749 3 14220000013895",
+        "id_payment": "154144166807"
     },
     "2000015935211412": {
         "buyer_id": 492282203,
@@ -1265,7 +1945,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:27",
-        "data_solicitacao_inicial": "11/04/2026 15:27"
+        "data_solicitacao_inicial": "11/04/2026 15:27",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:47",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:01",
+        "codigo_boleto": "37690001040010567100200134287325 4 14220000013895",
+        "id_payment": "154144250907"
     },
     "2000015935631212": {
         "buyer_id": 1450375943,
@@ -1276,7 +1963,14 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:27",
-        "data_solicitacao_inicial": "11/04/2026 15:27"
+        "data_solicitacao_inicial": "11/04/2026 15:27",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:47",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:01",
+        "codigo_boleto": "37690001040010567100200134287911 1 14220000013895",
+        "id_payment": "154895381926"
     },
     "2000015936153138": {
         "buyer_id": 319201701,
@@ -1287,7 +1981,19 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:27",
-        "data_solicitacao_inicial": "11/04/2026 15:27"
+        "data_solicitacao_inicial": "11/04/2026 15:27",
+        "zap_extraido": "22997549131",
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:47",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:01",
+        "codigo_boleto": "37690001040010567100200134288505 9 14220000013895",
+        "id_payment": "154895586594",
+        "boleto_pago": true,
+        "data_boleto_pago": "15/04/2026 23:30",
+        "boleto_pago_agradecimento": true
     },
     "2000015936550818": {
         "buyer_id": 213033692,
@@ -1298,7 +2004,9 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:27",
-        "data_solicitacao_inicial": "11/04/2026 15:27"
+        "data_solicitacao_inicial": "11/04/2026 15:27",
+        "zap_extraido": "88996349476",
+        "numero_extraido": true
     },
     "2000015936647044": {
         "buyer_id": 2218285093,
@@ -1309,10 +2017,19 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:27",
-        "data_solicitacao_inicial": "11/04/2026 15:27"
+        "data_solicitacao_inicial": "11/04/2026 15:27",
+        "zap_extraido": "71996287607",
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:47",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:01",
+        "codigo_boleto": "37690001040010567100200134289099 2 14220000013895",
+        "id_payment": "154144471175"
     },
     "2000015936668068": {
-        "buyer_id": null,
+        "buyer_id": "233281480",
         "numero_cliente": 107,
         "solicitado": true,
         "pack_id": null,
@@ -1320,7 +2037,16 @@
         "produto": "",
         "valor": "",
         "data_solicitacao": "11/04/2026 15:28",
-        "data_solicitacao_inicial": "11/04/2026 15:28"
+        "data_solicitacao_inicial": "11/04/2026 15:28",
+        "zap_extraido": "62999337689",
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:47",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:01",
+        "codigo_boleto": "37690001040010567100200134289826 3 14220000013895",
+        "id_payment": "154144483717"
     },
     "2000015936770314": {
         "buyer_id": 355513374,
@@ -1331,7 +2057,19 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:27",
-        "data_solicitacao_inicial": "11/04/2026 15:27"
+        "data_solicitacao_inicial": "11/04/2026 15:27",
+        "zap_extraido": "51996814369",
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:47",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:01",
+        "codigo_boleto": "37690001040010567100200134296979 8 14220000013895",
+        "id_payment": "154898345168",
+        "boleto_pago": true,
+        "data_boleto_pago": "15/04/2026 23:30",
+        "boleto_pago_agradecimento": true
     },
     "2000015936858294": {
         "buyer_id": 2476324789,
@@ -1342,10 +2080,19 @@
         "produto": "Rack Com Painel Para Tv At\u00e9 60 Polegadas Manu 1,80m",
         "valor": "309.5",
         "data_solicitacao": "11/04/2026 15:27",
-        "data_solicitacao_inicial": "11/04/2026 15:27"
+        "data_solicitacao_inicial": "11/04/2026 15:27",
+        "zap_extraido": "51984549388",
+        "numero_extraido": true,
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:47",
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "15/04/2026 14:02",
+        "codigo_boleto": "37690001040010567100200134299106 1 14220000013895",
+        "id_payment": "154147395331"
     },
     "2000015936884422": {
-        "buyer_id": null,
+        "buyer_id": "128896173",
         "numero_cliente": 110,
         "solicitado": true,
         "pack_id": null,
@@ -1353,10 +2100,13 @@
         "produto": "",
         "valor": "",
         "data_solicitacao": "11/04/2026 15:28",
-        "data_solicitacao_inicial": "11/04/2026 15:28"
+        "data_solicitacao_inicial": "11/04/2026 15:28",
+        "rastreio_enviado": true,
+        "data_rastreio": "13/04/2026 17:47",
+        "codigo_rastreio": "CNBR00141582377"
     },
     "46832609519": {
-        "buyer_id": null,
+        "buyer_id": "",
         "numero_cliente": 19,
         "solicitado": true,
         "pack_id": null,

@@ -32,7 +32,41 @@ WA_PHONE_ID = 'SEU_PHONE_NUMBER_ID'
 WA_TEMPLATE_NAME = 'atendimento_cliente_ml' # Deve estar aprovado na Meta
 
 # # ALTERAÇÃO: Pasta raiz onde todas as contas ficarão
-ACCOUNTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'contas')
+def _encontrar_accounts_dir():
+    """
+    Tenta encontrar a pasta 'contas' em múltiplos locais.
+    Funciona tanto quando executado do VS Code quanto do APK/dist
+    """
+    # Opção 1: Diretório do script atual (__file__)
+    try:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        accounts = os.path.join(script_dir, 'contas')
+        if os.path.exists(accounts):
+            return accounts
+    except:
+        pass
+    
+    # Opção 2: Diretório de trabalho atual (cwd)
+    cwd_accounts = os.path.join(os.getcwd(), 'contas')
+    if os.path.exists(cwd_accounts):
+        return cwd_accounts
+    
+    # Opção 3: Procura no diretório pai (para quando está em dist/)
+    try:
+        parent_accounts = os.path.join(os.path.dirname(os.getcwd()), 'contas')
+        if os.path.exists(parent_accounts):
+            return parent_accounts
+    except:
+        pass
+    
+    # Opção 4: Se nada encontrou, cria na pasta do script ou no cwd
+    try:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        return os.path.join(script_dir, 'contas')
+    except:
+        return os.path.join(os.getcwd(), 'contas')
+
+ACCOUNTS_DIR = _encontrar_accounts_dir()
 
 BASE_DIR = "dist/database_vendas.json"
 
@@ -379,7 +413,10 @@ class AppColetorPro:
         webbrowser.open(url)
         self.logger("Navegador aberto. Autorize e cole o código 'TG-...' abaixo.")
         
-        codigo = simpledialog.askstring("OAuth ML", "Insira o código gerado na URL (code=...):")
+        self.root.lift()
+        self.root.focus_force()
+        self.root.update()
+        codigo = simpledialog.askstring("OAuth ML", "Insira o código gerado na URL (code=...):", parent=self.root)
         if codigo:
             url_token = "https://api.mercadolibre.com/oauth/token"
             data = {
@@ -489,6 +526,7 @@ class AppColetorPro:
         env_rastreio = False
         rodar_wpp = False
         lim_rastreio = 0
+        tipomsgRastreio = False
         env_boleto = False
         lim_boleto = 0
         env_erroBoleto = False
@@ -520,12 +558,25 @@ class AppColetorPro:
             if not cod_rastreio:
                 messagebox.showerror("Erro", "Preencha o campo 'Cód. Rastreio'!")
                 return
-            lim_rastreio = simpledialog.askinteger("Limite", f"Quantos rastreios enviar? (Total: {total_chats})", minvalue=1)
+            self.root.lift()
+            self.root.focus_force()
+            self.root.update()
+            lim_rastreio = simpledialog.askinteger("Limite", f"Quantos rastreios enviar? (Total: {total_chats})", minvalue=1, parent=self.root)
             if not lim_rastreio: return
+            self.root.lift()
+            self.root.focus_force()
+            self.root.update()
+            tipomsgRastreio = simpledialog.askinteger("TIPO MSG", f"RASTREIO BR 1 ---- RASTREIO ALIEXPRESS 2", minvalue=1, parent=self.root)
+            if tipomsgRastreio != 1 and tipomsgRastreio != 2: 
+                self.logger("Erro: Tipo de mensagem de rastreio deve ser 1 ou 2.", "ERRO") 
+                return
             env_rastreio = True
 
         elif acao == "boleto":
-            lim_boleto = simpledialog.askinteger("Limite", f"Quantos boletos enviar? (Total: {total_chats})", minvalue=1)
+            self.root.lift()
+            self.root.focus_force()
+            self.root.update()
+            lim_boleto = simpledialog.askinteger("Limite", f"Quantos boletos enviar? (Total: {total_chats})", minvalue=1, parent=self.root)
             if not lim_boleto: return
             env_boleto = True
 
@@ -548,14 +599,14 @@ class AppColetorPro:
             target=self.passo_1_solicitar, 
             args=(token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, 
                   pagInicial, prazo_usuario, chats, config, env_erroBoleto, tipo_proc, 
-                  env_boleto_agradecimento, reenviarBoleto, solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp )
+                  env_boleto_agradecimento, reenviarBoleto, solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio )
         )
         thread.daemon = True
         thread.start()
         self.logger(f"Thread de {acao} iniciada...")
     
     # --- PASSO 1: SOLICITAÇÃO ---
-    def passo_1_solicitar(self, token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, pagInicial, prazo_usuario, chats, config,env_erroBoleto, tipo,env_boleto_agradecimento,reenviarBoleto,solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp):
+    def passo_1_solicitar(self, token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, pagInicial, prazo_usuario, chats, config,env_erroBoleto, tipo,env_boleto_agradecimento,reenviarBoleto,solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio):
         folder = self.get_pasta_conta()
         if not folder: return
         
@@ -663,12 +714,12 @@ class AppColetorPro:
                                         text = f"Esperamos o comprovante! Att, Time Living Shop"
                                         envioBoletoComprovante = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
                                         if envioBoletoComprovante:
+                                            boletos_contagem += 1
                                             self.atualizar_status_boleto(indice_boleto)
                                             db[order_id]['boleto_enviado'] = True
                                             db[order_id]['data_boleto'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                             db[order_id]['codigo_boleto'] = boleto_numero
                                             db[order_id]['id_payment'] = id_payment
-                                            rastreios_contagem += 1
                                             self.salvar_db(db)
                                             self.logger(f"Boleto enviado com sucesso para a ordem {order_id}!")
                                             continue
@@ -822,28 +873,47 @@ class AppColetorPro:
                         if env_rastreio and rastreios_contagem < lim_rastreio and not dados_pedido.get('rastreio_enviado'): 
                             self.logger(f"Enviando código de rastreio para a ordem {order_id}...")
                             # -- ENVIO RASTREIO
-                            text = textwrap.dedent(f"""\
-                                        ACOMPANHE O SEU PEDIDO
-                                        Segue abaixo o seu código de rastreamento:
-                                        >>> {cod_rastreio} 
+                            if tipomsgRastreio == 2:
+                                text = textwrap.dedent(f"""\
+                                            ACOMPANHE O SEU PEDIDO
+                                            Segue abaixo o seu código de rastreamento:
+                                            >>> {cod_rastreio} 
 
-                                        Para rastrear, basta acessar o site oficial dos Correios 👇
-                                        https://rastreamento.correios.com.br/app/index.php
+                                            Para rastrear, basta acessar o site da 4tracking e colar o código, só colocar no google 4tracking,
+                                            é o site que faz o rastreio da transportadora.
+                                            👉 https://www.4tracking.net/pt/tjax/track?nums={cod_rastreio}
+                                            
+                                            Lembrando que:
+                                            
+                                            O produto é importado e PODE SER TAXADO, mas é bem difícil! O pedido é entregue pela transportadora, os Correios apenas fazem o rastreamento e podem demorar até 3 dias para atualizar o status.
+                                            
+                                            mas não se preocupe, o seu pedido já está a caminho.
+                                            
+                                            Dúvidas? Estamos à disposição! (Living Shop) 😉""").strip()
+                            else: 
+                                text = textwrap.dedent(f"""\
+                                            ACOMPANHE O SEU PEDIDO
+                                            Segue abaixo o seu código de rastreamento:
+                                            >>> {cod_rastreio} 
 
-                                        Lembrando que:
+                                            Para rastrear, basta acessar o site oficial dos Correios 👇
+                                            https://rastreamento.correios.com.br/app/index.php
 
-                                        O produto é importado e PODE SER TAXADO, mas é bem difícil! O pedido é entregue pela transportadora, os Correios apenas fazem o rastreamento e podem demorar até 3 dias para atualizar o status.
+                                            Lembrando que:
 
-                                        Mas não se preocupe, o seu pedido já está a caminho.
-                                        
-                                        Dúvidas? Estamos à disposição! 😉""").strip()
+                                            O produto é importado e PODE SER TAXADO, mas é bem difícil! O pedido é entregue pela transportadora, os Correios apenas fazem o rastreamento e podem demorar até 3 dias para atualizar o status.
+
+                                            Mas não se preocupe, o seu pedido já está a caminho.
+                                            
+                                            Dúvidas? Estamos à disposição! (Living Shop) 😉""").strip()
+                                   
                             
                             # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
                             envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
                             db[order_id]['rastreio_enviado'] = True
                             db[order_id]['data_rastreio'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                             db[order_id]['codigo_rastreio'] = cod_rastreio
-                            boletos_contagem += 1
+                            rastreios_contagem += 1
                             self.salvar_db(db)
                             continue
                     except Exception as e:
@@ -964,14 +1034,20 @@ class AppColetorPro:
             self.logger(f"Erro ao ler planilha de boletos: {e}")
             return None
         
-    def atualizar_status_boleto(self, indice, status="Enviado"):
+    def atualizar_status_boleto(self, indice, status="TRUE"):
         caminho_excel = r"C:\Users\mathe\Meu Drive\Sistema JV V1\Nova pasta\dist\registros_pedidos.xlsx"
         try:
             # Carrega a planilha atualizada
             df = pd.read_excel(caminho_excel)
             
+            # Converte o valor de status para booleano
+            if isinstance(status, str):
+                status_bool = status.upper() == "TRUE"
+            else:
+                status_bool = bool(status)
+            
             # Atualiza o valor no índice específico
-            df.at[indice, 'Boleto Usado'] = status
+            df.at[indice, 'Boleto Usado'] = status_bool
             
             # Salva de volta no Excel
             df.to_excel(caminho_excel, index=False)
@@ -1159,13 +1235,26 @@ class AppColetorPro:
     def carregar_config_wpp(self):
         """
         Carrega a configuração dos 5 WhatsApps do arquivo config_wpp.json
+        Tenta múltiplos caminhos para funcionar tanto do VS Code quanto do APK/dist
         """
-        config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config_wpp.json')
+        # Lista de caminhos a tentar
+        caminhos_possíveis = [
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config_wpp.json'),  # Script dir
+            os.path.join(os.getcwd(), 'config_wpp.json'),  # Diretório de trabalho
+            os.path.join(os.path.dirname(os.getcwd()), 'config_wpp.json'),  # Diretório pai
+        ]
+        
+        config_path = None
+        for caminho in caminhos_possíveis:
+            if os.path.exists(caminho):
+                config_path = caminho
+                break
+        
+        if not config_path:
+            self.logger(f"Arquivo config_wpp.json não encontrado em nenhum caminho esperado.", "ERRO")
+            return None
+        
         try:
-            if not os.path.exists(config_path):
-                self.logger(f"Arquivo config_wpp.json não encontrado em {config_path}", "ERRO")
-                return None
-            
             with open(config_path, 'r', encoding='utf-8') as f:
                 return json.load(f)
         except Exception as e:
@@ -1175,14 +1264,32 @@ class AppColetorPro:
     def salvar_config_wpp(self, config_wpp):
         """
         Salva a configuração atualizada dos WhatsApps
+        Tenta múltiplos caminhos para funcionar tanto do VS Code quanto do APK/dist
         """
-        config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config_wpp.json')
+        # Tenta primeiro no diretório do script
+        caminhos_possíveis = [
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config_wpp.json'),  # Script dir
+            os.path.join(os.getcwd(), 'config_wpp.json'),  # Diretório de trabalho
+        ]
+        
+        config_path = None
+        
+        # Se o arquivo já existe em algum dos caminhos, salva lá
+        for caminho in caminhos_possíveis:
+            if os.path.exists(caminho):
+                config_path = caminho
+                break
+        
+        # Se não existe em lugar nenhum, cria no diretório do script
+        if not config_path:
+            config_path = caminhos_possíveis[0]
+        
         try:
             with open(config_path, 'w', encoding='utf-8') as f:
                 json.dump(config_wpp, f, indent=4, ensure_ascii=False)
             return True
         except Exception as e:
-            self.logger(f"Erro ao salvar config_wpp.json: {str(e)}", "ERRO")
+            self.logger(f"Erro ao salvar config_wpp.json em {config_path}: {str(e)}", "ERRO")
             return False
 
     def obter_whatsapp_disponivel(self, config_wpp):
@@ -1354,20 +1461,59 @@ class AppColetorPro:
     # # ALTERAÇÃO: Ajustado para usar a pasta do e-mail
     def carregar_db(self):
         folder = self.get_pasta_conta()
-        if not folder: return {}
+        if not folder:
+            # Se get_pasta_conta() falhar, tenta usar ACCOUNTS_DIR diretamente
+            self.logger("Aviso: get_pasta_conta() falhou, usando ACCOUNTS_DIR como fallback.", "AVISO")
+            if not ACCOUNTS_DIR or not os.path.exists(ACCOUNTS_DIR):
+                return {}
+            folder = ACCOUNTS_DIR
         
         db_path = os.path.join(folder, "database_vendas.json")
-        if not os.path.exists(db_path): return {}
-        with open(db_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        
+        # Se a pasta não existir, cria
+        if not os.path.exists(folder):
+            try:
+                os.makedirs(folder, exist_ok=True)
+            except Exception as e:
+                self.logger(f"Erro ao criar pasta {folder}: {e}", "ERRO")
+                return {}
+        
+        # Se o arquivo não existir, retorna dicionário vazio
+        if not os.path.exists(db_path):
+            return {}
+        
+        try:
+            with open(db_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            self.logger(f"Erro ao carregar banco de dados: {e}", "ERRO")
+            return {}
 
     # # ALTERAÇÃO: Ajustado para salvar na pasta do e-mail
     def salvar_db(self, db):
         folder = self.get_pasta_conta()
-        if folder:
-            db_path = os.path.join(folder, "database_vendas.json")
+        if not folder:
+            # Se get_pasta_conta() falhar, tenta usar ACCOUNTS_DIR diretamente
+            self.logger("Aviso: get_pasta_conta() falhou, usando ACCOUNTS_DIR como fallback.", "AVISO")
+            if not ACCOUNTS_DIR:
+                self.logger("Erro: Não conseguiu determinar a pasta de contas.", "ERRO")
+                return
+            folder = ACCOUNTS_DIR
+        
+        # Se a pasta não existir, cria
+        if not os.path.exists(folder):
+            try:
+                os.makedirs(folder, exist_ok=True)
+            except Exception as e:
+                self.logger(f"Erro ao criar pasta {folder}: {e}", "ERRO")
+                return
+        
+        db_path = os.path.join(folder, "database_vendas.json")
+        try:
             with open(db_path, 'w', encoding='utf-8') as f:
                 json.dump(db, f, indent=4)
+        except Exception as e:
+            self.logger(f"Erro ao salvar banco de dados: {e}", "ERRO")
                 
     def buscar_todas_reclamacoes(self, token, offset=0):
         reclamacoes_completas = []
