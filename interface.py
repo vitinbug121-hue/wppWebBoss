@@ -257,7 +257,7 @@ class InterfaceBoletos(tk.Tk):
                 resultado = "Resposta da IA:\n" + resposta_ia
 
         except Exception as e:
-            resultado = f"Ocorreu um erro ao processar a mensagem:\n{e}"
+            resultado = f"Ocorreu um erro ao processar a mensageem:\n{e}"
 
         # Volta para a thread principal do tkinter para atualizar a UI
         self.after(0, self._finalizar_processamento, resultado)
