@@ -4917,6 +4917,7 @@ class AppColetorPro:
 
     def logger(self, msg, tag="INFO"):
         # 1. Tentar configurar o logging para a pasta da conta atual
+        # (leitura/gravação em arquivo é segura de ser chamada de qualquer thread)
         email = self.var_email.get().strip()
         if email:
             # Caminho: contas/email@clinte.com/logs/
@@ -4942,6 +4943,24 @@ class AppColetorPro:
                 file_logger.info(msg)
 
         # 2. Atualização visual no ScrolledText (Tkinter)
+        # IMPORTANTE: widgets do Tkinter só podem ser mexidos com segurança pela
+        # thread principal. Como o logger() é chamado de threads de processamento
+        # em segundo plano, se não estivermos na thread principal, agendamos a
+        # atualização visual via self.root.after(0, ...) em vez de mexer no
+        # widget diretamente. Isso evita o "congelamento"/"não está respondendo"
+        # da interface quando há muitos logs em sequência durante um processamento.
+        if threading.current_thread() is threading.main_thread():
+            self._atualizar_log_widget(msg, tag)
+        else:
+            try:
+                self.root.after(0, self._atualizar_log_widget, msg, tag)
+            except Exception:
+                # Se a janela já não existe mais (encerrando o app), apenas ignora.
+                pass
+
+    def _atualizar_log_widget(self, msg, tag="INFO"):
+        """Só deve ser chamada pela thread principal (via logger(), diretamente
+        ou agendada com self.root.after). Faz a escrita de fato no ScrolledText."""
         timestamp = datetime.now().strftime("%H:%M:%S")
         display_tag = "ERROR" if tag == "ERRO" else tag
         tag_styles = {
@@ -4954,7 +4973,7 @@ class AppColetorPro:
         }
         log_style = tag_styles.get(display_tag)
 
-        # --- NOVO: verifica se o usuário já estava com a rolagem no final ---
+        # --- verifica se o usuário já estava com a rolagem no final ---
         # yview() retorna (topo_visivel, fim_visivel) em fração de 0 a 1.
         # Se o fim visível está bem próximo de 1.0, consideramos que ele
         # estava acompanhando o log em tempo real.
@@ -4976,14 +4995,15 @@ class AppColetorPro:
         self.log.insert(tk.END, msg[pos:])
         self.log.insert(tk.END, "\n")
 
-        # --- ALTERADO: só desce automaticamente se o usuário já estava no final ---
+        # --- só desce automaticamente se o usuário já estava no final ---
         if estava_no_fim:
             self.log.see(tk.END)
-        
-        # Força a atualização da interface para não "congelar"
+
+        # Atualiza só o desenho pendente (mais leve que update() completo).
+        # Como agora estamos sempre na thread principal aqui, isso é seguro.
         try:
             self.root.update_idletasks()
-        except:
+        except Exception:
             pass
     # --- CAPTURA DE NÚMEROS DE WHATSAPP DAS CONVERSAS ---
     def capturar_wpp_thread(self):
@@ -5372,7 +5392,6 @@ class AppColetorPro:
 
         self.root.lift()
         self.root.focus_force()
-        self.root.update()
 
         tokens = _obter_tokens_reembolso_mp()
         if not tokens:
@@ -5474,7 +5493,6 @@ class AppColetorPro:
 
         self.root.lift()
         self.root.focus_force()
-        self.root.update()
         codigo = simpledialog.askstring("OAuth ML", "Insira o código gerado na URL (code=...):", parent=self.root)
         if not codigo:
             self.logger("Autorização ML cancelada: código não informado.", "ERRO")
@@ -6033,21 +6051,59 @@ class AppColetorPro:
             self.logger(f"Iniciando processamento by IDs: {', '.join(ids_list)}")
 
         executar_reclamacao = acao == "ia_reclamacao"
+
+        # --- BUSCA DE VENDAS/RECLAMAÇÕES RODANDO EM SEGUNDO PLANO ---
+        # Essas buscas fazem várias chamadas de rede (paginação de vendas,
+        # reclamações, resolução de order_id por reclamação, etc.) e antes
+        # rodavam direto aqui na thread da interface, travando a janela
+        # ("não está respondendo") até a rede responder. Agora a busca roda
+        # numa thread separada; enquanto isso, a thread principal só fica
+        # "bombeando" a fila de eventos do Tkinter (self.root.update()) pra
+        # manter a janela respondendo (redesenhando, aceitando mover/minimizar
+        # etc.) até a busca terminar.
+        resultado_busca = {}
+
+        def _executar_busca():
+            try:
+                if tipo_proc == "by_id":
+                    resultado_busca['chats'], resultado_busca['total'] = self.buscar_vendas_por_ids(
+                        token,
+                        ids_list,
+                        offset_inicial=pagInicial
+                    )
+                else:
+                    resultado_busca['chats'], resultado_busca['total'] = self.buscar_vendas_e_reclamacoes(
+                        config['ML_SELLER_ID'], token, offset_inicial=pagInicial
+                    )
+            except Exception as e:
+                resultado_busca['erro'] = e
+
         if tipo_proc == "by_id":
-            self.logger("Modo BY_ID ativado: buscando apenas as ordens informadas.")
-            chats, total_chats = self.buscar_vendas_por_ids(
-                token,
-                ids_list,
-                offset_inicial=pagInicial
-            )
-            if total_chats == 0:
-                self.logger("Nenhuma ordem encontrada para os IDs informados.", "ERRO")
-                return
+            self.logger("Modo BY_ID ativado: buscando apenas as ordens informadas (em segundo plano)...")
         else:
-            self.logger("Modo COMUM + RECLAMAÇÕES ativado: serão buscados os dois tipos e ordenados por date_created.")
-            chats, total_chats = self.buscar_vendas_e_reclamacoes(config['ML_SELLER_ID'], token, offset_inicial=pagInicial)
-        
-        self.logger(f"Iniciando ação: {acao.upper()}...")
+            self.logger("Modo COMUM + RECLAMAÇÕES ativado: buscando em segundo plano (isso pode levar alguns segundos, a tela não vai travar)...")
+
+        thread_busca = threading.Thread(target=_executar_busca, daemon=True)
+        thread_busca.start()
+        while thread_busca.is_alive():
+            try:
+                self.root.update()
+            except Exception:
+                pass
+            time.sleep(0.05)
+
+        if 'erro' in resultado_busca:
+            self.logger(f"Erro ao buscar vendas/reclamações: {resultado_busca['erro']}", "ERRO")
+            return
+
+        chats = resultado_busca.get('chats', [])
+        total_chats = resultado_busca.get('total', 0)
+
+        if tipo_proc == "by_id" and total_chats == 0:
+            self.logger("Nenhuma ordem encontrada para os IDs informados.", "ERRO")
+            return
+
+        self.logger(f"Busca concluída. Iniciando ação: {acao.upper()}...")
         
         
         self.progress["maximum"] = total_chats
@@ -6113,7 +6169,6 @@ class AppColetorPro:
                 self.progress["value"] = 0
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             env_boleto_autorizados = messagebox.askyesno("Enviar apenas autorizados", "Enviar apenas para os que digitou 1?")
             if env_boleto_autorizados:
                 self.logger("Verificando conversas para encontrar clientes autorizados...", "INFO")
@@ -6263,7 +6318,6 @@ class AppColetorPro:
                     return
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             total_limite = len(lote_filtro_ids) if lote_filtro_ids is not None else total_chats
             lim_boleto = simpledialog.askinteger("Limite", f"Quantos boletos enviar? (Total: {total_limite})", minvalue=1, parent=self.root)
             if not lim_boleto: return
@@ -6293,11 +6347,9 @@ class AppColetorPro:
         elif acao == "reenviar_boleto":
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             reenviar_boleto_atraso = messagebox.askyesno("Mensagem de atraso", "É msg de atraso?")
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             reenviarBoleto = True
             filtrar_reenvio_frase = messagebox.askyesno(
                 "Filtrar por frase",
@@ -6386,11 +6438,9 @@ class AppColetorPro:
         elif acao == "reenviar_boleto_dobrado":
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             reenviar_boleto_dobrado_atraso = messagebox.askyesno("Mensagem de atraso", "É msg de atraso?")
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             reenviarBoletoDobrado = True
             filtrar_reenvio_dobro_frase = messagebox.askyesno(
                 "Filtrar por frase",
@@ -6483,7 +6533,6 @@ class AppColetorPro:
         elif acao == "cobrar_dobrado":
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             usar_pix = messagebox.askyesno(
                 "Forma de Cobrança",
                 "Cobrar via PIX?\n\nSim = PIX\nNão = Boleto"
@@ -6499,7 +6548,6 @@ class AppColetorPro:
         elif acao == "nao_autorizados":
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             lim_nao_autorizados = total_chats
             if not lim_nao_autorizados: return
             cobrar_nao_autorizados = True
@@ -6516,12 +6564,10 @@ class AppColetorPro:
                 return
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             lim_rastreio = simpledialog.askinteger("Limite", f"Quantos rastreios enviar? (Total: {total_chats})", minvalue=1, parent=self.root)
             if not lim_rastreio: return
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             tipomsgRastreio = simpledialog.askinteger("TIPO MSG", f"RASTREIO BR 1 ---- RASTREIO ALIEXPRESS 2", minvalue=1, parent=self.root)
             if tipomsgRastreio != 1 and tipomsgRastreio != 2: 
                 self.logger("Erro: Tipo de mensagem de rastreio deve ser 1 ou 2.", "ERRO") 
@@ -8133,7 +8179,6 @@ class AppColetorPro:
     def selecionar_filtro_lote(self, acao_label):
         self.root.lift()
         self.root.focus_force()
-        self.root.update()
 
         usar_lote = messagebox.askyesnocancel(
             "Modo de processamento",
