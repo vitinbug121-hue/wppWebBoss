@@ -1,0 +1,4 @@
+22:48:04 [INFO] [AGENDAMENTO] Iniciando task tarefa_1783713452.474633 para danielegleyce21.03@gmail.com com ação solicitar
+22:48:04 [WARNING] Não foi possível obter um token válido. Autorize novamente.
+22:48:05 [INFO] [AGENDAMENTO] Iniciando task tarefa_1783713513.502334 para danielegleyce21.03@gmail.com com ação vendas_encerradas
+22:48:05 [WARNING] Não foi possível obter um token válido. Autorize novamente.

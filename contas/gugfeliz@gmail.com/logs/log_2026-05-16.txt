@@ -1,0 +1,4 @@
+23:31:49 [INFO] Arquivo config_conta.json criado em G:\Meu Drive\Sistema Captura WPP\contas\gugfeliz@gmail.com. Preencha os dados ML.
+23:32:00 [INFO] Navegador aberto. Autorize e cole o código 'TG-...' abaixo.
+23:32:18 [INFO] Tokens salvos com sucesso!
+23:32:18 [INFO] ML conectado com sucesso. Seller ID salvo: 831298633

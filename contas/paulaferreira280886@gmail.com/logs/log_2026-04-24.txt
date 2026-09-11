@@ -1,0 +1,85 @@
+15:44:10 [INFO] Modo COMUM ativado: Serão processados todos os pedidos.
+15:44:10 [INFO] Buscando offset 0...
+15:44:10 [INFO] Busca finalizada. Total capturado: 43
+15:44:10 [INFO] Iniciando ação: SOLICITAR...
+15:44:10 [INFO] Iniciando processamento by IDs
+15:44:10 [INFO] Thread de solicitar iniciada...
+15:44:12 [INFO] Ordem 2000015935844952 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015937928566 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015958259826 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015958407708 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015962435216 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015963293594 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015966957296 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015968075338 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015969696782 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015969858118 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015970041926 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015970127468 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015970275570 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015976280042 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015977207026 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015977591884 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015979249146 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015979927660 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015981015372 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015981265778 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015982102366 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015983348772 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015983591850 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015984724034 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015985295302 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015986088092 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015986206810 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015986256774 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015986682860 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015986890598 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015987014682 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015987756156 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015989302732 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015990008830 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015993122336 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015993386166 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015994061732 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015994238038 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015996132022 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015998011422 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015998261050 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015999357214 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Ordem 2000015999863214 ignorada (não está na lista de IDs).
+15:44:12 [INFO] Fim da Execução. Novas solicitações enviadas: 0
+15:44:42 [INFO] Thread de vendas encerradas iniciada...
+15:44:43 [INFO] Buscando vendas encerradas no Mercado Livre...
+15:44:43 [INFO] Encontrados 27 pedido(s) encerrado(s).
+15:44:43 [INFO] Ordem 2000015923467900 marcada como encerrada.
+15:44:43 [INFO] Ordem 2000015945104144 marcada como encerrada.
+15:44:43 [INFO] Ordem 2000015946231754 marcada como encerrada.
+15:44:43 [INFO] Ordem 2000015949691856 marcada como encerrada.
+15:44:43 [INFO] Ordem 2000015952249646 não encontrada no banco de dados (ignorada).
+15:44:43 [INFO] Ordem 2000015952337924 não encontrada no banco de dados (ignorada).
+15:44:43 [INFO] Ordem 2000015952946842 marcada como encerrada.
+15:44:43 [INFO] Ordem 2000015953168476 não encontrada no banco de dados (ignorada).
+15:44:43 [INFO] Ordem 2000015959531426 marcada como encerrada.
+15:44:43 [INFO] Ordem 2000015962804362 marcada como encerrada.
+15:44:43 [INFO] Ordem 2000015965161906 não encontrada no banco de dados (ignorada).
+15:44:43 [INFO] Ordem 2000015968024194 marcada como encerrada.
+15:44:43 [INFO] Ordem 2000015972294028 marcada como encerrada.
+15:44:43 [INFO] Ordem 2000015972478508 marcada como encerrada.
+15:44:43 [INFO] Ordem 2000015972736994 marcada como encerrada.
+15:44:43 [INFO] Ordem 2000015973318172 marcada como encerrada.
+15:44:43 [INFO] Ordem 2000015975491842 marcada como encerrada.
+15:44:43 [INFO] Ordem 2000015975914676 marcada como encerrada.
+15:44:43 [INFO] Ordem 2000015978901566 marcada como encerrada.
+15:44:43 [INFO] Ordem 2000015979926974 marcada como encerrada.
+15:44:43 [INFO] Ordem 2000015979999910 marcada como encerrada.
+15:44:43 [INFO] Ordem 2000015980536412 marcada como encerrada.
+15:44:43 [INFO] Ordem 2000015981265638 marcada como encerrada.
+15:44:43 [INFO] Ordem 2000015982187248 não encontrada no banco de dados (ignorada).
+15:44:44 [INFO] Ordem 2000015982925762 marcada como encerrada.
+15:44:44 [INFO] Ordem 2000015983698952 marcada como encerrada.
+15:44:44 [INFO] Ordem 2000015985179670 não encontrada no banco de dados (ignorada).
+15:44:44 [INFO] Atualização finalizada. Encerradas: 21
+15:45:07 [INFO] Excel salvo em: C:/Users/mathe/Downloads/v234.xlsx
+15:52:00 [INFO] Excel salvo em: C:/Users/mathe/Downloads/1234.xlsx
+15:53:02 [INFO] Excel salvo em: C:/Users/mathe/Downloads/13124.xlsx
+15:54:10 [INFO] Excel salvo em: C:/Users/mathe/Downloads/121414.xlsx

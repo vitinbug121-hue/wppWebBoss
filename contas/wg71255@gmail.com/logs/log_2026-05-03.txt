@@ -1,0 +1,7 @@
+15:09:20 [INFO] Thread de processamento iniciada em segundo plano...
+15:09:26 [INFO] Ordem 2000015974448592: Boleto marcado como pago.
+15:09:27 [INFO] Ordem 2000015980781314: Boleto marcado como pago.
+15:09:40 [INFO] Ordem 2000016010983468: Boleto marcado como pago.
+15:09:44 [INFO] Ordem 2000016018335826: Boleto marcado como pago.
+15:10:24 [INFO] Ordem 2000016094374364: Boleto marcado como pago.
+15:10:31 [INFO] Atualização finalizada. Pagos: 5

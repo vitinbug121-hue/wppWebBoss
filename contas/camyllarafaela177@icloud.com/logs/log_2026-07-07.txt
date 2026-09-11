@@ -1,0 +1,140 @@
+12:28:51 [INFO] Modo COMUM + RECLAMAÇÕES ativado: serão buscados os dois tipos e ordenados por date_created.
+12:28:51 [INFO] Buscando offset 0...
+12:28:51 [INFO] Busca finalizada. Total capturado: 27
+12:28:52 [INFO] Buscando offset 0...
+12:28:53 [INFO] Busca finalizada. Total capturado: 4
+12:28:54 [INFO] Busca mista finalizada. Comuns: 27; reclamações: 4; total: 27
+12:28:54 [INFO] Iniciando ação: SOLICITAR...
+12:28:54 [INFO] Thread de solicitar iniciada...
+12:28:55 [INFO] Verificando histórico de mensagens para Ordem: 2000017130478904
+12:28:55 [INFO] Mensagem já constava no chat da Ordem 2000017130478904. Atualizando controle local.
+12:28:56 [INFO] Verificando histórico de mensagens para Ordem: 2000017132027526
+12:28:56 [INFO] Mensagem já constava no chat da Ordem 2000017132027526. Atualizando controle local.
+12:28:57 [INFO] Verificando histórico de mensagens para Ordem: 2000017178842252
+12:28:57 [INFO] Mensagem já constava no chat da Ordem 2000017178842252. Atualizando controle local.
+12:28:57 [INFO] Verificando histórico de mensagens para Ordem: 2000017181713566
+12:28:57 [INFO] Mensagem já constava no chat da Ordem 2000017181713566. Atualizando controle local.
+12:28:58 [INFO] Verificando histórico de mensagens para Ordem: 2000017195029424
+12:28:58 [INFO] Mensagem já constava no chat da Ordem 2000017195029424. Atualizando controle local.
+12:28:58 [INFO] Verificando histórico de mensagens para Ordem: 2000017223491468
+12:29:00 [INFO] Ordem 2000017223491468: Mensagem enviada e registrada.
+12:29:00 [INFO] Processamento da ordem 2000017223491468 concluído. Próxima ordem...
+12:29:01 [INFO] Verificando histórico de mensagens para Ordem: 2000017239695438
+12:29:03 [INFO] Ordem 2000017239695438: Mensagem enviada e registrada.
+12:29:03 [INFO] Processamento da ordem 2000017239695438 concluído. Próxima ordem...
+12:29:04 [INFO] Verificando histórico de mensagens para Ordem: 2000017241750726
+12:29:06 [INFO] Ordem 2000017241750726: Mensagem enviada e registrada.
+12:29:06 [INFO] Processamento da ordem 2000017241750726 concluído. Próxima ordem...
+12:29:06 [INFO] Verificando histórico de mensagens para Ordem: 2000017256874112
+12:29:08 [INFO] Ordem 2000017256874112: Mensagem enviada e registrada.
+12:29:08 [INFO] Processamento da ordem 2000017256874112 concluído. Próxima ordem...
+12:29:09 [INFO] Verificando histórico de mensagens para Ordem: 2000017271585260
+12:29:11 [INFO] Ordem 2000017271585260: Mensagem enviada e registrada.
+12:29:13 [INFO] Ordem 2000017271585260: Status da API = 201
+12:29:13 [INFO] Ordem 2000017271585260: Antes de salvar - QtdenvioEncerrarReclamacao=1, data=07/07/2026 12:29
+12:29:13 [INFO] Ordem 2000017271585260: Save result = None
+12:29:13 [INFO] Ordem 2000017271585260: Mensagem de encerramento enviada (1/2).
+12:29:13 [INFO] Processamento da ordem 2000017271585260 concluído. Próxima ordem...
+12:29:13 [INFO] Verificando histórico de mensagens para Ordem: 2000017274965164
+12:29:15 [INFO] Ordem 2000017274965164: Mensagem enviada e registrada.
+12:29:15 [INFO] Processamento da ordem 2000017274965164 concluído. Próxima ordem...
+12:29:16 [INFO] Verificando histórico de mensagens para Ordem: 2000017275797004
+12:29:18 [INFO] Ordem 2000017275797004: Mensagem enviada e registrada.
+12:29:18 [INFO] Processamento da ordem 2000017275797004 concluído. Próxima ordem...
+12:29:18 [INFO] Verificando histórico de mensagens para Ordem: 2000017275983672
+12:29:20 [INFO] Ordem 2000017275983672: Mensagem enviada e registrada.
+12:29:20 [INFO] Processamento da ordem 2000017275983672 concluído. Próxima ordem...
+12:29:21 [INFO] Verificando histórico de mensagens para Ordem: 2000017277096398
+12:29:23 [INFO] Ordem 2000017277096398: Mensagem enviada e registrada.
+12:29:23 [INFO] Processamento da ordem 2000017277096398 concluído. Próxima ordem...
+12:29:25 [INFO] Verificando histórico de mensagens para Ordem: 2000017277689630
+12:29:27 [INFO] Ordem 2000017277689630: Mensagem enviada e registrada.
+12:29:28 [INFO] Ordem 2000017277689630: Status da API = 201
+12:29:28 [INFO] Ordem 2000017277689630: Antes de salvar - QtdenvioEncerrarReclamacao=1, data=07/07/2026 12:29
+12:29:28 [INFO] Ordem 2000017277689630: Save result = None
+12:29:28 [INFO] Ordem 2000017277689630: Mensagem de encerramento enviada (1/2).
+12:29:28 [INFO] Processamento da ordem 2000017277689630 concluído. Próxima ordem...
+12:29:29 [INFO] Verificando histórico de mensagens para Ordem: 2000017278196368
+12:29:31 [INFO] Ordem 2000017278196368: Mensagem enviada e registrada.
+12:29:31 [INFO] Processamento da ordem 2000017278196368 concluído. Próxima ordem...
+12:29:32 [INFO] Verificando histórico de mensagens para Ordem: 2000017280992476
+12:29:34 [INFO] Ordem 2000017280992476: Mensagem enviada e registrada.
+12:29:35 [INFO] Ordem 2000017280992476: Status da API = 201
+12:29:35 [INFO] Ordem 2000017280992476: Antes de salvar - QtdenvioEncerrarReclamacao=1, data=07/07/2026 12:29
+12:29:35 [INFO] Ordem 2000017280992476: Save result = None
+12:29:35 [INFO] Ordem 2000017280992476: Mensagem de encerramento enviada (1/2).
+12:29:35 [INFO] Processamento da ordem 2000017280992476 concluído. Próxima ordem...
+12:29:36 [INFO] Verificando histórico de mensagens para Ordem: 2000017281626998
+12:29:38 [INFO] Ordem 2000017281626998: Mensagem enviada e registrada.
+12:29:38 [INFO] Processamento da ordem 2000017281626998 concluído. Próxima ordem...
+12:29:39 [INFO] Verificando histórico de mensagens para Ordem: 2000017282944026
+12:29:41 [INFO] Ordem 2000017282944026: Mensagem enviada e registrada.
+12:29:43 [INFO] Ordem 2000017282944026: Status da API = 201
+12:29:43 [INFO] Ordem 2000017282944026: Antes de salvar - QtdenvioEncerrarReclamacao=1, data=07/07/2026 12:29
+12:29:43 [INFO] Ordem 2000017282944026: Save result = None
+12:29:43 [INFO] Ordem 2000017282944026: Mensagem de encerramento enviada (1/2).
+12:29:43 [INFO] Processamento da ordem 2000017282944026 concluído. Próxima ordem...
+12:29:43 [INFO] Verificando histórico de mensagens para Ordem: 2000017284547172
+12:29:45 [INFO] Ordem 2000017284547172: Mensagem enviada e registrada.
+12:29:45 [INFO] Processamento da ordem 2000017284547172 concluído. Próxima ordem...
+12:29:46 [INFO] Verificando histórico de mensagens para Ordem: 2000017287924190
+12:29:48 [INFO] Ordem 2000017287924190: Mensagem enviada e registrada.
+12:29:48 [INFO] Processamento da ordem 2000017287924190 concluído. Próxima ordem...
+12:29:48 [INFO] Verificando histórico de mensagens para Ordem: 2000017291548384
+12:29:50 [INFO] Ordem 2000017291548384: Mensagem enviada e registrada.
+12:29:50 [INFO] Processamento da ordem 2000017291548384 concluído. Próxima ordem...
+12:29:51 [INFO] Verificando histórico de mensagens para Ordem: 2000017293257474
+12:29:53 [INFO] Ordem 2000017293257474: Mensagem enviada e registrada.
+12:29:53 [INFO] Processamento da ordem 2000017293257474 concluído. Próxima ordem...
+12:29:53 [INFO] Verificando histórico de mensagens para Ordem: 2000017293316044
+12:29:55 [INFO] Ordem 2000017293316044: Mensagem enviada e registrada.
+12:29:55 [INFO] Processamento da ordem 2000017293316044 concluído. Próxima ordem...
+12:29:56 [INFO] Verificando histórico de mensagens para Ordem: 2000017293456734
+12:29:58 [INFO] Ordem 2000017293456734: Mensagem enviada e registrada.
+12:29:58 [INFO] Processamento da ordem 2000017293456734 concluído. Próxima ordem...
+12:29:58 [INFO] Verificando histórico de mensagens para Ordem: 2000017293725316
+12:30:00 [INFO] Ordem 2000017293725316: Mensagem enviada e registrada.
+12:30:00 [INFO] Processamento da ordem 2000017293725316 concluído. Próxima ordem...
+12:30:01 [INFO] Verificando histórico de mensagens para Ordem: 2000017293813092
+12:30:03 [INFO] Ordem 2000017293813092: Mensagem enviada e registrada.
+12:30:03 [INFO] Processamento da ordem 2000017293813092 concluído. Próxima ordem...
+12:30:03 [INFO] Fim da Execução. Novas solicitações enviadas: 22
+12:30:23 [INFO] Script IA carregado: G:\Meu Drive\Sistema Captura WPP\scriptIAquestion.txt
+12:30:23 [INFO] Iniciando busca de perguntas no Mercado Livre...
+12:30:23 [INFO] Baixadas 23 de 23 perguntas totais...
+12:30:23 [INFO] Encontrada(s) 17 pergunta(s) sem resposta.
+12:30:23 [INFO] Enviando pergunta para a IA
+12:30:25 [INFO] Pergunta ID 13616806684 respondida com sucesso!
+12:30:26 [INFO] Enviando pergunta para a IA
+12:30:27 [INFO] Pergunta ID 13616067019 respondida com sucesso!
+12:30:28 [INFO] Enviando pergunta para a IA
+12:30:29 [INFO] Pergunta ID 13616808972 respondida com sucesso!
+12:30:30 [INFO] Enviando pergunta para a IA
+12:30:31 [INFO] Pergunta ID 13616071135 respondida com sucesso!
+12:30:32 [INFO] Enviando pergunta para a IA
+12:30:33 [INFO] Pergunta ID 13616812412 respondida com sucesso!
+12:30:34 [INFO] Enviando pergunta para a IA
+12:30:35 [INFO] Pergunta ID 13616824726 respondida com sucesso!
+12:30:36 [INFO] Enviando pergunta para a IA
+12:30:38 [INFO] Pergunta ID 13616825540 respondida com sucesso!
+12:30:39 [INFO] Enviando pergunta para a IA
+12:30:40 [INFO] Pergunta ID 13616089499 respondida com sucesso!
+12:30:41 [INFO] Enviando pergunta para a IA
+12:30:42 [INFO] Pergunta ID 13616106771 respondida com sucesso!
+12:30:43 [INFO] Enviando pergunta para a IA
+12:30:44 [INFO] Pergunta ID 13616131301 respondida com sucesso!
+12:30:45 [INFO] Enviando pergunta para a IA
+12:30:46 [INFO] Pergunta ID 13616259483 respondida com sucesso!
+12:30:47 [INFO] Enviando pergunta para a IA
+12:30:52 [INFO] Pergunta ID 13617007012 respondida com sucesso!
+12:30:53 [INFO] Enviando pergunta para a IA
+12:30:57 [INFO] Pergunta ID 13616265357 respondida com sucesso!
+12:30:58 [INFO] Enviando pergunta para a IA
+12:31:04 [INFO] Pergunta ID 13617195640 respondida com sucesso!
+12:31:05 [INFO] Enviando pergunta para a IA
+12:31:10 [INFO] Pergunta ID 13616589525 respondida com sucesso!
+12:31:11 [INFO] Enviando pergunta para a IA
+12:31:16 [INFO] Pergunta ID 13617341676 respondida com sucesso!
+12:31:17 [INFO] Enviando pergunta para a IA
+12:31:22 [INFO] Pergunta ID 13617362192 respondida com sucesso!
+12:31:23 [INFO] Processo de responder dúvidas concluído.

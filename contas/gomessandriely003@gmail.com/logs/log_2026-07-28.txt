@@ -1,0 +1,57 @@
+12:00:10 [INFO] [AGENDAMENTO] Iniciando task tarefa_1783713095.74143 para gomessandriely003@gmail.com com ação solicitar
+12:00:11 [INFO] Modo COMUM + RECLAMAÇÕES ativado: serão buscados os dois tipos e ordenados por date_created.
+12:00:11 [INFO] Buscando offset 0...
+12:00:11 [ERROR] Erro na requisição: 403 Client Error: Forbidden for url: https://api.mercadolibre.com/orders/search?seller=3088264010&order.status=paid&offset=0&limit=50
+12:00:11 [INFO] Buscando offset 0...
+12:00:11 [ERROR] Erro API Claims: 403
+12:00:11 [INFO] Busca mista finalizada. Comuns: 0; reclamações: 0; total: 0
+12:00:11 [INFO] Iniciando ação: SOLICITAR...
+12:00:11 [INFO] Executando ação 'solicitar' em modo agendamento, aguardando conclusão...
+12:00:12 [INFO] Fim da Execução. Novas solicitações enviadas: 0
+12:00:12 [INFO] Ação 'solicitar' concluída com sucesso.
+13:00:14 [INFO] [AGENDAMENTO] Iniciando task tarefa_1783713127.309574 para gomessandriely003@gmail.com com ação vendas_encerradas
+13:00:15 [INFO] Modo COMUM + RECLAMAÇÕES ativado: serão buscados os dois tipos e ordenados por date_created.
+13:00:15 [INFO] Buscando offset 0...
+13:00:15 [ERROR] Erro na requisição: 403 Client Error: Forbidden for url: https://api.mercadolibre.com/orders/search?seller=3088264010&order.status=paid&offset=0&limit=50
+13:00:15 [INFO] Buscando offset 0...
+13:00:15 [ERROR] Erro API Claims: 403
+13:00:15 [INFO] Busca mista finalizada. Comuns: 0; reclamações: 0; total: 0
+13:00:15 [INFO] Iniciando ação: VENDAS_ENCERRADAS...
+13:00:15 [INFO] Executando ação 'vendas_encerradas' em modo agendamento, aguardando conclusão...
+13:00:16 [INFO] Fim da Execução. Novas solicitações enviadas: 0
+13:00:16 [INFO] Ação 'vendas_encerradas' concluída com sucesso.
+19:09:17 [INFO] Extração (Comum) cancelada (quantidade não informada).
+19:21:52 [INFO] Robô de WhatsApp iniciado em segundo plano (90 contato(s)) para o WPP '1'. Acompanhe o andamento pelo log abaixo.
+19:23:18 [INFO] Robô de WhatsApp iniciado em segundo plano (90 contato(s)) para o WPP '1'. Acompanhe o andamento pelo log abaixo.
+19:24:54 [INFO] Robô de WhatsApp iniciado em segundo plano (90 contato(s)) para o WPP '1'. Acompanhe o andamento pelo log abaixo.
+19:34:29 [INFO] Robô de WhatsApp iniciado em segundo plano (90 contato(s)) para o WPP '1'. Acompanhe o andamento pelo log abaixo.
+19:34:34 [INFO] [1/90] Mensagem enviada com sucesso para a ordem 2000017143610094 e marcada na planilha.
+19:34:34 [INFO] Aguardando 120s antes do próximo contato...
+19:36:39 [INFO] [2/90] Mensagem enviada com sucesso para a ordem 2000017156048536 e marcada na planilha.
+19:36:40 [INFO] Aguardando 120s antes do próximo contato...
+19:38:44 [INFO] [3/90] Mensagem enviada com sucesso para a ordem 2000017155108700 e marcada na planilha.
+19:38:45 [INFO] Aguardando 120s antes do próximo contato...
+19:40:50 [INFO] [4/90] Mensagem enviada com sucesso para a ordem 2000017152849104 e marcada na planilha.
+19:40:50 [INFO] Aguardando 120s antes do próximo contato...
+19:43:03 [ERROR] ERRO FATAL - Processo interrompido: Ordem 2000017152108714: Não foi possível localizar o campo de digitação: Message: 
+Stacktrace:
+	chromedriver!GetHandleVerifier [0x7ff767000d25+155a5]
+	chromedriver!GetHandleVerifier [0x7ff767000d80+15600]
+	chromedriver!(No symbol) [0x7ff766b5594d]
+	chromedriver!(No symbol) [0x7ff766bb08e9]
+	chromedriver!(No symbol) [0x7ff766bb0bec]
+	chromedriver!(No symbol) [0x7ff766c01437]
+	chromedriver!(No symbol) [0x7ff766bfe01b]
+	chromedriver!(No symbol) [0x7ff766ba2e6c]
+	chromedriver!(No symbol) [0x7ff766ba3d93]
+	chromedriver!GetHandleVerifier [0x7ff7675e6431+5facb1]
+	chromedriver!GetHandleVerifier [0x7ff7675e0a9b+5f531b]
+	chromedriver!GetHandleVerifier [0x7ff767605865+61a0e5]
+	chromedriver!GetHandleVerifier [0x7ff76701dace+3234e]
+	chromedriver!GetHandleVerifier [0x7ff76702661c+3ae9c]
+	chromedriver!GetHandleVerifier [0x7ff76700ab74+1f3f4]
+	chromedriver!GetHandleVerifier [0x7ff76700ad04+1f584]
+	chromedriver!GetHandleVerifier [0x7ff766fed9d7+2257]
+	KERNEL32!BaseThreadInitThunk [0x7ff9c895e957+17]
+	ntdll!RtlUserThreadStart [0x7ff9c9c2ad6c+2c]
+

@@ -1,0 +1,150 @@
+14:06:12 [INFO] Navegador aberto. Autorize e cole o código 'TG-...' abaixo.
+14:06:57 [INFO] Tokens salvos com sucesso!
+14:10:04 [INFO] Modo COMUM ativado: Serão processados todos os pedidos.
+14:10:04 [INFO] Buscando offset 0...
+14:10:04 [INFO] Busca finalizada. Total capturado: 37
+14:10:04 [INFO] Iniciando ação: SOLICITAR...
+14:10:05 [INFO] Thread de solicitar iniciada...
+14:10:07 [INFO] Verificando histórico de mensagens para Ordem: 2000015940213214
+14:10:07 [INFO] Mensagem já constava no chat da Ordem 2000015940213214. Atualizando controle local.
+14:10:08 [INFO] Verificando histórico de mensagens para Ordem: 2000015943428280
+14:10:08 [INFO] Mensagem já constava no chat da Ordem 2000015943428280. Atualizando controle local.
+14:10:09 [INFO] Verificando histórico de mensagens para Ordem: 2000015956186488
+14:10:09 [INFO] Mensagem já constava no chat da Ordem 2000015956186488. Atualizando controle local.
+14:10:09 [INFO] Verificando histórico de mensagens para Ordem: 2000015958042500
+14:10:09 [INFO] Mensagem já constava no chat da Ordem 2000015958042500. Atualizando controle local.
+14:10:10 [INFO] Verificando histórico de mensagens para Ordem: 2000015961209158
+14:10:10 [INFO] Mensagem já constava no chat da Ordem 2000015961209158. Atualizando controle local.
+14:10:10 [INFO] Verificando histórico de mensagens para Ordem: 2000015996887928
+14:10:10 [INFO] Mensagem já constava no chat da Ordem 2000015996887928. Atualizando controle local.
+14:10:11 [INFO] Verificando histórico de mensagens para Ordem: 2000016002613436
+14:10:11 [INFO] Mensagem já constava no chat da Ordem 2000016002613436. Atualizando controle local.
+14:10:13 [INFO] Verificando histórico de mensagens para Ordem: 2000016021209708
+14:10:13 [INFO] Mensagem já constava no chat da Ordem 2000016021209708. Atualizando controle local.
+14:10:13 [INFO] Verificando histórico de mensagens para Ordem: 2000016027835900
+14:10:13 [INFO] Mensagem já constava no chat da Ordem 2000016027835900. Atualizando controle local.
+14:10:15 [INFO] Verificando histórico de mensagens para Ordem: 2000016033535980
+14:10:15 [INFO] Mensagem já constava no chat da Ordem 2000016033535980. Atualizando controle local.
+14:10:15 [INFO] Verificando histórico de mensagens para Ordem: 2000016038397354
+14:10:15 [INFO] Mensagem já constava no chat da Ordem 2000016038397354. Atualizando controle local.
+14:10:15 [INFO] Verificando histórico de mensagens para Ordem: 2000016042512276
+14:10:16 [INFO] Mensagem já constava no chat da Ordem 2000016042512276. Atualizando controle local.
+14:10:17 [INFO] Verificando histórico de mensagens para Ordem: 2000016044397098
+14:10:17 [INFO] Mensagem já constava no chat da Ordem 2000016044397098. Atualizando controle local.
+14:10:17 [INFO] Verificando histórico de mensagens para Ordem: 2000016046091616
+14:10:17 [INFO] Mensagem já constava no chat da Ordem 2000016046091616. Atualizando controle local.
+14:10:18 [INFO] Verificando histórico de mensagens para Ordem: 2000016046133372
+14:10:18 [INFO] Mensagem já constava no chat da Ordem 2000016046133372. Atualizando controle local.
+14:10:20 [INFO] Verificando histórico de mensagens para Ordem: 2000016046172942
+14:10:20 [INFO] Mensagem já constava no chat da Ordem 2000016046172942. Atualizando controle local.
+14:10:20 [INFO] Verificando histórico de mensagens para Ordem: 2000016047037984
+14:10:20 [INFO] Mensagem já constava no chat da Ordem 2000016047037984. Atualizando controle local.
+14:10:21 [INFO] Verificando histórico de mensagens para Ordem: 2000016050241800
+14:10:21 [INFO] Mensagem já constava no chat da Ordem 2000016050241800. Atualizando controle local.
+14:10:21 [INFO] Verificando histórico de mensagens para Ordem: 2000016050795010
+14:10:21 [INFO] Mensagem já constava no chat da Ordem 2000016050795010. Atualizando controle local.
+14:10:22 [INFO] Verificando histórico de mensagens para Ordem: 2000016050956548
+14:10:22 [INFO] Mensagem já constava no chat da Ordem 2000016050956548. Atualizando controle local.
+14:10:23 [INFO] Verificando histórico de mensagens para Ordem: 2000016052223916
+14:10:23 [INFO] Mensagem já constava no chat da Ordem 2000016052223916. Atualizando controle local.
+14:10:24 [INFO] Verificando histórico de mensagens para Ordem: 2000016053721994
+14:10:24 [INFO] Mensagem já constava no chat da Ordem 2000016053721994. Atualizando controle local.
+14:10:24 [INFO] Verificando histórico de mensagens para Ordem: 2000016054310740
+14:10:24 [INFO] Mensagem já constava no chat da Ordem 2000016054310740. Atualizando controle local.
+14:10:25 [INFO] Verificando histórico de mensagens para Ordem: 2000016057089418
+14:10:25 [INFO] Mensagem já constava no chat da Ordem 2000016057089418. Atualizando controle local.
+14:10:26 [INFO] Verificando histórico de mensagens para Ordem: 2000016058492082
+14:10:26 [INFO] Mensagem já constava no chat da Ordem 2000016058492082. Atualizando controle local.
+14:10:26 [INFO] Verificando histórico de mensagens para Ordem: 2000016059149888
+14:10:26 [INFO] Mensagem já constava no chat da Ordem 2000016059149888. Atualizando controle local.
+14:10:27 [INFO] Verificando histórico de mensagens para Ordem: 2000016063686150
+14:10:27 [INFO] Mensagem já constava no chat da Ordem 2000016063686150. Atualizando controle local.
+14:10:28 [INFO] Verificando histórico de mensagens para Ordem: 2000016063867022
+14:10:28 [INFO] Mensagem já constava no chat da Ordem 2000016063867022. Atualizando controle local.
+14:10:29 [INFO] Verificando histórico de mensagens para Ordem: 2000016064086388
+14:10:29 [INFO] Mensagem já constava no chat da Ordem 2000016064086388. Atualizando controle local.
+14:10:30 [INFO] Verificando histórico de mensagens para Ordem: 2000016067310124
+14:10:30 [INFO] Mensagem já constava no chat da Ordem 2000016067310124. Atualizando controle local.
+14:10:30 [INFO] Verificando histórico de mensagens para Ordem: 2000016068976092
+14:10:30 [INFO] Mensagem já constava no chat da Ordem 2000016068976092. Atualizando controle local.
+14:10:31 [INFO] Verificando histórico de mensagens para Ordem: 2000016069855658
+14:10:31 [INFO] Mensagem já constava no chat da Ordem 2000016069855658. Atualizando controle local.
+14:10:31 [INFO] Verificando histórico de mensagens para Ordem: 2000016078074738
+14:10:31 [INFO] Mensagem já constava no chat da Ordem 2000016078074738. Atualizando controle local.
+14:10:32 [INFO] Verificando histórico de mensagens para Ordem: 2000016078873932
+14:10:32 [INFO] Mensagem já constava no chat da Ordem 2000016078873932. Atualizando controle local.
+14:10:32 [INFO] Verificando histórico de mensagens para Ordem: 2000016079555136
+14:10:32 [INFO] Mensagem já constava no chat da Ordem 2000016079555136. Atualizando controle local.
+14:10:33 [INFO] Verificando histórico de mensagens para Ordem: 2000016079998162
+14:10:33 [INFO] Mensagem já constava no chat da Ordem 2000016079998162. Atualizando controle local.
+14:10:33 [INFO] Verificando histórico de mensagens para Ordem: 2000016080612888
+14:10:33 [INFO] Mensagem já constava no chat da Ordem 2000016080612888. Atualizando controle local.
+14:10:33 [INFO] Fim da Execução. Novas solicitações enviadas: 0
+14:10:50 [INFO] Modo COMUM ativado: Serão processados todos os pedidos.
+14:10:50 [INFO] Buscando offset 0...
+14:10:51 [INFO] Busca finalizada. Total capturado: 37
+14:10:51 [INFO] Iniciando ação: SOLICITAR...
+14:10:53 [INFO] Thread de solicitar iniciada...
+14:10:55 [INFO] Finalizado extração de telefone para a ordem 2000015940213214: 31984420284
+14:10:57 [INFO] Mensagem já Enviada no chat da Ordem 2000015940213214...
+14:10:57 [INFO] Finalizado extração de telefone para a ordem 2000015943428280: 01699380825
+14:10:59 [INFO] Mensagem já Enviada no chat da Ordem 2000015943428280...
+14:11:00 [INFO] Finalizado extração de telefone para a ordem 2000015956186488: 45999187035
+14:11:02 [INFO] Mensagem já Enviada no chat da Ordem 2000015956186488...
+14:11:03 [INFO] Finalizado extração de telefone para a ordem 2000015958042500: 84994048533
+14:11:04 [INFO] Mensagem já Enviada no chat da Ordem 2000015958042500...
+14:11:05 [INFO] Finalizado extração de telefone para a ordem 2000015961209158: 45991049523
+14:11:07 [INFO] Mensagem já Enviada no chat da Ordem 2000015961209158...
+14:11:07 [INFO] Finalizado extração de telefone para a ordem 2000015996887928: 62998855127
+14:11:09 [INFO] Mensagem já Enviada no chat da Ordem 2000015996887928...
+14:11:10 [INFO] Mensagem já Enviada no chat da Ordem 2000016002613436...
+14:11:13 [INFO] Mensagem já Enviada no chat da Ordem 2000016021209708...
+14:11:13 [INFO] Finalizado extração de telefone para a ordem 2000016027835900: 87999251511
+14:11:15 [INFO] Mensagem já Enviada no chat da Ordem 2000016027835900...
+14:11:17 [INFO] Finalizado extração de telefone para a ordem 2000016033535980: 89994728993
+14:11:19 [INFO] Mensagem já Enviada no chat da Ordem 2000016033535980...
+14:11:19 [INFO] Finalizado extração de telefone para a ordem 2000016038397354: 21964768980
+14:11:21 [INFO] Mensagem já Enviada no chat da Ordem 2000016038397354...
+14:11:22 [INFO] Mensagem já Enviada no chat da Ordem 2000016042512276...
+14:11:23 [INFO] Mensagem já Enviada no chat da Ordem 2000016044397098...
+14:11:23 [INFO] Finalizado extração de telefone para a ordem 2000016046091616: 11962138452
+14:11:25 [INFO] Mensagem já Enviada no chat da Ordem 2000016046091616...
+14:11:26 [INFO] Mensagem já Enviada no chat da Ordem 2000016046133372...
+14:11:27 [INFO] Finalizado extração de telefone para a ordem 2000016046172942: 27997969370
+14:11:29 [INFO] Mensagem já Enviada no chat da Ordem 2000016046172942...
+14:11:30 [INFO] Finalizado extração de telefone para a ordem 2000016047037984: 12991674632
+14:11:32 [INFO] Mensagem já Enviada no chat da Ordem 2000016047037984...
+14:11:32 [INFO] Mensagem já Enviada no chat da Ordem 2000016050241800...
+14:11:33 [INFO] Finalizado extração de telefone para a ordem 2000016050795010: 94991234501
+14:11:35 [INFO] Mensagem já Enviada no chat da Ordem 2000016050795010...
+14:11:36 [INFO] Mensagem já Enviada no chat da Ordem 2000016050956548...
+14:11:36 [INFO] Finalizado extração de telefone para a ordem 2000016052223916: 38991709985
+14:11:38 [INFO] Mensagem já Enviada no chat da Ordem 2000016052223916...
+14:11:39 [INFO] Finalizado extração de telefone para a ordem 2000016053721994: 71983823553
+14:11:41 [INFO] Mensagem já Enviada no chat da Ordem 2000016053721994...
+14:11:41 [INFO] Finalizado extração de telefone para a ordem 2000016054310740: 21976879577
+14:11:43 [INFO] Mensagem já Enviada no chat da Ordem 2000016054310740...
+14:11:44 [INFO] Finalizado extração de telefone para a ordem 2000016057089418: 93991298438
+14:11:46 [INFO] Mensagem já Enviada no chat da Ordem 2000016057089418...
+14:11:46 [INFO] Finalizado extração de telefone para a ordem 2000016058492082: 11932264796
+14:11:48 [INFO] Mensagem já Enviada no chat da Ordem 2000016058492082...
+14:11:48 [INFO] Finalizado extração de telefone para a ordem 2000016059149888: 85998313626
+14:11:50 [INFO] Mensagem já Enviada no chat da Ordem 2000016059149888...
+14:11:51 [INFO] Finalizado extração de telefone para a ordem 2000016063686150: 75998370980
+14:11:53 [INFO] Mensagem já Enviada no chat da Ordem 2000016063686150...
+14:11:53 [INFO] Mensagem já Enviada no chat da Ordem 2000016063867022...
+14:11:54 [INFO] Mensagem já Enviada no chat da Ordem 2000016064086388...
+14:11:55 [INFO] Mensagem já Enviada no chat da Ordem 2000016067310124...
+14:11:55 [INFO] Finalizado extração de telefone para a ordem 2000016068976092: 61986640825
+14:11:57 [INFO] Mensagem já Enviada no chat da Ordem 2000016068976092...
+14:11:58 [INFO] Finalizado extração de telefone para a ordem 2000016069855658: 75988191339
+14:11:59 [INFO] Mensagem já Enviada no chat da Ordem 2000016069855658...
+14:12:00 [INFO] Mensagem já Enviada no chat da Ordem 2000016078074738...
+14:12:00 [INFO] Mensagem já Enviada no chat da Ordem 2000016078873932...
+14:12:01 [INFO] Finalizado extração de telefone para a ordem 2000016079555136: 99982459779
+14:12:03 [INFO] Mensagem já Enviada no chat da Ordem 2000016079555136...
+14:12:03 [INFO] Finalizado extração de telefone para a ordem 2000016079998162: 73988425441
+14:12:05 [INFO] Mensagem já Enviada no chat da Ordem 2000016079998162...
+14:12:05 [INFO] Mensagem já Enviada no chat da Ordem 2000016080612888...
+14:12:05 [INFO] Fim da Execução. Novas solicitações enviadas: 0
+14:12:36 [INFO] Excel salvo em: C:/Users/ASROCK/Documents/MercadoLivre/Ello Móveis/Vendas/Ello Store/abril 2026/vendas/ml 15 arthur/versao1.xlsx

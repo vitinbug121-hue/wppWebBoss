@@ -1,0 +1,3 @@
+23:37:45 [INFO] Navegador aberto. Autorize e cole o código 'TG-...' abaixo.
+23:38:23 [INFO] Tokens salvos com sucesso!
+23:38:23 [INFO] ML conectado com sucesso. Seller ID salvo: 1687303540

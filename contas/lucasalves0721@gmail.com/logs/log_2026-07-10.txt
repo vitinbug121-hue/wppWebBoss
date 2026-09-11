@@ -1,0 +1,48 @@
+14:21:24 [INFO] Navegador aberto. Autorize e cole o código 'TG-...' abaixo.
+14:21:44 [INFO] Tokens salvos com sucesso!
+14:21:45 [INFO] ML conectado com sucesso. Seller ID salvo: 1022586388
+14:22:19 [INFO] Modo COMUM + RECLAMAÇÕES ativado: serão buscados os dois tipos e ordenados por date_created.
+14:22:19 [INFO] Buscando offset 0...
+14:22:20 [INFO] Busca finalizada. Total capturado: 11
+14:22:20 [INFO] Buscando offset 0...
+14:22:21 [INFO] Busca finalizada. Total capturado: 4
+14:22:22 [INFO] Busca mista finalizada. Comuns: 11; reclamações: 4; total: 11
+14:22:22 [INFO] Iniciando ação: SOLICITAR...
+14:22:22 [INFO] Thread de solicitar iniciada...
+14:22:24 [INFO] Verificando histórico de mensagens para Ordem: 2000017123566822
+14:22:24 [INFO] Mensagem já constava no chat da Ordem 2000017123566822. Atualizando controle local.
+14:22:24 [INFO] Verificando histórico de mensagens para Ordem: 2000017299636026
+14:22:26 [INFO] Ordem 2000017299636026: Mensagem enviada e registrada.
+14:22:26 [INFO] Processamento da ordem 2000017299636026 concluído. Próxima ordem...
+14:22:27 [INFO] Verificando histórico de mensagens para Ordem: 2000017315882022
+14:22:30 [INFO] Ordem 2000017315882022: Mensagem enviada e registrada.
+14:22:31 [INFO] Ordem 2000017315882022: Status da API = 201
+14:22:31 [INFO] Ordem 2000017315882022: Antes de salvar - QtdenvioEncerrarReclamacao=1, data=10/07/2026 14:22
+14:22:31 [INFO] Ordem 2000017315882022: Save result = None
+14:22:31 [INFO] Ordem 2000017315882022: Mensagem de encerramento enviada (1/2).
+14:22:31 [INFO] Processamento da ordem 2000017315882022 concluído. Próxima ordem...
+14:22:32 [INFO] Verificando histórico de mensagens para Ordem: 2000017317980324
+14:22:32 [INFO] Mensagem já constava no chat da Ordem 2000017317980324. Atualizando controle local.
+14:22:33 [INFO] Verificando histórico de mensagens para Ordem: 2000017325464418
+14:22:33 [INFO] Mensagem já constava no chat da Ordem 2000017325464418. Atualizando controle local.
+14:22:34 [INFO] Verificando histórico de mensagens para Ordem: 2000017331073672
+14:22:37 [INFO] Ordem 2000017331073672: Mensagem enviada e registrada.
+14:22:38 [INFO] Ordem 2000017331073672: Status da API = 201
+14:22:38 [INFO] Ordem 2000017331073672: Antes de salvar - QtdenvioEncerrarReclamacao=1, data=10/07/2026 14:22
+14:22:38 [INFO] Ordem 2000017331073672: Save result = None
+14:22:38 [INFO] Ordem 2000017331073672: Mensagem de encerramento enviada (1/2).
+14:22:38 [INFO] Processamento da ordem 2000017331073672 concluído. Próxima ordem...
+14:22:38 [INFO] Verificando histórico de mensagens para Ordem: 2000017341214680
+14:22:38 [INFO] Mensagem já constava no chat da Ordem 2000017341214680. Atualizando controle local.
+14:22:39 [INFO] Verificando histórico de mensagens para Ordem: 2000017341111924
+14:22:39 [INFO] Mensagem já constava no chat da Ordem 2000017341111924. Atualizando controle local.
+14:22:39 [INFO] Verificando histórico de mensagens para Ordem: 2000017349981240
+14:22:41 [INFO] Ordem 2000017349981240: Mensagem enviada e registrada.
+14:22:41 [INFO] Processamento da ordem 2000017349981240 concluído. Próxima ordem...
+14:22:42 [INFO] Verificando histórico de mensagens para Ordem: 2000017350428642
+14:22:44 [INFO] Ordem 2000017350428642: Mensagem enviada e registrada.
+14:22:44 [INFO] Processamento da ordem 2000017350428642 concluído. Próxima ordem...
+14:22:44 [INFO] Verificando histórico de mensagens para Ordem: 2000017350625172
+14:22:46 [INFO] Ordem 2000017350625172: Mensagem enviada e registrada.
+14:22:46 [INFO] Processamento da ordem 2000017350625172 concluído. Próxima ordem...
+14:22:46 [INFO] Fim da Execução. Novas solicitações enviadas: 6

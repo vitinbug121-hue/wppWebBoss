@@ -1,0 +1,3 @@
+19:29:55 [INFO] Thread de vendas encerradas iniciada...
+19:29:56 [WARNING] Não foi possível obter um token válido. Autorize novamente.
+19:29:56 [ERROR] Token ML não encontrado. Autorize novamente.

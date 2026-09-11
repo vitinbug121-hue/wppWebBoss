@@ -1,0 +1,6 @@
+23:27:41 [INFO] Arquivo config_conta.json criado em G:\Meu Drive\Sistema Captura WPP\contas\matheusvieirad3@gmail.com. Preencha os dados ML.
+23:27:59 [INFO] Navegador aberto. Autorize e cole o código 'TG-...' abaixo.
+23:28:36 [INFO] Tokens salvos com sucesso!
+23:28:36 [INFO] ML conectado com sucesso. Seller ID salvo: 1093415833
+23:31:28 [ERROR] Autorização ML cancelada: ML_CLIENT_ID não informado.
+23:31:37 [ERROR] Autorização ML cancelada: ML_CLIENT_ID não informado.

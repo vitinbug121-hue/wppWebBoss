@@ -1,0 +1,19 @@
+18:34:20 [INFO] Modo COMUM ativado: Serão processados todos os pedidos.
+18:34:20 [INFO] Buscando offset 0...
+18:34:22 [INFO] Buscando offset 50...
+18:34:23 [INFO] Buscando offset 100...
+18:34:23 [INFO] Busca finalizada. Total capturado: 118
+18:34:23 [INFO] Iniciando ação: BOLETO...
+18:34:23 [INFO] Iniciando processamento by IDs
+18:34:26 [INFO] Thread de boleto iniciada...
+18:34:39 [INFO] Ordem 2000015926079020 ignorada (não está na lista de IDs).
+18:34:50 [INFO] Ordem 2000015941025478 ignorada (não está na lista de IDs).
+18:34:50 [INFO] Ordem 2000015950238752 ignorada (não está na lista de IDs).
+18:34:50 [INFO] Ordem 2000015950631862 ignorada (não está na lista de IDs).
+18:34:50 [INFO] Ordem 2000015955762854 ignorada (não está na lista de IDs).
+18:34:50 [INFO] Ordem 2000015956396792 ignorada (não está na lista de IDs).
+18:34:50 [INFO] Ordem 2000015964660896 ignorada (não está na lista de IDs).
+18:34:50 [INFO] Ordem 2000015970684986 ignorada (não está na lista de IDs).
+18:34:50 [INFO] Ordem 2000015974300214 ignorada (não está na lista de IDs).
+18:34:50 [INFO] Ordem 2000015974448592 ignorada (não está na lista de IDs).
+18:34:50 [INFO] Ordem 2000015975598306 ignorada (não está na lista de IDs).

@@ -17,7 +17,10 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:29",
         "codigo_boleto": "37690001040010567100200133928143 5 14220000013896",
-        "id_payment": "154828551826"
+        "id_payment": "154828551826",
+        "boleto_pago": true,
+        "data_boleto_pago": "15/04/2026 23:30",
+        "boleto_pago_agradecimento": true
     },
     "2000015886509230": {
         "buyer_id": 2120912522,
@@ -35,7 +38,9 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:29",
         "codigo_boleto": "37690001040010567100200133928143 5 14220000013896",
-        "id_payment": "154828551826"
+        "id_payment": "154828551826",
+        "boleto_pago": true,
+        "data_boleto_pago": "23/04/2026 15:45"
     },
     "2000015888605074": {
         "buyer_id": 112637499,
@@ -53,7 +58,9 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:29",
         "codigo_boleto": "37690001040010567100200133928143 5 14220000013896",
-        "id_payment": "154828551826"
+        "id_payment": "154828551826",
+        "boleto_pago": true,
+        "data_boleto_pago": "23/04/2026 15:45"
     },
     "2000015890646322": {
         "buyer_id": 38075755,
@@ -100,7 +107,9 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:49",
         "codigo_boleto": "37690001040010567100200133928242 2 14220000013896",
-        "id_payment": "154828780198"
+        "id_payment": "154828780198",
+        "boleto_pago": true,
+        "data_boleto_pago": "23/04/2026 15:45"
     },
     "2000015894763166": {
         "buyer_id": 2421002141,
@@ -118,7 +127,9 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:55",
         "codigo_boleto": "37690001040010567100200133928317 5 14220000013896",
-        "id_payment": "154078296303"
+        "id_payment": "154078296303",
+        "boleto_pago": true,
+        "data_boleto_pago": "23/04/2026 15:45"
     },
     "2000015895909404": {
         "buyer_id": 751559155,
@@ -323,7 +334,9 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:56",
         "codigo_boleto": "37690001040010567100200133928838 8 14220000013896",
-        "id_payment": "154828749604"
+        "id_payment": "154828749604",
+        "boleto_pago": true,
+        "data_boleto_pago": "23/04/2026 15:45"
     },
     "2000015905626194": {
         "buyer_id": 3316899053,
@@ -403,7 +416,10 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:56",
         "codigo_boleto": "37690001040010567100200133929208 6 14220000013896",
-        "id_payment": "154828913340"
+        "id_payment": "154828913340",
+        "boleto_pago": true,
+        "data_boleto_pago": "15/04/2026 23:30",
+        "boleto_pago_agradecimento": true
     },
     "2000015906578542": {
         "buyer_id": 262539896,
@@ -466,7 +482,10 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:56",
         "codigo_boleto": "37690001040010567100200133931782 5 14220000013895",
-        "id_payment": "154830169448"
+        "id_payment": "154830169448",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 23:11",
+        "boleto_pago_agradecimento": true
     },
     "2000015909156524": {
         "buyer_id": 301224843,
@@ -703,7 +722,10 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:57",
         "codigo_boleto": "37690001040010567100200133932970 8 14220000013895",
-        "id_payment": "154830788642"
+        "id_payment": "154830788642",
+        "boleto_pago": true,
+        "data_boleto_pago": "16/04/2026 22:49",
+        "boleto_pago_agradecimento": true
     },
     "2000015913608316": {
         "buyer_id": 145856302,
@@ -817,7 +839,10 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:57",
         "codigo_boleto": "37690001040010567100200133934026 4 14220000013895",
-        "id_payment": "154080830241"
+        "id_payment": "154080830241",
+        "boleto_pago": true,
+        "data_boleto_pago": "16/04/2026 22:49",
+        "boleto_pago_agradecimento": true
     },
     "2000015914916760": {
         "buyer_id": 1377864093,
@@ -950,7 +975,10 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:58",
         "codigo_boleto": "37690001040010567100200133936096 4 14220000013895",
-        "id_payment": "154832509296"
+        "id_payment": "154832509296",
+        "boleto_pago": true,
+        "data_boleto_pago": "20/04/2026 09:55",
+        "boleto_pago_agradecimento": true
     },
     "2000015917011636": {
         "buyer_id": 312959772,
@@ -1011,7 +1039,10 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:58",
         "codigo_boleto": "37690001040010567100200134257450 1 14220000013895",
-        "id_payment": "154139611187"
+        "id_payment": "154139611187",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 12:36",
+        "boleto_pago_agradecimento": true
     },
     "2000015917557574": {
         "buyer_id": "345656595",
@@ -1079,7 +1110,10 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:58",
         "codigo_boleto": "37690001040010567100200134259704 3 14220000013895",
-        "id_payment": "154891247964"
+        "id_payment": "154891247964",
+        "boleto_pago": true,
+        "data_boleto_pago": "16/04/2026 22:49",
+        "boleto_pago_agradecimento": true
     },
     "2000015918937652": {
         "buyer_id": 376109242,
@@ -1187,7 +1221,10 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:58",
         "codigo_boleto": "37690001040010567100200134267731 1 14220000013895",
-        "id_payment": "154141293579"
+        "id_payment": "154141293579",
+        "boleto_pago": true,
+        "data_boleto_pago": "16/04/2026 22:49",
+        "boleto_pago_agradecimento": true
     },
     "2000015922591228": {
         "buyer_id": 99222527,
@@ -1285,7 +1322,10 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:59",
         "codigo_boleto": "37690001040010567100200134270586 8 14220000013895",
-        "id_payment": "154892924952"
+        "id_payment": "154892924952",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 12:36",
+        "boleto_pago_agradecimento": true
     },
     "2000015924813682": {
         "buyer_id": 834611180,
@@ -1424,7 +1464,10 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:59",
         "codigo_boleto": "37690001040010567100200134272988 1 14220000013895",
-        "id_payment": "154142128357"
+        "id_payment": "154142128357",
+        "boleto_pago": true,
+        "data_boleto_pago": "16/04/2026 22:49",
+        "boleto_pago_agradecimento": true
     },
     "2000015928125812": {
         "buyer_id": 215929324,
@@ -1444,7 +1487,10 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:59",
         "codigo_boleto": "37690001040010567100200134273499 8 14220000013895",
-        "id_payment": "154142137127"
+        "id_payment": "154142137127",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 23:11",
+        "boleto_pago_agradecimento": true
     },
     "2000015928376172": {
         "buyer_id": "776294184",
@@ -1478,7 +1524,10 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:59",
         "codigo_boleto": "37690001040010567100200134274273 3 14220000013895",
-        "id_payment": "154142161789"
+        "id_payment": "154142161789",
+        "boleto_pago": true,
+        "data_boleto_pago": "16/04/2026 22:49",
+        "boleto_pago_agradecimento": true
     },
     "2000015929019522": {
         "buyer_id": 792822500,
@@ -1516,7 +1565,10 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:59",
         "codigo_boleto": "37690001040010567100200134275270 1 14220000013895",
-        "id_payment": "154893796606"
+        "id_payment": "154893796606",
+        "boleto_pago": true,
+        "data_boleto_pago": "20/04/2026 09:55",
+        "boleto_pago_agradecimento": true
     },
     "2000015929641532": {
         "buyer_id": 1476915423,
@@ -1536,7 +1588,10 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 13:59",
         "codigo_boleto": "37690001040010567100200134275874 3 14220000013895",
-        "id_payment": "154142518735"
+        "id_payment": "154142518735",
+        "boleto_pago": true,
+        "data_boleto_pago": "16/04/2026 22:49",
+        "boleto_pago_agradecimento": true
     },
     "2000015929687908": {
         "buyer_id": "772333086",
@@ -1650,7 +1705,10 @@
         "boleto_enviado": true,
         "data_boleto": "15/04/2026 14:00",
         "codigo_boleto": "37690001040010567100200134279355 6 14220000013895",
-        "id_payment": "154142943093"
+        "id_payment": "154142943093",
+        "boleto_pago": true,
+        "data_boleto_pago": "16/04/2026 22:49",
+        "boleto_pago_agradecimento": true
     },
     "2000015930617108": {
         "buyer_id": 130354945,
@@ -2115,5 +2173,13 @@
         "valor": "",
         "data_solicitacao": "11/04/2026 15:28",
         "data_solicitacao_inicial": "11/04/2026 15:28"
+    },
+    "46827614346": {
+        "buyer_id": "",
+        "numero_cliente": 3
+    },
+    "46826324748": {
+        "buyer_id": "",
+        "numero_cliente": 7
     }
 }

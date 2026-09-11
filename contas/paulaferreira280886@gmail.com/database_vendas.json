@@ -13,7 +13,12 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:14",
+        "codigo_boleto": "37690001040010567100200135423770 9 14220000013895",
+        "id_payment": "154404675451",
+        "encerrada": true
     },
     "2000015935844952": {
         "buyer_id": 174405870,
@@ -29,7 +34,14 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:15",
+        "codigo_boleto": "37690001040010567100200135424596 7 14220000013895",
+        "id_payment": "154405426577",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 22:38",
+        "boleto_pago_agradecimento": true
     },
     "2000015937928566": {
         "buyer_id": 403735888,
@@ -45,7 +57,11 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:15",
+        "codigo_boleto": "37690001040010567100200135425387 1 14220000013895",
+        "id_payment": "154405803509"
     },
     "2000015945104144": {
         "buyer_id": 273784046,
@@ -61,7 +77,12 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:15",
+        "codigo_boleto": "37690001040010567100200135425429 9 14220000013895",
+        "id_payment": "155158555144",
+        "encerrada": true
     },
     "2000015946231754": {
         "buyer_id": 1771961229,
@@ -75,7 +96,12 @@
         "data_solicitacao_inicial": "15/04/2026 14:22",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:15",
+        "codigo_boleto": "37690001040010567100200135425494 6 14220000013895",
+        "id_payment": "155158634662",
+        "encerrada": true
     },
     "2000015949691856": {
         "buyer_id": 2593589004,
@@ -91,7 +117,12 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:15",
+        "codigo_boleto": "37690001040010567100200135425510 8 14220000013895",
+        "id_payment": "154405935197",
+        "encerrada": true
     },
     "2000015952946842": {
         "buyer_id": 202933827,
@@ -107,7 +138,12 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:15",
+        "codigo_boleto": "37690001040010567100200135425544 2 14220000013895",
+        "id_payment": "154405869569",
+        "encerrada": true
     },
     "2000015958259826": {
         "buyer_id": 255523523,
@@ -123,7 +159,14 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:15",
+        "codigo_boleto": "37690001040010567100200135425551 1 14220000013895",
+        "id_payment": "154406072523",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 14:25",
+        "boleto_pago_agradecimento": true
     },
     "2000015958407708": {
         "buyer_id": 577652374,
@@ -139,7 +182,14 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:15",
+        "codigo_boleto": "37690001040010567100200135425577 7 14220000013895",
+        "id_payment": "154406064677",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 14:25",
+        "boleto_pago_agradecimento": true
     },
     "2000015959531426": {
         "buyer_id": 451380154,
@@ -154,8 +204,9 @@
         "zap_extraido": "11961404577",
         "numero_extraido": true,
         "rastreio_enviado": true,
-        "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "data_rastreio": "17/04/2026 00:58",
+        "codigo_rastreio": "CNBR00141582377",
+        "encerrada": true
     },
     "2000015962435216": {
         "buyer_id": 42215187,
@@ -171,7 +222,11 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:16",
+        "codigo_boleto": "37690001040010567100200135425585 5 14220000013895",
+        "id_payment": "155158625392"
     },
     "2000015962804362": {
         "buyer_id": 652694046,
@@ -187,7 +242,8 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "encerrada": true
     },
     "2000015963293594": {
         "buyer_id": 417011936,
@@ -203,7 +259,14 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "23/04/2026 18:46",
+        "codigo_boleto": "37690001040010567100200139563969 4 14290000013895",
+        "id_payment": "155377018381",
+        "horario_boleto": "18hr34",
+        "boleto_pago": true,
+        "data_boleto_pago": "24/04/2026 14:11"
     },
     "2000015966957296": {
         "buyer_id": 1171257397,
@@ -219,7 +282,14 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:16",
+        "codigo_boleto": "37690001040010567100200135425668 6 14220000013895",
+        "id_payment": "154405987549",
+        "boleto_pago": true,
+        "data_boleto_pago": "20/04/2026 22:06",
+        "boleto_pago_agradecimento": true
     },
     "2000015968024194": {
         "buyer_id": 464734849,
@@ -233,7 +303,12 @@
         "data_solicitacao_inicial": "15/04/2026 14:22",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:16",
+        "codigo_boleto": "37690001040010567100200135425759 5 14220000013895",
+        "id_payment": "155158705364",
+        "encerrada": true
     },
     "2000015968075338": {
         "buyer_id": 532967967,
@@ -249,7 +324,12 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "23/04/2026 18:47",
+        "codigo_boleto": "37690001040010567100200139564231 5 14290000013895",
+        "id_payment": "155376973829",
+        "horario_boleto": "18hr35"
     },
     "2000015969696782": {
         "buyer_id": 296801630,
@@ -265,7 +345,14 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:16",
+        "codigo_boleto": "37690001040010567100200135425833 6 14220000013895",
+        "id_payment": "154406121167",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 14:25",
+        "boleto_pago_agradecimento": true
     },
     "2000015969858118": {
         "buyer_id": 269751291,
@@ -281,7 +368,14 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:16",
+        "codigo_boleto": "37690001040010567100200135425908 9 14220000013895",
+        "id_payment": "154406121281",
+        "boleto_pago": true,
+        "data_boleto_pago": "20/04/2026 22:06",
+        "boleto_pago_agradecimento": true
     },
     "2000015970041926": {
         "buyer_id": 778325267,
@@ -295,7 +389,12 @@
         "data_solicitacao_inicial": "15/04/2026 14:22",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "23/04/2026 18:47",
+        "codigo_boleto": "37690001040010567100200139564504 2 14290000013895",
+        "id_payment": "155377093099",
+        "horario_boleto": "18hr35"
     },
     "2000015970127468": {
         "buyer_id": 515053785,
@@ -311,7 +410,14 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:17",
+        "codigo_boleto": "37690001040010567100200135425973 6 14220000013895",
+        "id_payment": "154406262669",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 14:25",
+        "boleto_pago_agradecimento": true
     },
     "2000015970275570": {
         "buyer_id": 255721948,
@@ -327,7 +433,14 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:17",
+        "codigo_boleto": "37690001040010567100200135426021 6 14220000013895",
+        "id_payment": "155159006132",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 14:25",
+        "boleto_pago_agradecimento": true
     },
     "2000015972294028": {
         "buyer_id": 158467883,
@@ -343,7 +456,12 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:17",
+        "codigo_boleto": "37690001040010567100200135426054 1 14220000013895",
+        "id_payment": "154406324565",
+        "encerrada": true
     },
     "2000015972478508": {
         "buyer_id": 1467475393,
@@ -359,7 +477,12 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:17",
+        "codigo_boleto": "37690001040010567100200135426088 5 14220000013895",
+        "id_payment": "154406388273",
+        "encerrada": true
     },
     "2000015972736994": {
         "buyer_id": 398337136,
@@ -375,7 +498,12 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:17",
+        "codigo_boleto": "37690001040010567100200135426120 3 14220000013895",
+        "id_payment": "154406320867",
+        "encerrada": true
     },
     "2000015973318172": {
         "buyer_id": 775665136,
@@ -391,7 +519,12 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:17",
+        "codigo_boleto": "37690001040010567100200135426146 1 14220000013895",
+        "id_payment": "155158909248",
+        "encerrada": true
     },
     "2000015975491842": {
         "buyer_id": 765193781,
@@ -407,7 +540,12 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:17",
+        "codigo_boleto": "37690001040010567100200135426203 4 14220000013895",
+        "id_payment": "154406289423",
+        "encerrada": true
     },
     "2000015975914676": {
         "buyer_id": 271039030,
@@ -423,7 +561,12 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:17",
+        "codigo_boleto": "37690001040010567100200135426252 5 14220000013895",
+        "id_payment": "154406388777",
+        "encerrada": true
     },
     "2000015976280042": {
         "buyer_id": 1132100995,
@@ -437,7 +580,14 @@
         "data_solicitacao_inicial": "15/04/2026 14:22",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:23",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "23/04/2026 18:47",
+        "codigo_boleto": "37690001040010567100200139564868 3 14290000013895",
+        "id_payment": "156135410034",
+        "horario_boleto": "18hr36",
+        "boleto_pago": true,
+        "data_boleto_pago": "24/04/2026 14:11"
     },
     "2000015977207026": {
         "buyer_id": 625521054,
@@ -451,7 +601,11 @@
         "data_solicitacao_inicial": "15/04/2026 14:22",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:18",
+        "codigo_boleto": "37690001040010567100200135426294 8 14220000013895",
+        "id_payment": "154406281783"
     },
     "2000015977591884": {
         "buyer_id": 143100229,
@@ -467,7 +621,14 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:18",
+        "codigo_boleto": "37690001040010567100200135426336 6 14220000013895",
+        "id_payment": "155158967554",
+        "boleto_pago": true,
+        "data_boleto_pago": "20/04/2026 09:56",
+        "boleto_pago_agradecimento": true
     },
     "2000015978901566": {
         "buyer_id": 1831935387,
@@ -481,7 +642,12 @@
         "data_solicitacao_inicial": "15/04/2026 14:22",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:18",
+        "codigo_boleto": "37690001040010567100200135426377 9 14220000013895",
+        "id_payment": "154406294013",
+        "encerrada": true
     },
     "2000015979249146": {
         "buyer_id": 228516677,
@@ -497,7 +663,14 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:18",
+        "codigo_boleto": "37690001040010567100200135426393 5 14220000013895",
+        "id_payment": "155159107104",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 14:25",
+        "boleto_pago_agradecimento": true
     },
     "2000015979926974": {
         "buyer_id": 615733029,
@@ -513,7 +686,12 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:18",
+        "codigo_boleto": "37690001040010567100200135426427 5 14220000013895",
+        "id_payment": "155159107250",
+        "encerrada": true
     },
     "2000015979927660": {
         "buyer_id": 128896173,
@@ -529,7 +707,14 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:18",
+        "codigo_boleto": "37690001040010567100200135426468 8 14220000013895",
+        "id_payment": "155159015892",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 14:25",
+        "boleto_pago_agradecimento": true
     },
     "2000015979999910": {
         "buyer_id": 506463685,
@@ -542,8 +727,9 @@
         "data_solicitacao": "15/04/2026 14:22",
         "data_solicitacao_inicial": "15/04/2026 14:22",
         "rastreio_enviado": true,
-        "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "data_rastreio": "17/04/2026 00:58",
+        "codigo_rastreio": "CNBR00141582377",
+        "encerrada": true
     },
     "2000015980536412": {
         "buyer_id": 256374955,
@@ -559,7 +745,12 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:18",
+        "codigo_boleto": "37690001040010567100200135426922 1 14220000013895",
+        "id_payment": "154406783395",
+        "encerrada": true
     },
     "2000015981015372": {
         "buyer_id": 442511031,
@@ -575,7 +766,14 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:19",
+        "codigo_boleto": "37690001040010567100200135426971 2 14220000013895",
+        "id_payment": "154406823087",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 14:25",
+        "boleto_pago_agradecimento": true
     },
     "2000015981265638": {
         "buyer_id": 831266701,
@@ -589,7 +787,12 @@
         "data_solicitacao_inicial": "15/04/2026 14:22",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:19",
+        "codigo_boleto": "37690001040010567100200135427011 4 14220000013895",
+        "id_payment": "154406785637",
+        "encerrada": true
     },
     "2000015981265778": {
         "buyer_id": 229936309,
@@ -605,7 +808,14 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:19",
+        "codigo_boleto": "37690001040010567100200135427086 1 14220000013895",
+        "id_payment": "154406807495",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 22:38",
+        "boleto_pago_agradecimento": true
     },
     "2000015982102366": {
         "buyer_id": 529559112,
@@ -619,7 +829,12 @@
         "data_solicitacao_inicial": "15/04/2026 14:22",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "23/04/2026 18:43",
+        "codigo_boleto": "42297115040006489731706045814529 9 14220000013895",
+        "id_payment": "155215356560",
+        "horario_boleto": "12hr33"
     },
     "2000015982925762": {
         "buyer_id": 33968016,
@@ -635,7 +850,12 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:19",
+        "codigo_boleto": "37690001040010567100200135427227 7 14220000013895",
+        "id_payment": "155159589430",
+        "encerrada": true
     },
     "2000015983348772": {
         "buyer_id": 423125752,
@@ -649,7 +869,14 @@
         "data_solicitacao_inicial": "15/04/2026 14:22",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:19",
+        "codigo_boleto": "37690001040010567100200135427276 8 14220000013895",
+        "id_payment": "154406901821",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 14:26",
+        "boleto_pago_agradecimento": true
     },
     "2000015983591850": {
         "buyer_id": 529054253,
@@ -665,7 +892,14 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:19",
+        "codigo_boleto": "37690001040010567100200135427326 4 14220000013895",
+        "id_payment": "154406890053",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 14:26",
+        "boleto_pago_agradecimento": true
     },
     "2000015983698952": {
         "buyer_id": 269551864,
@@ -681,7 +915,12 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:19",
+        "codigo_boleto": "37690001040010567100200135427359 9 14220000013895",
+        "id_payment": "155159856148",
+        "encerrada": true
     },
     "2000015984724034": {
         "buyer_id": 1518153260,
@@ -695,7 +934,14 @@
         "data_solicitacao_inicial": "15/04/2026 14:22",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:20",
+        "codigo_boleto": "37690001040010567100200135427417 3 14220000013895",
+        "id_payment": "155159774870",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 14:26",
+        "boleto_pago_agradecimento": true
     },
     "2000015985295302": {
         "buyer_id": 2163640443,
@@ -709,7 +955,14 @@
         "data_solicitacao_inicial": "15/04/2026 14:22",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:20",
+        "codigo_boleto": "37690001040010567100200135427458 6 14220000013895",
+        "id_payment": "154407232349",
+        "boleto_pago": true,
+        "data_boleto_pago": "20/04/2026 09:56",
+        "boleto_pago_agradecimento": true
     },
     "2000015986088092": {
         "buyer_id": 243423037,
@@ -723,7 +976,13 @@
         "data_solicitacao_inicial": "15/04/2026 14:22",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:20",
+        "codigo_boleto": "37690001040010567100200135427516 1 14220000013895",
+        "id_payment": "154407164887",
+        "boleto_pago": true,
+        "data_boleto_pago": "23/04/2026 15:43"
     },
     "2000015986214268": {
         "buyer_id": 624830379,
@@ -755,7 +1014,11 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:20",
+        "codigo_boleto": "37690001040010567100200135427540 5 14220000013895",
+        "id_payment": "155159815130"
     },
     "2000015986244614": {
         "buyer_id": 302088198,
@@ -768,7 +1031,7 @@
         "data_solicitacao": "15/04/2026 14:22",
         "data_solicitacao_inicial": "15/04/2026 14:22",
         "rastreio_enviado": true,
-        "data_rastreio": "15/04/2026 22:24",
+        "data_rastreio": "17/04/2026 00:57",
         "codigo_rastreio": "CNBR00141582377"
     },
     "2000015986256774": {
@@ -783,7 +1046,11 @@
         "data_solicitacao_inicial": "15/04/2026 14:22",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:20",
+        "codigo_boleto": "37690001040010567100200135427599 6 14220000013895",
+        "id_payment": "154407248763"
     },
     "2000015986620152": {
         "buyer_id": 306938709,
@@ -796,7 +1063,7 @@
         "data_solicitacao": "15/04/2026 14:22",
         "data_solicitacao_inicial": "15/04/2026 14:22",
         "rastreio_enviado": true,
-        "data_rastreio": "15/04/2026 22:24",
+        "data_rastreio": "17/04/2026 00:57",
         "codigo_rastreio": "CNBR00141582377"
     },
     "2000015986617618": {
@@ -812,7 +1079,7 @@
         "zap_extraido": "47999604580",
         "numero_extraido": true,
         "rastreio_enviado": true,
-        "data_rastreio": "15/04/2026 22:24",
+        "data_rastreio": "17/04/2026 00:57",
         "codigo_rastreio": "CNBR00141582377"
     },
     "2000015986682860": {
@@ -829,7 +1096,12 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "23/04/2026 18:47",
+        "codigo_boleto": "37690001040010567100200139566293 7 14290000013895",
+        "id_payment": "156135888228",
+        "horario_boleto": "18hr38"
     },
     "2000015986890598": {
         "buyer_id": 364239897,
@@ -843,7 +1115,11 @@
         "data_solicitacao_inicial": "15/04/2026 14:23",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:20",
+        "codigo_boleto": "37690001040010567100200135427649 2 14220000013895",
+        "id_payment": "154407167503"
     },
     "2000015986912942": {
         "buyer_id": 2547609304,
@@ -857,7 +1133,14 @@
         "data_solicitacao_inicial": "15/04/2026 14:23",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:21",
+        "codigo_boleto": "37690001040010567100200135427672 7 14220000013895",
+        "id_payment": "154407128009",
+        "boleto_pago": true,
+        "data_boleto_pago": "20/04/2026 22:06",
+        "boleto_pago_agradecimento": true
     },
     "2000015987014682": {
         "buyer_id": 180712055,
@@ -871,7 +1154,11 @@
         "data_solicitacao_inicial": "15/04/2026 14:23",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:21",
+        "codigo_boleto": "37690001040010567100200135427698 3 14220000013895",
+        "id_payment": "154407150073"
     },
     "2000015987207348": {
         "buyer_id": 1053074542,
@@ -887,7 +1174,11 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:21",
+        "codigo_boleto": "37690001040010567100200135427755 8 14220000013895",
+        "id_payment": "154407364893"
     },
     "2000015987558804": {
         "buyer_id": 3125842391,
@@ -902,7 +1193,7 @@
         "zap_extraido": "98987167219",
         "numero_extraido": true,
         "rastreio_enviado": true,
-        "data_rastreio": "15/04/2026 22:24",
+        "data_rastreio": "17/04/2026 00:57",
         "codigo_rastreio": "CNBR00141582377"
     },
     "2000015987545454": {
@@ -918,7 +1209,7 @@
         "zap_extraido": "14998568485",
         "numero_extraido": true,
         "rastreio_enviado": true,
-        "data_rastreio": "15/04/2026 22:24",
+        "data_rastreio": "17/04/2026 00:58",
         "codigo_rastreio": "CNBR00141582377"
     },
     "2000015987756156": {
@@ -935,7 +1226,14 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:21",
+        "codigo_boleto": "37690001040010567100200135427805 4 14220000013895",
+        "id_payment": "154407239919",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 14:26",
+        "boleto_pago_agradecimento": true
     },
     "2000015988585604": {
         "buyer_id": "48217938",
@@ -948,7 +1246,7 @@
         "data_solicitacao": "15/04/2026 17:03",
         "data_solicitacao_inicial": "15/04/2026 17:03",
         "rastreio_enviado": true,
-        "data_rastreio": "15/04/2026 22:24",
+        "data_rastreio": "17/04/2026 00:57",
         "codigo_rastreio": "CNBR00141582377"
     },
     "2000015988991292": {
@@ -963,7 +1261,11 @@
         "data_solicitacao_inicial": "15/04/2026 14:23",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:21",
+        "codigo_boleto": "37690001040010567100200135427839 9 14220000013895",
+        "id_payment": "155159923812"
     },
     "2000015989319214": {
         "buyer_id": "3206967944",
@@ -977,7 +1279,14 @@
         "data_solicitacao_inicial": "15/04/2026 17:04",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:21",
+        "codigo_boleto": "37690001040010567100200135427870 1 14220000013895",
+        "id_payment": "154407498645",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 14:26",
+        "boleto_pago_agradecimento": true
     },
     "2000015989302732": {
         "buyer_id": 413320058,
@@ -991,7 +1300,11 @@
         "data_solicitacao_inicial": "15/04/2026 14:23",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:21",
+        "codigo_boleto": "37690001040010567100200135427920 8 14220000013895",
+        "id_payment": "155160144640"
     },
     "2000015989895006": {
         "buyer_id": 128212626,
@@ -1005,7 +1318,11 @@
         "data_solicitacao_inicial": "15/04/2026 14:23",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:21",
+        "codigo_boleto": "37690001040010567100200135427953 2 14220000013895",
+        "id_payment": "155160248326"
     },
     "2000015990008830": {
         "buyer_id": 376624443,
@@ -1019,7 +1336,11 @@
         "data_solicitacao_inicial": "15/04/2026 14:23",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:22",
+        "codigo_boleto": "37690001040010567100200135427995 5 14220000013895",
+        "id_payment": "155160069490"
     },
     "2000015990326060": {
         "buyer_id": 422956140,
@@ -1035,7 +1356,11 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:22",
+        "codigo_boleto": "37690001040010567100200135428035 7 14220000013895",
+        "id_payment": "155160111268"
     },
     "2000015991068516": {
         "buyer_id": "141279041",
@@ -1049,7 +1374,11 @@
         "data_solicitacao_inicial": "15/04/2026 17:03",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:22",
+        "codigo_boleto": "37690001040010567100200135428068 1 14220000013895",
+        "id_payment": "154407505495"
     },
     "2000015992170746": {
         "buyer_id": 1964014531,
@@ -1079,7 +1408,11 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:22",
+        "codigo_boleto": "37690001040010567100200135428126 6 14220000013895",
+        "id_payment": "155160079892"
     },
     "2000015992499720": {
         "buyer_id": 346298624,
@@ -1095,7 +1428,11 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:22",
+        "codigo_boleto": "37690001040010567100200135428159 1 14220000013895",
+        "id_payment": "155160089974"
     },
     "2000015992761276": {
         "buyer_id": 1103967297,
@@ -1108,7 +1445,7 @@
         "data_solicitacao": "15/04/2026 14:23",
         "data_solicitacao_inicial": "15/04/2026 14:23",
         "rastreio_enviado": true,
-        "data_rastreio": "15/04/2026 22:24",
+        "data_rastreio": "17/04/2026 00:57",
         "codigo_rastreio": "CNBR00141582377"
     },
     "2000015993122336": {
@@ -1123,7 +1460,14 @@
         "data_solicitacao_inicial": "15/04/2026 14:23",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:22",
+        "codigo_boleto": "37690001040010567100200135428167 9 14220000013895",
+        "id_payment": "155160330760",
+        "boleto_pago": true,
+        "data_boleto_pago": "20/04/2026 09:56",
+        "boleto_pago_agradecimento": true
     },
     "2000015993386166": {
         "buyer_id": 1825356586,
@@ -1139,7 +1483,14 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:22",
+        "codigo_boleto": "37690001040010567100200135428183 5 14220000013895",
+        "id_payment": "155160249582",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 14:27",
+        "boleto_pago_agradecimento": true
     },
     "2000015993894350": {
         "buyer_id": 832465120,
@@ -1153,7 +1504,11 @@
         "data_solicitacao_inicial": "15/04/2026 14:23",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:23",
+        "codigo_boleto": "37690001040010567100200135428258 8 14220000013895",
+        "id_payment": "155160166040"
     },
     "2000015994061732": {
         "buyer_id": 302359434,
@@ -1169,7 +1524,14 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:23",
+        "codigo_boleto": "37690001040010567100200135428274 4 14220000013895",
+        "id_payment": "154407838315",
+        "boleto_pago": true,
+        "data_boleto_pago": "17/04/2026 22:39",
+        "boleto_pago_agradecimento": true
     },
     "2000015994238038": {
         "buyer_id": 102000897,
@@ -1185,7 +1547,11 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:23",
+        "codigo_boleto": "37690001040010567100200135428290 1 14220000013895",
+        "id_payment": "154407745055"
     },
     "2000015994322490": {
         "buyer_id": 1447143732,
@@ -1199,7 +1565,11 @@
         "data_solicitacao_inicial": "15/04/2026 14:23",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:23",
+        "codigo_boleto": "37690001040010567100200135428332 9 14220000013895",
+        "id_payment": "154407800885"
     },
     "2000015995279354": {
         "buyer_id": 263118000,
@@ -1213,7 +1583,11 @@
         "data_solicitacao_inicial": "15/04/2026 14:23",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:23",
+        "codigo_boleto": "37690001040010567100200135428373 1 14220000013895",
+        "id_payment": "154407936143"
     },
     "2000015995786880": {
         "buyer_id": 468406053,
@@ -1227,7 +1601,11 @@
         "data_solicitacao_inicial": "15/04/2026 14:23",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:24",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:23",
+        "codigo_boleto": "37690001040010567100200135428415 1 14220000013895",
+        "id_payment": "155160318026"
     },
     "2000015995872100": {
         "buyer_id": 785361966,
@@ -1243,7 +1621,11 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:25",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:23",
+        "codigo_boleto": "37690001040010567100200135428456 2 14220000013895",
+        "id_payment": "155160445360"
     },
     "2000015996018512": {
         "buyer_id": 1644198565,
@@ -1259,7 +1641,11 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:25",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:23",
+        "codigo_boleto": "37690001040010567100200135428480 7 14220000013895",
+        "id_payment": "154407761771"
     },
     "2000015996132022": {
         "buyer_id": 388014195,
@@ -1273,7 +1659,11 @@
         "data_solicitacao_inicial": "15/04/2026 14:23",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:25",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:24",
+        "codigo_boleto": "37690001040010567100200135428530 3 14220000013895",
+        "id_payment": "155160501358"
     },
     "2000015996338816": {
         "buyer_id": 627272449,
@@ -1287,7 +1677,11 @@
         "data_solicitacao_inicial": "15/04/2026 14:23",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:25",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:24",
+        "codigo_boleto": "37690001040010567100200135428597 2 14220000013895",
+        "id_payment": "154407772067"
     },
     "2000015996545548": {
         "buyer_id": "575126659",
@@ -1300,7 +1694,7 @@
         "data_solicitacao": "15/04/2026 17:03",
         "data_solicitacao_inicial": "15/04/2026 17:03",
         "rastreio_enviado": true,
-        "data_rastreio": "15/04/2026 22:25",
+        "data_rastreio": "17/04/2026 00:57",
         "codigo_rastreio": "CNBR00141582377"
     },
     "2000015997739388": {
@@ -1314,7 +1708,7 @@
         "data_solicitacao": "15/04/2026 17:03",
         "data_solicitacao_inicial": "15/04/2026 17:03",
         "rastreio_enviado": true,
-        "data_rastreio": "15/04/2026 22:25",
+        "data_rastreio": "17/04/2026 00:58",
         "codigo_rastreio": "CNBR00141582377"
     },
     "2000015998011422": {
@@ -1331,7 +1725,11 @@
         "numero_extraido": true,
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:25",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:24",
+        "codigo_boleto": "37690001040010567100200135428621 2 14220000013895",
+        "id_payment": "155160694422"
     },
     "2000015998147458": {
         "buyer_id": "169062079",
@@ -1345,7 +1743,14 @@
         "data_solicitacao_inicial": "15/04/2026 17:03",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:25",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:24",
+        "codigo_boleto": "37690001040010567100200135428670 3 14220000013895",
+        "id_payment": "154408050677",
+        "boleto_pago": true,
+        "data_boleto_pago": "20/04/2026 22:06",
+        "boleto_pago_agradecimento": true
     },
     "2000015998261050": {
         "buyer_id": 346315506,
@@ -1359,7 +1764,11 @@
         "data_solicitacao_inicial": "15/04/2026 17:01",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:25",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:24",
+        "codigo_boleto": "37690001040010567100200135428696 1 14220000013895",
+        "id_payment": "155160744386"
     },
     "2000015998867606": {
         "buyer_id": 64292745,
@@ -1373,7 +1782,11 @@
         "data_solicitacao_inicial": "15/04/2026 17:01",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:25",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:24",
+        "codigo_boleto": "37690001040010567100200135428712 1 14220000013895",
+        "id_payment": "155160696902"
     },
     "2000015999242106": {
         "buyer_id": 481363059,
@@ -1387,7 +1800,11 @@
         "data_solicitacao_inicial": "15/04/2026 17:01",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:25",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:33",
+        "codigo_boleto": "42297115040006489731709108264822 7 14220000013895",
+        "id_payment": "155214645488"
     },
     "2000015999237612": {
         "buyer_id": 2156367249,
@@ -1401,7 +1818,11 @@
         "data_solicitacao_inicial": "15/04/2026 17:01",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:25",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:33",
+        "codigo_boleto": "42297115040006489731709108270225 3 14220000013895",
+        "id_payment": "155214866462"
     },
     "2000015999357214": {
         "buyer_id": 321431928,
@@ -1415,7 +1836,11 @@
         "data_solicitacao_inicial": "15/04/2026 17:01",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:25",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:34",
+        "codigo_boleto": "42297115040006489731709108276628 1 14220000013895",
+        "id_payment": "154461713225"
     },
     "2000015999691342": {
         "buyer_id": 139019026,
@@ -1429,7 +1854,11 @@
         "data_solicitacao_inicial": "15/04/2026 17:01",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:25",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:34",
+        "codigo_boleto": "42297115040006489731706045804520 3 14220000013895",
+        "id_payment": "154461988127"
     },
     "2000015999863214": {
         "buyer_id": 226958668,
@@ -1443,6 +1872,14 @@
         "data_solicitacao_inicial": "15/04/2026 17:01",
         "rastreio_enviado": true,
         "data_rastreio": "15/04/2026 22:25",
-        "codigo_rastreio": "CNBR00141582377"
+        "codigo_rastreio": "CNBR00141582377",
+        "boleto_enviado": true,
+        "data_boleto": "17/04/2026 12:34",
+        "codigo_boleto": "42297115040006489731709108286023 2 14220000013895",
+        "id_payment": "155215127510"
+    },
+    "46863059139": {
+        "buyer_id": "",
+        "numero_cliente": 4
     }
 }

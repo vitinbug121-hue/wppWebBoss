@@ -1,0 +1,1 @@
+11:29:06 [WARNING] Não foi possível obter um token válido. Autorize novamente.

@@ -1,0 +1,4 @@
+[2026-07-03 14:07:04] Iniciando modo direto: tarefa_id=tarefa_teste_inexistente, machine=cliente
+[2026-07-03 14:07:04] Config resolvido: H:\Meu Drive\Sistema Captura WPP\agendamentos_config_cliente.json
+[2026-07-03 14:07:04] ERRO: Tarefa tarefa_teste_inexistente não encontrada em H:\Meu Drive\Sistema Captura WPP\agendamentos_config_cliente.json
+[2026-07-03 14:07:04] ERRO fatal no modo direto: Tarefa tarefa_teste_inexistente não encontrada

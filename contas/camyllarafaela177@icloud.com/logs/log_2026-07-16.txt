@@ -1,0 +1,32 @@
+19:30:01 [INFO] Thread de vendas encerradas iniciada...
+19:30:02 [INFO] Iniciando busca minuciosa de vendas encerradas no Mercado Livre...
+19:30:03 [INFO] Analisados 28 de 28 pedidos totais. Encontrados 13 encerrados até aqui...
+19:30:03 [INFO] Busca finalizada. Total de 13 pedidos realmente encerrados encontrados.
+19:30:03 [INFO] Ordem 2000017294277896 marcada como encerrada no banco.
+19:30:03 [INFO] Ordem 2000017293316044 marcada como encerrada no banco.
+19:30:03 [INFO] Ordem 2000017293257474 marcada como encerrada no banco.
+19:30:03 [INFO] Ordem 2000017284547172 marcada como encerrada no banco.
+19:30:03 [INFO] Ordem 2000017282944026 marcada como encerrada no banco.
+19:30:03 [INFO] Ordem 2000017280992476 marcada como encerrada no banco.
+19:30:03 [INFO] Ordem 2000017277689630 marcada como encerrada no banco.
+19:30:03 [INFO] Ordem 2000017277096398 marcada como encerrada no banco.
+19:30:03 [INFO] Ordem 2000017275983672 marcada como encerrada no banco.
+19:30:03 [INFO] Ordem 2000017271585260 marcada como encerrada no banco.
+19:30:03 [INFO] Ordem 2000017195029424 marcada como encerrada no banco.
+19:30:03 [INFO] Ordem 2000017181713566 marcada como encerrada no banco.
+19:30:03 [INFO] Ordem 2000017178842252 marcada como encerrada no banco.
+19:30:03 [INFO] Atualização concluída com sucesso. Total de registros alterados no DB: 13
+19:30:18 [INFO] Thread de processamento iniciada em segundo plano...
+19:30:20 [INFO] Ordem 2000017239695438: Boleto não encontrado (vencido).
+19:30:21 [INFO] Ordem 2000017281626998: Boleto não encontrado (vencido).
+19:30:21 [INFO] Ordem 2000017284547172: Boleto não encontrado (vencido).
+19:30:22 [INFO] Ordem 2000017293725316: Boleto não encontrado (vencido).
+19:30:23 [INFO] Atualização finalizada. Pagos: 0
+19:30:23 [INFO] Reembolso automático iniciado para a conta camyllarafaela177@icloud.com (3 boleto(s) pago(s) pendente(s) de reembolso, sem limite).
+19:30:23 [INFO] === Iniciando reembolso da conta camyllarafaela177@icloud.com ===
+19:30:23 [ERROR] Conta camyllarafaela177@icloud.com - Ordem 2000017130478904: falha ao reembolsar pagamento 168171607150 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"16-07-2026T22:30:23UTC;5fa34b96-6e52-4f4a-a297-d61e5b4969cd"}]}
+19:30:25 [ERROR] Conta camyllarafaela177@icloud.com - Ordem 2000017274965164: falha ao reembolsar pagamento 168171133620 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"16-07-2026T22:30:24UTC;78ff3fa8-a248-45ad-9b9f-e396023f6a15"}]}
+19:30:26 [ERROR] Conta camyllarafaela177@icloud.com - Ordem 2000017275797004: falha ao reembolsar pagamento 167314651239 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"16-07-2026T22:30:25UTC;444d1891-12c5-44e3-960f-634b7d6556c6"}]}
+19:30:26 [INFO] Conta camyllarafaela177@icloud.com: reembolso finalizado. Reembolsados agora: 0 | Já estavam reembolsados: 4 | Sem id_payment: 0 | Erros: 3
+19:30:26 [INFO] Reembolso em lote finalizado. Total reembolsado nesta execução: 0.
+19:35:50 [INFO] Excel salvo em: G:\Meu Drive\Sistema Captura WPP\contas\camyllarafaela177@icloud.com\vendas.xlsx

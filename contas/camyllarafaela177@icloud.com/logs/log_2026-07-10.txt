@@ -1,0 +1,258 @@
+14:08:20 [INFO] Modo COMUM + RECLAMAÇÕES ativado: serão buscados os dois tipos e ordenados por date_created.
+14:08:20 [INFO] Buscando offset 0...
+14:08:21 [INFO] Busca finalizada. Total capturado: 25
+14:08:21 [INFO] Buscando offset 0...
+14:08:22 [INFO] Busca finalizada. Total capturado: 3
+14:08:23 [INFO] Busca mista finalizada. Comuns: 25; reclamações: 3; total: 25
+14:08:23 [INFO] Iniciando ação: AUTORIZAR_BOLETO...
+14:08:28 [INFO] Modo sequencial selecionado para taxar e autorizar boleto.
+14:08:31 [INFO] Thread de autorizar_boleto iniciada...
+14:08:36 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017130478904.
+14:08:40 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017132027526.
+14:08:43 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017178842252.
+14:08:47 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017181713566.
+14:08:51 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017195029424.
+14:08:55 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017223491468.
+14:08:59 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017239695438.
+14:09:03 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017241750726.
+14:09:07 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017256874112.
+14:09:11 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017274965164.
+14:09:15 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017275797004.
+14:09:19 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017275983672.
+14:09:23 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017277096398.
+14:09:27 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017278196368.
+14:09:31 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017281626998.
+14:09:35 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017282944026.
+14:09:39 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017284547172.
+14:09:43 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017287924190.
+14:09:47 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017291548384.
+14:09:51 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017293257474.
+14:09:56 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017293316044.
+14:10:00 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017293456734.
+14:10:04 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017293725316.
+14:10:08 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017293813092.
+14:10:12 [INFO] Solicitação de autorização de boleto enviada para a ordem 2000017294277896.
+14:10:12 [INFO] Fim da Execução. Novas solicitações enviadas: 0
+15:25:56 [INFO] Excel salvo em: G:\Meu Drive\Sistema Captura WPP\contas\camyllarafaela177@icloud.com\vendas.xlsx
+15:26:19 [INFO] Modo COMUM + RECLAMAÇÕES ativado: serão buscados os dois tipos e ordenados por date_created.
+15:26:19 [INFO] Buscando offset 0...
+15:26:20 [INFO] Busca finalizada. Total capturado: 25
+15:26:20 [INFO] Buscando offset 0...
+15:26:21 [INFO] Busca finalizada. Total capturado: 6
+15:26:23 [INFO] Busca mista finalizada. Comuns: 25; reclamações: 6; total: 25
+15:26:23 [INFO] Iniciando ação: BOLETO...
+15:26:27 [INFO] Modo sequencial selecionado para enviar boleto.
+15:26:28 [INFO] Verificando conversas para encontrar clientes autorizados...
+15:26:38 [INFO] Carregando conversas: 10/25 pedidos verificados...
+15:26:48 [INFO] Carregando conversas: 20/25 pedidos verificados...
+15:26:51 [INFO] Carregando conversas: 25/25 pedidos verificados...
+15:26:52 [INFO] Clientes autorizados encontrados: 4
+15:26:57 [INFO] Thread de boleto iniciada...
+15:26:58 [INFO] Ordem 2000017130478904 ignorada: cliente não autorizou com '1'.
+15:26:58 [INFO] Enviando boleto para pagamento de taxa para a ordem 2000017132027526...
+15:27:04 [INFO] Boleto enviado com sucesso para a ordem 2000017132027526!
+15:27:04 [INFO] Ordem 2000017178842252 ignorada: cliente não autorizou com '1'.
+15:27:04 [INFO] Ordem 2000017181713566 ignorada: cliente não autorizou com '1'.
+15:27:04 [INFO] Ordem 2000017195029424 ignorada: cliente não autorizou com '1'.
+15:27:04 [INFO] Ordem 2000017223491468 ignorada: cliente não autorizou com '1'.
+15:27:04 [INFO] Ordem 2000017239695438 ignorada: cliente não autorizou com '1'.
+15:27:04 [INFO] Enviando boleto para pagamento de taxa para a ordem 2000017241750726...
+15:27:10 [INFO] Boleto enviado com sucesso para a ordem 2000017241750726!
+15:27:10 [INFO] Ordem 2000017256874112 ignorada: cliente não autorizou com '1'.
+15:27:10 [INFO] Ordem 2000017274965164 ignorada: cliente não autorizou com '1'.
+15:27:10 [INFO] Ordem 2000017275797004 ignorada: cliente não autorizou com '1'.
+15:27:10 [INFO] Ordem 2000017275983672 ignorada: cliente não autorizou com '1'.
+15:27:10 [INFO] Ordem 2000017277096398 ignorada: cliente não autorizou com '1'.
+15:27:10 [INFO] Enviando boleto para pagamento de taxa para a ordem 2000017278196368...
+15:27:15 [INFO] Boleto enviado com sucesso para a ordem 2000017278196368!
+15:27:15 [INFO] Ordem 2000017281626998 ignorada: cliente não autorizou com '1'.
+15:27:15 [INFO] Ordem 2000017282944026 ignorada: cliente não autorizou com '1'.
+15:27:15 [INFO] Ordem 2000017284547172 ignorada: cliente não autorizou com '1'.
+15:27:15 [INFO] Ordem 2000017287924190 ignorada: cliente não autorizou com '1'.
+15:27:15 [INFO] Enviando boleto para pagamento de taxa para a ordem 2000017291548384...
+15:27:21 [INFO] Boleto enviado com sucesso para a ordem 2000017291548384!
+15:27:21 [INFO] Processamento da ordem 2000017293257474 concluído. Próxima ordem...
+15:27:21 [INFO] Processamento da ordem 2000017293316044 concluído. Próxima ordem...
+15:27:21 [INFO] Processamento da ordem 2000017293456734 concluído. Próxima ordem...
+15:27:21 [INFO] Processamento da ordem 2000017293725316 concluído. Próxima ordem...
+15:27:21 [INFO] Processamento da ordem 2000017293813092 concluído. Próxima ordem...
+15:27:21 [INFO] Processamento da ordem 2000017294277896 concluído. Próxima ordem...
+15:27:21 [INFO] Fim da Execução. Novas solicitações enviadas: 0
+17:45:14 [INFO] Thread de processamento iniciada em segundo plano...
+17:45:14 [INFO] Ordem 2000017132027526: Boleto marcado como pago.
+17:45:15 [INFO] Ordem 2000017241750726: Boleto marcado como pago.
+17:45:16 [INFO] Ordem 2000017278196368: Boleto marcado como pago.
+17:45:16 [INFO] Ordem 2000017291548384: Boleto marcado como pago.
+17:45:16 [INFO] Atualização finalizada. Pagos: 4
+17:46:51 [INFO] Modo COMUM + RECLAMAÇÕES ativado: serão buscados os dois tipos e ordenados por date_created.
+17:46:51 [INFO] Buscando offset 0...
+17:46:51 [INFO] Busca finalizada. Total capturado: 25
+17:46:51 [INFO] Buscando offset 0...
+17:46:53 [INFO] Busca finalizada. Total capturado: 7
+17:46:55 [INFO] Busca mista finalizada. Comuns: 25; reclamações: 7; total: 25
+17:46:55 [INFO] Iniciando ação: AGRADECIMENTO...
+17:46:55 [INFO] Thread de agradecimento iniciada...
+17:46:56 [INFO] Processamento da ordem 2000017130478904 concluído. Próxima ordem...
+17:46:58 [INFO] Mensagem de boleto pago enviada para a ordem 2000017132027526.
+17:46:58 [INFO] Processamento da ordem 2000017178842252 concluído. Próxima ordem...
+17:46:58 [INFO] Processamento da ordem 2000017181713566 concluído. Próxima ordem...
+17:46:58 [INFO] Processamento da ordem 2000017195029424 concluído. Próxima ordem...
+17:46:58 [INFO] Processamento da ordem 2000017223491468 concluído. Próxima ordem...
+17:46:58 [INFO] Processamento da ordem 2000017239695438 concluído. Próxima ordem...
+17:47:00 [INFO] Mensagem de boleto pago enviada para a ordem 2000017241750726.
+17:47:00 [INFO] Processamento da ordem 2000017256874112 concluído. Próxima ordem...
+17:47:00 [INFO] Processamento da ordem 2000017274965164 concluído. Próxima ordem...
+17:47:00 [INFO] Processamento da ordem 2000017275797004 concluído. Próxima ordem...
+17:47:00 [INFO] Processamento da ordem 2000017275983672 concluído. Próxima ordem...
+17:47:00 [INFO] Processamento da ordem 2000017277096398 concluído. Próxima ordem...
+17:47:02 [INFO] Mensagem de boleto pago enviada para a ordem 2000017278196368.
+17:47:02 [INFO] Processamento da ordem 2000017281626998 concluído. Próxima ordem...
+17:47:02 [INFO] Processamento da ordem 2000017282944026 concluído. Próxima ordem...
+17:47:02 [INFO] Processamento da ordem 2000017284547172 concluído. Próxima ordem...
+17:47:02 [INFO] Processamento da ordem 2000017287924190 concluído. Próxima ordem...
+17:47:04 [INFO] Mensagem de boleto pago enviada para a ordem 2000017291548384.
+17:47:04 [INFO] Processamento da ordem 2000017293257474 concluído. Próxima ordem...
+17:47:04 [INFO] Processamento da ordem 2000017293316044 concluído. Próxima ordem...
+17:47:04 [INFO] Processamento da ordem 2000017293456734 concluído. Próxima ordem...
+17:47:04 [INFO] Processamento da ordem 2000017293725316 concluído. Próxima ordem...
+17:47:04 [INFO] Processamento da ordem 2000017293813092 concluído. Próxima ordem...
+17:47:04 [INFO] Processamento da ordem 2000017294277896 concluído. Próxima ordem...
+17:47:04 [INFO] Fim da Execução. Novas solicitações enviadas: 0
+17:47:12 [INFO] Thread de reembolso em lote iniciada para 9 conta(s), limite de 6 reembolso(s) nesta execução...
+17:47:12 [INFO] === Iniciando reembolso da conta camyllarafaela177@icloud.com ===
+17:47:13 [INFO] Conta camyllarafaela177@icloud.com - Ordem 2000017132027526: reembolso do pagamento 168171444398 realizado com sucesso. (1/6)
+17:47:15 [INFO] Conta camyllarafaela177@icloud.com - Ordem 2000017241750726: reembolso do pagamento 168171049318 realizado com sucesso. (2/6)
+17:47:16 [INFO] Conta camyllarafaela177@icloud.com - Ordem 2000017278196368: reembolso do pagamento 168170714008 realizado com sucesso. (3/6)
+17:47:17 [INFO] Conta camyllarafaela177@icloud.com - Ordem 2000017291548384: reembolso do pagamento 167314486645 realizado com sucesso. (4/6)
+17:47:18 [INFO] Conta camyllarafaela177@icloud.com: reembolso finalizado. Reembolsados agora: 4 | Já estavam reembolsados: 0 | Sem id_payment: 0 | Erros: 0
+17:47:18 [INFO] === Iniciando reembolso da conta danielegleyce21.03@gmail.com ===
+17:47:18 [ERROR] Conta danielegleyce21.03@gmail.com - Ordem 2000017170284512: falha ao reembolsar pagamento 167180636533 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:47:19UTC;f796273a-e66c-4e0b-a51c-a9aa3df6244b"}]}
+17:47:19 [ERROR] Conta danielegleyce21.03@gmail.com - Ordem 2000017149118286: falha ao reembolsar pagamento 167180556435 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:47:20UTC;63ac20ae-7111-4273-85d3-54dab8938d6b"}]}
+17:47:21 [ERROR] Conta danielegleyce21.03@gmail.com - Ordem 2000017210348190: falha ao reembolsar pagamento 168036546626 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:47:21UTC;467ec831-86f7-40b9-9b23-a4fe7b6b198b"}]}
+17:47:22 [ERROR] Conta danielegleyce21.03@gmail.com - Ordem 2000017211253630: falha ao reembolsar pagamento 167180231653 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:47:22UTC;4d7715f5-8888-4bb2-8273-01a177a10518"}]}
+17:47:23 [ERROR] Conta danielegleyce21.03@gmail.com - Ordem 2000017216005200: falha ao reembolsar pagamento 168036618856 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:47:23UTC;7d5cf026-3f0b-4b23-88e3-d63a35ac354a"}]}
+17:47:24 [ERROR] Conta danielegleyce21.03@gmail.com - Ordem 2000017222765766: falha ao reembolsar pagamento 168036934960 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:47:24UTC;b6d66e7a-7590-4930-a813-da8f0577ba13"}]}
+17:47:25 [ERROR] Conta danielegleyce21.03@gmail.com - Ordem 2000017230829244: falha ao reembolsar pagamento 168037122882 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:47:26UTC;0e4492d9-8518-434d-a7a2-eb6770f31d2f"}]}
+17:47:26 [ERROR] Conta danielegleyce21.03@gmail.com - Ordem 2000017221320136: falha ao reembolsar pagamento 167180861079 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:47:27UTC;a56df2d3-705f-4ffd-906a-83dac9f7c30b"}]}
+17:47:27 [ERROR] Conta danielegleyce21.03@gmail.com - Ordem 2000017233147494: falha ao reembolsar pagamento 167181601257 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:47:28UTC;a8fab577-91e9-44cb-96e9-df9afe8403b0"}]}
+17:47:29 [ERROR] Conta danielegleyce21.03@gmail.com - Ordem 2000017233343764: falha ao reembolsar pagamento 167181687257 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:47:29UTC;5de21f24-f204-4d77-8a5a-4ea23b223478"}]}
+17:47:30 [ERROR] Conta danielegleyce21.03@gmail.com - Ordem 2000017235974716: falha ao reembolsar pagamento 168038248112 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:47:30UTC;6d22752e-98a3-4d5d-bf4a-fdbaaad558ac"}]}
+17:47:31 [ERROR] Conta danielegleyce21.03@gmail.com - Ordem 2000017236014988: falha ao reembolsar pagamento 167182346209 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:47:31UTC;9148edd0-1717-4f7f-b0da-333b86b3330c"}]}
+17:47:32 [ERROR] Conta danielegleyce21.03@gmail.com - Ordem 2000017237610686: falha ao reembolsar pagamento 168038350276 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:47:32UTC;52322953-786a-4f40-bbc5-8fd31b5abfdd"}]}
+17:47:32 [INFO] Conta danielegleyce21.03@gmail.com: reembolso finalizado. Reembolsados agora: 0 | Já estavam reembolsados: 0 | Sem id_payment: 0 | Erros: 13
+17:47:32 [INFO] === Iniciando reembolso da conta djanpaulorabellohasckel@gmail.com ===
+17:47:32 [INFO] Conta djanpaulorabellohasckel@gmail.com: reembolso finalizado. Reembolsados agora: 0 | Já estavam reembolsados: 19 | Sem id_payment: 0 | Erros: 0
+17:47:32 [INFO] === Iniciando reembolso da conta ferreiradesouzaana02@gmail.com ===
+17:47:33 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016462339610: falha ao reembolsar pagamento 160637134621 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:34UTC;191f3d5b-2326-4ff7-bdb1-498701d70ad5"}]}
+17:47:34 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016469658102: falha ao reembolsar pagamento 159849977253 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:35UTC;1c6358cc-cf45-4d57-a2f7-c218b6c02b64"}]}
+17:47:36 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016471957478: falha ao reembolsar pagamento 160633995314 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:36UTC;bd7e27ad-bb57-4649-a1cb-0cd680b544cc"}]}
+17:47:37 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016472355064: falha ao reembolsar pagamento 159849430067 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:37UTC;e692edf1-8a2d-413f-b958-627a1faf4080"}]}
+17:47:38 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016474232618: falha ao reembolsar pagamento 160634203950 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:38UTC;c2e7b7aa-f75c-4601-9e55-c260c688940b"}]}
+17:47:39 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016475286078: falha ao reembolsar pagamento 160634447550 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:39UTC;c185986d-6015-4df4-ab65-0785e1354c04"}]}
+17:47:40 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016475791932: falha ao reembolsar pagamento 160634493868 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:41UTC;6c0b746d-bfbd-4364-9d8f-fb125331ae69"}]}
+17:47:41 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016476124376: falha ao reembolsar pagamento 159849727991 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:42UTC;db5c56c7-f42f-4885-a481-ae819eaa67cd"}]}
+17:47:42 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016477213158: falha ao reembolsar pagamento 160634621384 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:43UTC;3c606c25-340b-401d-afd6-8bca0450998a"}]}
+17:47:44 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016478931996: falha ao reembolsar pagamento 160634683242 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:44UTC;c7995994-a98d-4e89-828f-de9f571b5cec"}]}
+17:47:45 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016482185690: falha ao reembolsar pagamento 159850019525 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:45UTC;d1d4c583-1445-4e21-912b-964449fc037b"}]}
+17:47:46 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016485311296: falha ao reembolsar pagamento 159850067447 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:46UTC;ece69258-3b68-44a8-b5a5-41eb9607072d"}]}
+17:47:47 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016486368982: falha ao reembolsar pagamento 160728319204 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:47UTC;de1b2820-1cea-4b9d-bfe3-0923a2a25515"}]}
+17:47:48 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016487146420: falha ao reembolsar pagamento 159942198749 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:49UTC;b9c591cc-2b0b-4054-bedd-293ac5627b7d"}]}
+17:47:49 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016489654528: falha ao reembolsar pagamento 159943103659 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:50UTC;9d3d1f5f-a7e2-409d-a744-2e42fa424075"}]}
+17:47:50 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016492791182: falha ao reembolsar pagamento 159942477513 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:51UTC;f4b3a52f-31b2-424d-980c-5a24c0cc4809"}]}
+17:47:52 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016498582940: falha ao reembolsar pagamento 159941898053 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:52UTC;806395f2-5550-4e57-b975-af200b787128"}]}
+17:47:53 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016503176460: falha ao reembolsar pagamento 161428645344 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:53UTC;bcc6be4f-52d6-41e0-9ec4-1fbcca8fc346"}]}
+17:47:54 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016503807530: falha ao reembolsar pagamento 160638587851 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:55UTC;829b4364-28e1-451c-81c6-275cdd96b9d8"}]}
+17:47:55 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016514458928: falha ao reembolsar pagamento 162003748084 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:56UTC;caa6ce13-1657-4065-89c8-0b94fafdb9be"}]}
+17:47:56 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016517621800: falha ao reembolsar pagamento 160638987851 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:57UTC;b010ba2a-cbaa-48c7-8793-8ed4e04ffaa8"}]}
+17:47:58 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016518232448: falha ao reembolsar pagamento 162003970890 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:58UTC;540bc15b-0a2a-4509-96ca-7fe3cbc5978a"}]}
+17:47:59 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016519607500: falha ao reembolsar pagamento 161447424916 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:47:59UTC;11cb43d5-0c75-41bd-a228-d5eb6815418f"}]}
+17:48:00 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016520840504: falha ao reembolsar pagamento 161429289984 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:48:00UTC;7568fbfb-7984-406a-8eef-219899dac00b"}]}
+17:48:01 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016523743060: falha ao reembolsar pagamento 161436426522 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:48:01UTC;e8a9067f-fd7a-480a-90aa-81e1df0fe06b"}]}
+17:48:02 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016526085226: falha ao reembolsar pagamento 161436447404 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:48:03UTC;eb9ece47-36ca-4a46-ac65-066e96fbd9e8"}]}
+17:48:03 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016473041760: falha ao reembolsar pagamento 160655977771 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:48:04UTC;a7c15393-1108-481e-a775-722a9b3f2848"}]}
+17:48:04 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016538692650: falha ao reembolsar pagamento 160656252925 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:48:05UTC;494337b1-8500-471d-b79d-043575d09433"}]}
+17:48:06 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016540987418: falha ao reembolsar pagamento 162002258208 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:48:06UTC;2bbe398c-9495-4ccf-92dd-6bb65e9c539a"}]}
+17:48:07 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016542366002: falha ao reembolsar pagamento 161209662557 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:48:07UTC;823f0c30-29ba-443e-8cb9-3672cdf948c8"}]}
+17:48:08 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016558586138: falha ao reembolsar pagamento 161210353967 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:48:08UTC;5cca09f1-b048-4aae-becc-b12625d85f21"}]}
+17:48:09 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016564328300: falha ao reembolsar pagamento 161404316417 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:48:09UTC;845c464d-8958-491a-9da0-36bd26ed2e21"}]}
+17:48:10 [ERROR] Conta ferreiradesouzaana02@gmail.com - Ordem 2000016565018172: falha ao reembolsar pagamento 162004125540 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"10-07-2026T20:48:11UTC;8ab7aab4-b398-45fd-b5c3-31abdc8712fb"}]}
+17:48:10 [INFO] Conta ferreiradesouzaana02@gmail.com: reembolso finalizado. Reembolsados agora: 0 | Já estavam reembolsados: 0 | Sem id_payment: 0 | Erros: 33
+17:48:11 [INFO] === Iniciando reembolso da conta ggu070713@gmail.com ===
+17:48:11 [INFO] Conta ggu070713@gmail.com: reembolso finalizado. Reembolsados agora: 0 | Já estavam reembolsados: 65 | Sem id_payment: 0 | Erros: 0
+17:48:11 [INFO] === Iniciando reembolso da conta gomessandriely003@gmail.com ===
+17:48:11 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017176306362: falha ao reembolsar pagamento 167177329757 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:12UTC;af8df2bc-4b1e-45e7-8d75-a7387fe4e27d"}]}
+17:48:13 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017184952824: falha ao reembolsar pagamento 167177441679 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:13UTC;c016f246-9dcd-4a3e-a1f4-5fb5a07e22e0"}]}
+17:48:14 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017197638908: falha ao reembolsar pagamento 167177851407 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:14UTC;d770aada-c3cf-492c-b453-ae4d2ea1f81f"}]}
+17:48:15 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017203707488: falha ao reembolsar pagamento 167177764011 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:15UTC;ac86b2fb-11a2-47ff-8e29-4ab0f0dde48e"}]}
+17:48:16 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017209769606: falha ao reembolsar pagamento 167178414815 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:16UTC;69d65f83-0ac2-46d6-86d7-00f9e6dcbbb9"}]}
+17:48:17 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017218450874: falha ao reembolsar pagamento 167178906483 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:17UTC;f090bd94-acbc-43e4-a2f2-7d74f8045ba3"}]}
+17:48:18 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017221988722: falha ao reembolsar pagamento 167178834839 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:19UTC;57c6f96b-a444-4563-b1ed-c318ce88118a"}]}
+17:48:19 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017228066380: falha ao reembolsar pagamento 167223664447 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:20UTC;158679df-ffa4-461e-af4b-2ca03bcab011"}]}
+17:48:20 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017228818628: falha ao reembolsar pagamento 168079405172 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:21UTC;a3ab0879-f62a-4f0e-9c3b-a89f048f6235"}]}
+17:48:21 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017229502210: falha ao reembolsar pagamento 167178867995 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:22UTC;cab7b426-294d-40a5-b845-00dabd00086c"}]}
+17:48:23 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017229806706: falha ao reembolsar pagamento 167179161427 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:23UTC;32c2602f-eaf5-49bc-b88b-92e80bbbce1d"}]}
+17:48:24 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017229975274: falha ao reembolsar pagamento 168035212822 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:24UTC;85c732fb-307f-44e8-ad8b-402f49ef1f80"}]}
+17:48:25 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017230063936: falha ao reembolsar pagamento 167223754513 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:25UTC;d517c01c-5e68-4cc0-abd7-5f60b38379ad"}]}
+17:48:26 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017230403798: falha ao reembolsar pagamento 167179616421 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:26UTC;225c8770-03da-43ce-8ff5-087390d70c2d"}]}
+17:48:27 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017231295254: falha ao reembolsar pagamento 168034883772 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:28UTC;d4ad1d80-a1d4-4c4b-b13c-4a7b20f83786"}]}
+17:48:28 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017232014174: falha ao reembolsar pagamento 168035662856 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:29UTC;a16fd318-45a3-43ea-806f-9f2f20862bbf"}]}
+17:48:29 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017232185186: falha ao reembolsar pagamento 168080302204 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:30UTC;d6889f8b-f44a-4015-ab8b-3d120567c4c2"}]}
+17:48:31 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017232267490: falha ao reembolsar pagamento 168079555402 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:31UTC;1f6860a8-f039-4c0d-9f60-7b8e2512b739"}]}
+17:48:32 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017233022512: falha ao reembolsar pagamento 167226134351 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:32UTC;1c362cc3-1d03-4ecf-87c7-1e2d02f09b3d"}]}
+17:48:33 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017237089334: falha ao reembolsar pagamento 167227162055 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:33UTC;c8bb950a-2ceb-4977-ae91-f57cacbab6ea"}]}
+17:48:34 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017237600110: falha ao reembolsar pagamento 168084666180 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:34UTC;c9d6e76f-93f7-4cba-8c0e-2f3612b5eb24"}]}
+17:48:35 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017238203832: falha ao reembolsar pagamento 168084808128 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:35UTC;a3478882-8964-41f6-8ab0-2f55740e47c8"}]}
+17:48:36 [ERROR] Conta gomessandriely003@gmail.com - Ordem 2000017238669288: falha ao reembolsar pagamento 168084540488 (Status 400): {"message":"The action requested is not valid for the current payment state","error":"bad_request","status":400,"cause":[{"code":2063,"description":"The action requested is not valid for the current payment state","data":"10-07-2026T20:48:37UTC;d5e6c9bf-ee86-40b4-a410-47041dbcc154"}]}
+17:48:37 [INFO] Conta gomessandriely003@gmail.com: reembolso finalizado. Reembolsados agora: 0 | Já estavam reembolsados: 47 | Sem id_payment: 0 | Erros: 23
+17:48:37 [INFO] === Iniciando reembolso da conta lucasalves0721@gmail.com ===
+17:48:37 [INFO] Conta lucasalves0721@gmail.com: reembolso finalizado. Reembolsados agora: 0 | Já estavam reembolsados: 0 | Sem id_payment: 0 | Erros: 0
+17:48:37 [INFO] === Iniciando reembolso da conta mariaalicelimadeandrade2003@gmail.com ===
+17:48:37 [INFO] Conta mariaalicelimadeandrade2003@gmail.com: reembolso finalizado. Reembolsados agora: 0 | Já estavam reembolsados: 28 | Sem id_payment: 0 | Erros: 0
+17:48:37 [INFO] === Iniciando reembolso da conta mastercar2006@gmail.com ===
+17:48:38 [INFO] Conta mastercar2006@gmail.com - Ordem 2000017280359956: reembolso do pagamento 167318162113 realizado com sucesso. (1/2)
+17:48:39 [INFO] Conta mastercar2006@gmail.com - Ordem 2000017294926656: reembolso do pagamento 167318250221 realizado com sucesso. (2/2)
+17:48:39 [INFO] Conta mastercar2006@gmail.com: limite de 2 reembolso(s) atingido. Parando o script.
+17:48:39 [INFO] Conta mastercar2006@gmail.com: reembolso finalizado. Reembolsados agora: 2 | Já estavam reembolsados: 0 | Sem id_payment: 0 | Erros: 0
+17:48:39 [INFO] Reembolso em lote finalizado. Total reembolsado nesta execução: 6 (limite era 6).
+19:12:03 [INFO] Modo COMUM + RECLAMAÇÕES ativado: serão buscados os dois tipos e ordenados por date_created.
+19:12:03 [INFO] Buscando offset 0...
+19:12:03 [INFO] Busca finalizada. Total capturado: 25
+19:12:03 [INFO] Buscando offset 0...
+19:12:04 [INFO] Busca finalizada. Total capturado: 7
+19:12:07 [INFO] Busca mista finalizada. Comuns: 25; reclamações: 7; total: 25
+19:12:07 [INFO] Iniciando ação: BOLETO...
+19:12:13 [INFO] Modo sequencial selecionado para enviar boleto.
+19:12:14 [INFO] Verificando conversas para encontrar clientes autorizados...
+19:12:26 [INFO] Carregando conversas: 10/21 pedidos verificados...
+19:12:35 [INFO] Carregando conversas: 20/21 pedidos verificados...
+19:12:36 [INFO] Carregando conversas: 21/21 pedidos verificados...
+19:12:37 [INFO] Clientes autorizados encontrados: 2
+19:12:55 [INFO] Thread de boleto iniciada...
+19:12:56 [INFO] Ordem 2000017130478904 ignorada: cliente não autorizou com '1'.
+19:12:56 [INFO] Processamento da ordem 2000017132027526 concluído. Próxima ordem...
+19:12:56 [INFO] Ordem 2000017178842252 ignorada: cliente não autorizou com '1'.
+19:12:56 [INFO] Ordem 2000017181713566 ignorada: cliente não autorizou com '1'.
+19:12:56 [INFO] Ordem 2000017195029424 ignorada: cliente não autorizou com '1'.
+19:12:56 [INFO] Ordem 2000017223491468 ignorada: cliente não autorizou com '1'.
+19:12:56 [INFO] Ordem 2000017239695438 ignorada: cliente não autorizou com '1'.
+19:12:56 [INFO] Processamento da ordem 2000017241750726 concluído. Próxima ordem...
+19:12:56 [INFO] Ordem 2000017256874112 ignorada: cliente não autorizou com '1'.
+19:12:56 [INFO] Enviando boleto para pagamento de taxa para a ordem 2000017274965164...
+19:13:02 [INFO] Boleto enviado com sucesso para a ordem 2000017274965164!
+19:13:02 [INFO] Ordem 2000017275797004 ignorada: cliente não autorizou com '1'.
+19:13:02 [INFO] Ordem 2000017275983672 ignorada: cliente não autorizou com '1'.
+19:13:02 [INFO] Ordem 2000017277096398 ignorada: cliente não autorizou com '1'.
+19:13:02 [INFO] Processamento da ordem 2000017278196368 concluído. Próxima ordem...
+19:13:02 [INFO] Ordem 2000017281626998 ignorada: cliente não autorizou com '1'.
+19:13:02 [INFO] Ordem 2000017282944026 ignorada: cliente não autorizou com '1'.
+19:13:02 [INFO] Ordem 2000017284547172 ignorada: cliente não autorizou com '1'.
+19:13:02 [INFO] Ordem 2000017287924190 ignorada: cliente não autorizou com '1'.
+19:13:02 [INFO] Processamento da ordem 2000017291548384 concluído. Próxima ordem...
+19:13:02 [INFO] Ordem 2000017293257474 ignorada: cliente não autorizou com '1'.
+19:13:02 [INFO] Ordem 2000017293316044 ignorada: cliente não autorizou com '1'.
+19:13:02 [INFO] Ordem 2000017293456734 ignorada: cliente não autorizou com '1'.
+19:13:02 [INFO] Ordem 2000017293725316 ignorada: cliente não autorizou com '1'.
+19:13:02 [INFO] Ordem 2000017293813092 ignorada: cliente não autorizou com '1'.
+19:13:02 [INFO] Enviando boleto para pagamento de taxa para a ordem 2000017294277896...
+19:13:07 [INFO] Boleto enviado com sucesso para a ordem 2000017294277896!
+19:13:07 [INFO] Fim da Execução. Novas solicitações enviadas: 0

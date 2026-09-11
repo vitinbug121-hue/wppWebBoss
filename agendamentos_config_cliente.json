@@ -1,0 +1,232 @@
+{
+    "tarefa_1783713095.74143": {
+        "nome": "PRIMEIRA MSG GOMES",
+        "email": "gomessandriely003@gmail.com",
+        "tipo": "diaria",
+        "acao": "solicitar",
+        "hora": "12:00",
+        "horarios": [
+            "12:00"
+        ],
+        "ativo": true,
+        "prazo_entrega": "28/07",
+        "cod_rastreio": "",
+        "offset": "0",
+        "ordem_ids": "",
+        "data_entrega": ""
+    },
+    "tarefa_1783713127.309574": {
+        "nome": "VENDAS ENCERRADAS GOMES",
+        "email": "gomessandriely003@gmail.com",
+        "tipo": "diaria",
+        "acao": "vendas_encerradas",
+        "hora": "13:00",
+        "horarios": [
+            "13:00"
+        ],
+        "ativo": true,
+        "prazo_entrega": "",
+        "cod_rastreio": "",
+        "offset": "0",
+        "ordem_ids": "",
+        "data_entrega": ""
+    },
+    "tarefa_1783713155.054238": {
+        "nome": "ATAULIZAR PAGOS GOMES",
+        "email": "gomessandriely003@gmail.com",
+        "tipo": "diaria",
+        "acao": "atualizar_pagos",
+        "hora": "13:30",
+        "horarios": [
+            "13:30",
+            "20:00"
+        ],
+        "ativo": false,
+        "prazo_entrega": "",
+        "cod_rastreio": "",
+        "offset": "0",
+        "ordem_ids": "",
+        "data_entrega": ""
+    },
+    "tarefa_1783713223.737558": {
+        "nome": "AGRADECIMENTO",
+        "email": "gomessandriely003@gmail.com",
+        "tipo": "diaria",
+        "acao": "agradecimento",
+        "hora": "13:40",
+        "horarios": [
+            "13:40",
+            "20:10"
+        ],
+        "ativo": false,
+        "prazo_entrega": "",
+        "cod_rastreio": "",
+        "offset": "0",
+        "ordem_ids": "",
+        "data_entrega": "no Sábado, dia 18"
+    },
+    "tarefa_1783713297.700122": {
+        "nome": "NÃO PAGOS",
+        "email": "gomessandriely003@gmail.com",
+        "tipo": "diaria",
+        "acao": "responder_duvidas_ml",
+        "hora": "18:25",
+        "horarios": [
+            "18:25"
+        ],
+        "ativo": false,
+        "prazo_entrega": "",
+        "cod_rastreio": "",
+        "offset": "0",
+        "ordem_ids": "",
+        "data_entrega": ""
+    },
+    "tarefa_1783713389.565738": {
+        "nome": "NÃO AUTORIZADOS GOMES",
+        "email": "gomessandriely003@gmail.com",
+        "tipo": "diaria",
+        "acao": "nao_autorizados",
+        "hora": "18:35",
+        "horarios": [
+            "18:35"
+        ],
+        "ativo": false,
+        "prazo_entrega": "",
+        "cod_rastreio": "",
+        "offset": "0",
+        "ordem_ids": "",
+        "data_entrega": ""
+    },
+    "tarefa_1783713452.474633": {
+        "nome": "PRIMEIRA MSG DANI",
+        "email": "danielegleyce21.03@gmail.com",
+        "tipo": "diaria",
+        "acao": "solicitar",
+        "hora": "12:00",
+        "horarios": [
+            "12:00"
+        ],
+        "ativo": true,
+        "prazo_entrega": "28/07",
+        "cod_rastreio": "",
+        "offset": "0",
+        "ordem_ids": "",
+        "data_entrega": ""
+    },
+    "tarefa_1783713513.502334": {
+        "nome": "VENDAS ENCERRADAS DANI",
+        "email": "danielegleyce21.03@gmail.com",
+        "tipo": "diaria",
+        "acao": "vendas_encerradas",
+        "hora": "13:00",
+        "horarios": [
+            "13:00"
+        ],
+        "ativo": true,
+        "prazo_entrega": "",
+        "cod_rastreio": "",
+        "offset": "0",
+        "ordem_ids": "",
+        "data_entrega": ""
+    },
+    "tarefa_1783713544.356344": {
+        "nome": "ATUALIZAR PAGOS DANI",
+        "email": "danielegleyce21.03@gmail.com",
+        "tipo": "diaria",
+        "acao": "atualizar_pagos",
+        "hora": "13:30",
+        "horarios": [
+            "13:30",
+            "20:00"
+        ],
+        "ativo": false,
+        "prazo_entrega": "",
+        "cod_rastreio": "",
+        "offset": "0",
+        "ordem_ids": "",
+        "data_entrega": ""
+    },
+    "tarefa_1783713592.927221": {
+        "nome": "AGRADECIMENTO DANI",
+        "email": "danielegleyce21.03@gmail.com",
+        "tipo": "diaria",
+        "acao": "boleto",
+        "hora": "13:40",
+        "horarios": [
+            "13:40",
+            "20:10"
+        ],
+        "ativo": false,
+        "prazo_entrega": "",
+        "cod_rastreio": "",
+        "offset": "0",
+        "ordem_ids": "",
+        "data_entrega": "no Sábado, dia 18"
+    },
+    "tarefa_1783713633.163149": {
+        "nome": "NÃO PAGOS DANI",
+        "email": "danielegleyce21.03@gmail.com",
+        "tipo": "diaria",
+        "acao": "cobrar_dobrado",
+        "hora": "19:00",
+        "horarios": [
+            "19:00"
+        ],
+        "ativo": false,
+        "prazo_entrega": "",
+        "cod_rastreio": "",
+        "offset": "0",
+        "ordem_ids": "",
+        "data_entrega": ""
+    },
+    "tarefa_1783713691.611415": {
+        "nome": "NÃO AUTORIZADOS DANI",
+        "email": "danielegleyce21.03@gmail.com",
+        "tipo": "diaria",
+        "acao": "nao_autorizados",
+        "hora": "19:10",
+        "horarios": [
+            "19:10"
+        ],
+        "ativo": false,
+        "prazo_entrega": "",
+        "cod_rastreio": "",
+        "offset": "0",
+        "ordem_ids": "",
+        "data_entrega": ""
+    },
+    "tarefa_1784321154.084887": {
+        "nome": "ATAULIZAR PAGOS AUT DANI",
+        "email": "danielegleyce21.03@gmail.com",
+        "tipo": "diaria",
+        "acao": "atualizar_pagos_reembolsar",
+        "hora": "18:38",
+        "horarios": [
+            "18:38"
+        ],
+        "ativo": false,
+        "intervalo_minutos": 5,
+        "prazo_entrega": "",
+        "cod_rastreio": "",
+        "offset": "0",
+        "ordem_ids": "",
+        "data_entrega": ""
+    },
+    "tarefa_1784324437.154657": {
+        "nome": "ATAULIZAR PAGOS AUT GOMES",
+        "email": "gomessandriely003@gmail.com",
+        "tipo": "diaria",
+        "acao": "atualizar_pagos_reembolsar",
+        "hora": "18:43",
+        "horarios": [
+            "18:43"
+        ],
+        "ativo": false,
+        "intervalo_minutos": 5,
+        "prazo_entrega": "",
+        "cod_rastreio": "",
+        "offset": "0",
+        "ordem_ids": "",
+        "data_entrega": ""
+    }
+}

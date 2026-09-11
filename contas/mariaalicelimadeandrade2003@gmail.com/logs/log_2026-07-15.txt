@@ -1,0 +1,20 @@
+22:56:19 [INFO] Thread de processamento iniciada em segundo plano...
+22:56:26 [INFO] Ordem 2000017134225652: Boleto marcado como pago.
+22:56:27 [INFO] Ordem 2000017138840816: Boleto marcado como pago.
+22:56:29 [INFO] Ordem 2000017146074464: Boleto marcado como pago.
+22:56:33 [INFO] Ordem 2000017164743750: Boleto marcado como pago.
+22:56:39 [INFO] Ordem 2000017196359044: Boleto marcado como pago.
+22:56:40 [INFO] Atualização finalizada. Pagos: 5
+22:57:29 [INFO] Thread de processamento iniciada em segundo plano...
+22:57:48 [INFO] Atualização finalizada. Pagos: 0
+22:59:01 [INFO] Thread de processamento iniciada em segundo plano...
+22:59:20 [INFO] Atualização finalizada. Pagos: 0
+22:59:20 [INFO] Reembolso automático iniciado para a conta mariaalicelimadeandrade2003@gmail.com (5 boleto(s) pago(s) pendente(s) de reembolso, sem limite).
+22:59:20 [INFO] === Iniciando reembolso da conta mariaalicelimadeandrade2003@gmail.com ===
+22:59:21 [ERROR] Conta mariaalicelimadeandrade2003@gmail.com - Ordem 2000017134225652: falha ao reembolsar pagamento 166963573237 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"16-07-2026T01:59:21UTC;1b8505ab-7c10-47a5-af7b-b365d00f89ad"}]}
+22:59:22 [ERROR] Conta mariaalicelimadeandrade2003@gmail.com - Ordem 2000017138840816: falha ao reembolsar pagamento 166964424167 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"16-07-2026T01:59:22UTC;8197607f-f849-447b-8820-86b1081e5603"}]}
+22:59:24 [ERROR] Conta mariaalicelimadeandrade2003@gmail.com - Ordem 2000017146074464: falha ao reembolsar pagamento 166964610317 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"16-07-2026T01:59:24UTC;e95d6996-8f89-486b-996c-1c9cd4432d20"}]}
+22:59:25 [ERROR] Conta mariaalicelimadeandrade2003@gmail.com - Ordem 2000017164743750: falha ao reembolsar pagamento 166664328941 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"16-07-2026T01:59:25UTC;52bcc78b-b77d-4bf1-9ff9-cba29aa545b9"}]}
+22:59:26 [ERROR] Conta mariaalicelimadeandrade2003@gmail.com - Ordem 2000017196359044: falha ao reembolsar pagamento 167818270210 (Status 404): {"message":"Payment not found","error":"not_found","status":404,"cause":[{"code":2000,"description":"Payment not found","data":"16-07-2026T01:59:26UTC;2f8a2a85-1024-43b5-9e07-b8fcc6bacfe6"}]}
+22:59:27 [INFO] Conta mariaalicelimadeandrade2003@gmail.com: reembolso finalizado. Reembolsados agora: 0 | Já estavam reembolsados: 28 | Sem id_payment: 0 | Erros: 5
+22:59:27 [INFO] Reembolso em lote finalizado. Total reembolsado nesta execução: 0.

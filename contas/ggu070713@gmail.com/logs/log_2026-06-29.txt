@@ -1,0 +1,9 @@
+11:30:39 [INFO] Script IA carregado: H:\Meu Drive\Sistema Captura WPP\scriptIAquestion.txt
+11:30:44 [INFO] Iniciando busca de perguntas no Mercado Livre...
+11:34:53 [INFO] Script IA carregado: H:\Meu Drive\Sistema Captura WPP\scriptIAquestion.txt
+11:34:53 [INFO] Iniciando busca de perguntas no Mercado Livre...
+11:34:54 [INFO] Baixadas 7 de 7 perguntas totais...
+11:34:54 [INFO] Encontrada(s) 1 pergunta(s) sem resposta.
+11:34:54 [INFO] Enviando pergunta para a IA
+11:34:57 [INFO] Pergunta ID 13612330558 respondida com sucesso!
+11:34:58 [INFO] Processo de responder dúvidas concluído.

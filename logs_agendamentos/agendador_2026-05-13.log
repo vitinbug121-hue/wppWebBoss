@@ -1,0 +1,7 @@
+[2026-05-13 19:47:02] Iniciando agendamento: tarefa_id=tarefa_1778712247.921972, email=ruthrodriguesss42@gmail.com, acao=solicitar
+[2026-05-13 19:47:02] ✓ Agendamento executado com sucesso
+[2026-05-13 20:01:00] Iniciando agendamento: tarefa_id=tarefa_1778712247.921972, email=ruthrodriguesss42@gmail.com, acao=solicitar
+[2026-05-13 20:01:00] Executando: c:\Users\mathe\AppData\Local\Python\pythoncore-3.14-64\python.exe H:\Meu Drive\Sistema Captura WPP\main.py --agendamento tarefa_1778712247.921972
+[2026-05-13 20:06:50] STDOUT: 
+[2026-05-13 20:06:50] STDERR: 
+[2026-05-13 20:06:50] ✓ Agendamento executado com sucesso

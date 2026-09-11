@@ -1,0 +1,47 @@
+[
+    {
+        "id": 1,
+        "tarefa_id": "tarefa_1783096678.807119",
+        "tarefa_nome": "MANDAR MSG AGEN GOMES",
+        "acao": "solicitar",
+        "status": "SUCESSO",
+        "mensagem": "Executado automaticamente às 13:47:22",
+        "data_hora": "05/07/2026 13:47:22"
+    },
+    {
+        "id": 2,
+        "tarefa_id": "tarefa_1783096678.807119",
+        "tarefa_nome": "MANDAR MSG AGEN GOMES",
+        "acao": "solicitar",
+        "status": "SUCESSO",
+        "mensagem": "Executado automaticamente às 13:49:03",
+        "data_hora": "06/07/2026 13:49:03"
+    },
+    {
+        "id": 3,
+        "tarefa_id": "tarefa_1783096678.807119",
+        "tarefa_nome": "MANDAR MSG AGEN GOMES",
+        "acao": "solicitar",
+        "status": "SUCESSO",
+        "mensagem": "Executado automaticamente às 13:55:11",
+        "data_hora": "07/07/2026 13:55:11"
+    },
+    {
+        "id": 4,
+        "tarefa_id": "tarefa_1784260066.644852",
+        "tarefa_nome": "rebolso auto",
+        "acao": "atualizar_pagos_reembolsar",
+        "status": "SUCESSO",
+        "mensagem": "Executado automaticamente às 00:51:40",
+        "data_hora": "17/07/2026 00:51:40"
+    },
+    {
+        "id": 5,
+        "tarefa_id": "tarefa_1784260066.644852",
+        "tarefa_nome": "rebolso auto",
+        "acao": "atualizar_pagos_reembolsar",
+        "status": "SUCESSO",
+        "mensagem": "Executado automaticamente às 00:57:49",
+        "data_hora": "17/07/2026 00:57:49"
+    }
+]

@@ -1,0 +1,110 @@
+[
+    {
+        "id": 1,
+        "tarefa_id": "tarefa_1778712247.921972",
+        "tarefa_nome": "teste v2",
+        "acao": "solicitar",
+        "status": "SUCESSO",
+        "mensagem": "Executado automaticamente às 20:19:13",
+        "data_hora": "18/05/2026 20:19:13"
+    },
+    {
+        "id": 2,
+        "tarefa_id": "tarefa_1779496198.365634",
+        "tarefa_nome": "tesre v3",
+        "acao": "atualizar_pagos",
+        "status": "SUCESSO",
+        "mensagem": "Executado manualmente às 21:31:58",
+        "data_hora": "22/05/2026 21:31:58"
+    },
+    {
+        "id": 3,
+        "tarefa_id": "tarefa_1782932942.545091",
+        "tarefa_nome": "PRIMEIRA MSG AGENDAMENTO Daniele",
+        "acao": "solicitar",
+        "status": "SUCESSO",
+        "mensagem": "Executado automaticamente às 13:00:07",
+        "data_hora": "02/07/2026 13:00:07"
+    },
+    {
+        "id": 4,
+        "tarefa_id": "tarefa_1782932122.847138",
+        "tarefa_nome": "PRIMEIRA MSG AGENDAMENTO",
+        "acao": "solicitar",
+        "status": "SUCESSO",
+        "mensagem": "Executado automaticamente às 13:00:08",
+        "data_hora": "02/07/2026 13:00:08"
+    },
+    {
+        "id": 5,
+        "tarefa_id": "tarefa_1782933687.747994",
+        "tarefa_nome": "PRIMEIRA MSG AGENDAMENTO DJAN",
+        "acao": "solicitar",
+        "status": "SUCESSO",
+        "mensagem": "Executado automaticamente às 13:02:01",
+        "data_hora": "02/07/2026 13:02:01"
+    },
+    {
+        "id": 6,
+        "tarefa_id": "tarefa_1782932807.817033",
+        "tarefa_nome": "PRIMEIRA MSG AGENDAMENTO Maria",
+        "acao": "solicitar",
+        "status": "SUCESSO",
+        "mensagem": "Executado automaticamente às 13:03:21",
+        "data_hora": "02/07/2026 13:03:21"
+    },
+    {
+        "id": 7,
+        "tarefa_id": "tarefa_1782932628.802115",
+        "tarefa_nome": "PRIMEIRA MSG AGENDAMENTO",
+        "acao": "solicitar",
+        "status": "SUCESSO",
+        "mensagem": "Executado automaticamente às 13:05:46",
+        "data_hora": "02/07/2026 13:05:46"
+    },
+    {
+        "id": 8,
+        "tarefa_id": "tarefa_1782933687.747994",
+        "tarefa_nome": "PRIMEIRA MSG AGENDAMENTO DJAN",
+        "acao": "solicitar",
+        "status": "SUCESSO",
+        "mensagem": "Executado automaticamente às 20:31:00",
+        "data_hora": "02/07/2026 20:31:00"
+    },
+    {
+        "id": 9,
+        "tarefa_id": "tarefa_1782932942.545091",
+        "tarefa_nome": "PRIMEIRA MSG AGENDAMENTO Daniele",
+        "acao": "solicitar",
+        "status": "SUCESSO",
+        "mensagem": "Executado automaticamente às 20:32:38",
+        "data_hora": "02/07/2026 20:32:38"
+    },
+    {
+        "id": 10,
+        "tarefa_id": "tarefa_1782932807.817033",
+        "tarefa_nome": "PRIMEIRA MSG AGENDAMENTO Maria",
+        "acao": "solicitar",
+        "status": "SUCESSO",
+        "mensagem": "Executado automaticamente às 20:33:14",
+        "data_hora": "02/07/2026 20:33:14"
+    },
+    {
+        "id": 11,
+        "tarefa_id": "tarefa_1782932628.802115",
+        "tarefa_nome": "PRIMEIRA MSG AGENDAMENTO",
+        "acao": "solicitar",
+        "status": "SUCESSO",
+        "mensagem": "Executado automaticamente às 20:34:28",
+        "data_hora": "02/07/2026 20:34:28"
+    },
+    {
+        "id": 12,
+        "tarefa_id": "tarefa_1782932122.847138",
+        "tarefa_nome": "PRIMEIRA MSG AGENDAMENTO",
+        "acao": "solicitar",
+        "status": "SUCESSO",
+        "mensagem": "Executado automaticamente às 20:37:38",
+        "data_hora": "02/07/2026 20:37:38"
+    }
+]
