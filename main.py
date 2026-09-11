@@ -4192,7 +4192,7 @@ class AppColetorPro:
         db_path = os.path.join(folder, "database_vendas.json")
         try:
             with open(db_path, 'w', encoding='utf-8') as f:
-                json.dump(db, f, indent=4)
+                json.dump(db, f)
         except Exception as e:
             self.logger(f"Erro ao salvar banco de dados ({folder}): {e}", "ERRO")
     
@@ -8094,7 +8094,7 @@ class AppColetorPro:
         db_path = os.path.join(folder, "database_vendas.json")
         try:
             with open(db_path, 'w', encoding='utf-8') as f:
-                json.dump(db, f, indent=4)
+                json.dump(db, f)
         except Exception as e:
             self.logger(f"Erro ao salvar banco de dados: {e}", "ERRO")
 
