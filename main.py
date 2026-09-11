@@ -4561,7 +4561,7 @@ class AppColetorPro:
             while True:
                 url_busca = f"https://api.mercadolibre.com/questions/search?seller_id={seller_id}&api_version=4&limit={limit}&offset={offset}"
 
-                response = SESSION.get(url_busca, headers=headers)
+                response = SESSION.get(url_busca, headers=headers, timeout=20)
 
                 if response.status_code != 200:
                     self.logger(f"Erro ao buscar perguntas no offset {offset} (Status {response.status_code}): {response.text}", "ERRO")
@@ -4623,7 +4623,7 @@ class AppColetorPro:
                     "text": resposta_ia
                 }
 
-                res_post = SESSION.post(url_resposta, json=payload_resposta, headers=headers)
+                res_post = SESSION.post(url_resposta, json=payload_resposta, headers=headers, timeout=20)
 
                 if res_post.status_code == 201 or res_post.status_code == 200:
                     self.logger(f"Pergunta ID {question_id} respondida com sucesso!", "SUCESSO")
@@ -5224,7 +5224,7 @@ class AppColetorPro:
                     for token in tokens:
                         url = f"https://api.mercadopago.com/v1/payments/{payment_id}"
                         headers = {"Authorization": f"Bearer {token}"}
-                        response = SESSION.get(url, headers=headers)
+                        response = SESSION.get(url, headers=headers, timeout=20)
                         
                         if response.status_code == 200:
                             encontrado_em_algum_token = True
@@ -5259,7 +5259,7 @@ class AppColetorPro:
                     for token in tokens:
                         url = f"https://api.mercadopago.com/v1/payments/{payment_id_dobro}"
                         headers = {"Authorization": f"Bearer {token}"}
-                        response = SESSION.get(url, headers=headers)
+                        response = SESSION.get(url, headers=headers, timeout=20)
 
                         if response.status_code == 200:
                             encontrado_dobro = True
@@ -6204,7 +6204,8 @@ class AppColetorPro:
                         return
 
                     self.progress["value"] = idx
-                    self.progress.update()
+                    if idx % 5 == 0 or idx == total_relevantes:
+                        self.progress.update()
 
                     if idx % 10 == 0 or idx == total_relevantes:
                         self.logger(f"Carregando conversas: {idx}/{total_relevantes} pedidos verificados...", "INFO")
@@ -6392,7 +6393,8 @@ class AppColetorPro:
                         return
 
                     self.progress["value"] = idx
-                    self.progress.update()
+                    if idx % 5 == 0 or idx == total_relevantes:
+                        self.progress.update()
 
                     if idx % 10 == 0 or idx == total_relevantes:
                         self.logger(f"Carregando conversas: {idx}/{total_relevantes} pedidos verificados...", "INFO")
@@ -6481,7 +6483,8 @@ class AppColetorPro:
                         return
 
                     self.progress["value"] = idx
-                    self.progress.update()
+                    if idx % 5 == 0 or idx == total_relevantes:
+                        self.progress.update()
 
                     if idx % 10 == 0 or idx == total_relevantes:
                         self.logger(f"Carregando conversas: {idx}/{total_relevantes} pedidos verificados...", "INFO")
@@ -6680,7 +6683,7 @@ class AppColetorPro:
                                     db[order_id]['produto'] = str(payment.get('reason', ""))
                                     db[order_id]['valor'] = str(dadosProduto.get('total_amount', ""))
                                     
-                                    self.salvar_db(db)
+                                    self._salvar_db_periodico(db, i, len(pedidos))
                                 except (IndexError, KeyError):
                                     # Caso a estrutura da API seja muito diferente do esperado
                                     self.logger(f"Erro ao processar estrutura de dadosProduto para o order_id: {order_id}")
@@ -6791,7 +6794,7 @@ class AppColetorPro:
                                                 db[order_id]['codigo_boleto'] = boleto_numero
                                                 db[order_id]['id_payment'] = id_payment
                                                 db[order_id]['horario_boleto'] = horario_boleto
-                                                self.salvar_db(db)
+                                                self._salvar_db_periodico(db, i, len(pedidos))
                                                 self.logger(f"Boleto enviado com sucesso para a ordem {order_id}!")
                                                 continue
                                             else:
@@ -6852,7 +6855,7 @@ class AppColetorPro:
                                                     db[order_id]['codigo_boleto'] = boleto_numero
                                                     db[order_id]['id_payment'] = id_payment
                                                     db[order_id]['horario_boleto'] = horario_boleto
-                                                    self.salvar_db(db)
+                                                    self._salvar_db_periodico(db, i, len(pedidos))
                                                     self.logger(f"Boleto enviado com sucesso para a ordem {order_id}!")
                                                     continue
                                                 else:
@@ -6899,7 +6902,7 @@ class AppColetorPro:
                                                 db[order_id]['codigo_boleto'] = boleto_numero
                                                 db[order_id]['id_payment'] = id_payment
                                                 db[order_id]['horario_boleto'] = horario_boleto
-                                                self.salvar_db(db)
+                                                self._salvar_db_periodico(db, i, len(pedidos))
                                                 self.logger(f"Boleto reenviado com sucesso para a ordem {order_id}!")
                                                 continue
                                         else:
@@ -6913,7 +6916,7 @@ class AppColetorPro:
                             envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
                             if envio:
                                 db[order_id]['boleto_pago_agradecimento'] = True
-                                self.salvar_db(db)
+                                self._salvar_db_periodico(db, i, len(pedidos))
                                 self.logger(f"Mensagem de boleto pago enviada para a ordem {order_id}.")
                                 continue           
                         elif dados_pedido.get('boleto_enviado') and not dados_pedido.get('boleto_pago') and cobrar_nao_pagos:
@@ -6937,7 +6940,7 @@ class AppColetorPro:
                             if envio:
                                 db[order_id]['cobranca_nao_pago_enviada'] = True
                                 db[order_id]['data_cobranca_nao_pago'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                                self.salvar_db(db)
+                                self._salvar_db_periodico(db, i, len(pedidos))
                                 self.logger(f"Cobranca de nao pago enviada para a ordem {order_id}.")
                                 continue
                             else:
@@ -6992,7 +6995,7 @@ class AppColetorPro:
                                 db[order_id]['data_enviado_msg_autorizado'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                 db[order_id]['ultima_cobranca_nao_autorizado'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                 db[order_id]['avisoBrinde'] = True
-                                self.salvar_db(db)
+                                self._salvar_db_periodico(db, i, len(pedidos))
                                 self.logger(f"Mensagem de nao autorizado enviada para a ordem {order_id}.")
                                 continue
                             else:
@@ -7006,14 +7009,14 @@ class AppColetorPro:
                                     db[order_id]['cobrado_dobro'] = True
                                     db[order_id]['data_cobro_dobro'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                     db[order_id]['metodo_cobro_dobro'] = "pix"
-                                    self.salvar_db(db)
+                                    self._salvar_db_periodico(db, i, len(pedidos))
                                     self.logger(f"Mensagem de cobrança dobrada (PIX) enviada para a ordem {order_id}.")
                                     continue
                                 else:
                                    db[order_id]['cobrado_dobro'] = True
                                    db[order_id]['data_cobro_dobro'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                    db[order_id]['metodo_cobro_dobro'] = "boleto"
-                                   self.salvar_db(db)
+                                   self._salvar_db_periodico(db, i, len(pedidos))
                                    self.logger(f"Mensagem de cobrança dobrada BOLETO enviada para a ordem {order_id}.")
                                    continue         
                             else:
@@ -7029,7 +7032,7 @@ class AppColetorPro:
                                         autorizar_contagem += 1
                                         db[order_id]['boleto_autorizado_msg'] = True
                                         db[order_id]['data_enviado_msg_autorizado'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                                        self.salvar_db(db)
+                                        self._salvar_db_periodico(db, i, len(pedidos))
                                         self.logger(f"Solicitação de autorização de boleto enviada para a ordem {order_id}.")
                                         continue     
                                     else:
@@ -7082,7 +7085,7 @@ class AppColetorPro:
                                                 db[order_id]['id_payment_dobro'] = id_payment
                                                 db[order_id]['horario_boleto_dobro'] = horario_boleto
                                                 db[order_id]['data_reenvio_dobro'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                                                self.salvar_db(db)
+                                                self._salvar_db_periodico(db, i, len(pedidos))
                                                 self.logger(f"Boleto dobrado reenviado com sucesso para a ordem {order_id}!")
                                                 continue
                                             else:
@@ -7155,7 +7158,7 @@ class AppColetorPro:
                                 db[order_id]['data_rastreio'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                 db[order_id]['codigo_rastreio'] = cod_rastreio
                                 rastreios_contagem += 1
-                                self.salvar_db(db)
+                                self._salvar_db_periodico(db, i, len(pedidos))
                                 if not executar_reclamacao and not dados_pedido.get('numero_extraido'):
                                     textencerrar = "Olá! Não recebemos seu telefone.\nA transportadora precisa para avisar as atualizações da entrega."
                                     envioComun = self.enviarMSG(order_id, buyer_id, textencerrar, headers, config['ML_SELLER_ID'], 
@@ -7193,7 +7196,7 @@ class AppColetorPro:
                                         #nome_cli = self.obter_nome_cliente(order_id, token)
                                         db[order_id]['zap_extraido'] = zap
                                         db[order_id]['numero_extraido'] = True
-                                        self.salvar_db(db)
+                                        self._salvar_db_periodico(db, i, len(pedidos))
                                         self.logger(f"Finalizado extração de telefone para a ordem {order_id}: {zap}")
                                         if not dados_pedido.get('rastreio_enviado'):
                                             # -- AGRADECER TELEFONE
@@ -7219,7 +7222,7 @@ class AppColetorPro:
                                             if envio:
                                                 db[order_id]['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                                 db[order_id]['tentativa_'] = dados_pedido.get('tentativa_', 0) + 1
-                                                self.salvar_db(db)
+                                                self._salvar_db_periodico(db, i, len(pedidos))
                                                 self.logger(f"Reenvio: Mensagem reenviada para {order_id} após 1 dia sem resposta.")
                                                 continue            
                                 except Exception as e:
@@ -7253,7 +7256,7 @@ class AppColetorPro:
                             db[order_id]['valor'] = valor
                             db[order_id]['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                             db[order_id]['data_solicitacao_inicial'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                            self.salvar_db(db)
+                            self._salvar_db_periodico(db, i, len(pedidos))
                             continue
                         
                     
@@ -7270,7 +7273,7 @@ class AppColetorPro:
                             db[order_id]['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                             db[order_id]['data_solicitacao_inicial'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                             enviados += 1
-                            self.salvar_db(db)
+                            self._salvar_db_periodico(db, i, len(pedidos))
                             self.logger(f"Ordem {order_id}: Mensagem enviada e registrada.")
                         else:
                             self.logger(f"Falha ao enviar mensagem para {order_id}", "AVISO")
@@ -7288,8 +7291,6 @@ class AppColetorPro:
                 self.logger(f"Processamento da ordem {order_id} concluído. Próxima ordem...")
                 
                 
-            # Salva o progresso no banco de dados local
-            self.salvar_db(db)
             self.logger(f"Fim da Execução. Novas solicitações enviadas: {enviados}")
 
         except ProcessamentoInterrompido:
@@ -7297,6 +7298,29 @@ class AppColetorPro:
         except Exception as e:
             self.logger(f"Erro no Passo 1: {str(e)}", "ERRO")
         finally:
+            # Garante que o progresso feito até aqui não se perca, mesmo se o
+            # usuário apertar STOP URGENTE ou ocorrer um erro no meio do lote.
+            # Antes, o salvamento só acontecia quando o loop terminava 100%
+            # normalmente; agora, como as gravações intermediárias do loop
+            # foram reduzidas (self._salvar_db_periodico) para não regravar o
+            # arquivo inteiro a cada pedido, este é o salvamento de segurança
+            # que garante que nada feito até aqui se perca.
+            try:
+                if 'db' in locals() and db is not None:
+                    self.salvar_db(db)
+            except Exception as e_save:
+                self.logger(f"Erro ao salvar banco de dados no encerramento: {e_save}", "ERRO")
+
+            # Libera o lock desta conta assim que o processamento termina
+            # (sucesso, erro ou interrupção), em vez de deixar que ele só
+            # expire sozinho depois de 30s (adquirir_lock_conta). Sem isso,
+            # qualquer ação nova na mesma conta era recusada por até 30s
+            # após cada execução, mesmo com tudo já concluído.
+            try:
+                liberar_lock_conta(folder)
+            except Exception:
+                pass
+
             if hasattr(self, 'btn_stop'):
                 self.btn_stop.config(state=tk.DISABLED, text="STOP URGENTE", bg="#FF0000")
             self.stop_event.clear()
@@ -7347,7 +7371,7 @@ class AppColetorPro:
             elif resource_type == 'shipment' or str(resource_id).startswith('47'):
                 try:
                     url_shipment = f"https://api.mercadolibre.com/shipments/{resource_id}"
-                    response = SESSION.get(url_shipment, headers=headers)
+                    response = SESSION.get(url_shipment, headers=headers, timeout=20)
                     
                     if response.status_code == 200:
                         shipment_data = response.json()
@@ -7578,7 +7602,7 @@ class AppColetorPro:
         }
         
         try:
-            envio = SESSION.post(url_msg, json=payload, headers=headers)
+            envio = SESSION.post(url_msg, json=payload, headers=headers, timeout=20)
             self.logger(f"Ordem {order_id}: Status da API = {envio.status_code}")
             
             if envio.status_code in [200, 201]:
@@ -7779,7 +7803,7 @@ class AppColetorPro:
         }
 
         try:
-            res = SESSION.post(url_wa, json=payload, headers=headers)
+            res = SESSION.post(url_wa, json=payload, headers=headers, timeout=20)
             return res.status_code in [200, 201]
         except Exception as e:
             self.logger(f"Erro WhatsApp: {str(e)}", "ERRO")
@@ -8005,7 +8029,7 @@ class AppColetorPro:
     # --- AUXILIARES ML ---
     def obter_produto_ml(self, order_id, token, all = False):
         try:
-            res = SESSION.get(f"https://api.mercadolibre.com/orders/{order_id}", headers={'Authorization': f'Bearer {token}'})
+            res = SESSION.get(f"https://api.mercadolibre.com/orders/{order_id}", headers={'Authorization': f'Bearer {token}'}, timeout=20)
             if all:
                 return res.json()
             return res.json()['order_items'][0]['item']['title']
@@ -8013,7 +8037,7 @@ class AppColetorPro:
 
     def obter_nome_cliente(self, order_id, token):
         try:
-            res = SESSION.get(f"https://api.mercadolibre.com/orders/{order_id}", headers={'Authorization': f'Bearer {token}'})
+            res = SESSION.get(f"https://api.mercadolibre.com/orders/{order_id}", headers={'Authorization': f'Bearer {token}'}, timeout=20)
             return res.json()['buyer']['first_name']
         except: return "Cliente"
 
@@ -8073,7 +8097,25 @@ class AppColetorPro:
                 json.dump(db, f, indent=4)
         except Exception as e:
             self.logger(f"Erro ao salvar banco de dados: {e}", "ERRO")
-                
+
+    def _salvar_db_periodico(self, db, indice, total, intervalo=10):
+        """
+        Evita reescrever o arquivo database_vendas.json inteiro no disco a
+        cada pedido processado dentro de um lote grande (o que antes era
+        feito várias vezes por pedido, em loops com centenas/milhares de
+        itens). Salva a cada `intervalo` pedidos e sempre no último pedido
+        do lote, reduzindo bastante o I/O em disco sem abrir mão de
+        segurança: o `finally` de passo_1_solicitar sempre garante um
+        salvamento final, mesmo se o usuário apertar STOP URGENTE ou ocorrer
+        um erro no meio do processamento, então no pior caso só se perde o
+        progresso dos últimos `intervalo` pedidos (não do lote inteiro).
+        """
+        if intervalo <= 1:
+            self.salvar_db(db)
+            return
+        if (indice + 1) % intervalo == 0 or (indice + 1) >= total:
+            self.salvar_db(db)
+
     def buscar_todas_reclamacoes(self, token, offset=0):
         reclamacoes_completas = []
         limit = 50
@@ -8086,7 +8128,7 @@ class AppColetorPro:
                 
                 try:
                     self.logger(f"Buscando offset {offset}...")   
-                    response = SESSION.get(url, headers=headers)
+                    response = SESSION.get(url, headers=headers, timeout=20)
                     if response.status_code != 200:
                         self.logger(f"Erro API Claims: {response.status_code}", "ERRO")
                         break
