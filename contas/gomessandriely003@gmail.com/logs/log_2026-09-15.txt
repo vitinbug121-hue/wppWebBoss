@@ -133,3 +133,4 @@ Essas opções visam facilitar sua experiência e garantir que você receba o pr
 15:07:02 [INFO] Processamento da ordem 2000017198242556 concluído. Próxima ordem...
 15:07:02 [INFO] Limite de 2 conversa(s) com IA atingido. Encerrando o processamento.
 15:07:02 [INFO] Fim da Execução. Novas solicitações enviadas: 0
+15:20:36 [ERROR] Script da IA comum não encontrado. Crie scriptIAcomum.txt na pasta da conta ou na pasta do sistema.

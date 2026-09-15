@@ -762,6 +762,55 @@ def _encontrar_historico_file(config_file):
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+
+def _diretorios_base_candidatos():
+    """
+    Retorna, em ordem de prioridade, todas as pastas onde faz sentido procurar
+    arquivos como scriptIAcomum.txt, scriptIAreclamacao.txt, scriptIAquestion.txt etc.
+
+    Cobre tanto a execução normal (python main.py) quanto o executável gerado
+    pelo PyInstaller (frozen), onde BASE_DIR (baseado em __file__) aponta para
+    a pasta temporária de extração (_MEIPASS) e não para a pasta real do .exe.
+    """
+    candidatos = []
+
+    # Executável empacotado: a pasta onde o .exe realmente está é a prioridade.
+    if getattr(sys, 'frozen', False):
+        try:
+            exe_dir = os.path.dirname(sys.executable)
+            candidatos.append(exe_dir)
+            candidatos.append(os.path.dirname(exe_dir))
+        except Exception:
+            pass
+        meipass = getattr(sys, '_MEIPASS', None)
+        if meipass:
+            candidatos.append(meipass)
+            candidatos.append(os.path.dirname(meipass))
+
+    # Diretório do script/BASE_DIR e seu pai (cobre execução normal via .py).
+    try:
+        candidatos.append(BASE_DIR)
+        candidatos.append(os.path.dirname(BASE_DIR))
+    except Exception:
+        pass
+
+    # Diretório de trabalho atual e seu pai (cobre atalhos/execução por outra pasta).
+    try:
+        cwd = os.getcwd()
+        candidatos.append(cwd)
+        candidatos.append(os.path.dirname(cwd))
+    except Exception:
+        pass
+
+    # Remove duplicados mantendo a ordem.
+    vistos = set()
+    unicos = []
+    for c in candidatos:
+        if c and c not in vistos:
+            vistos.add(c)
+            unicos.append(c)
+    return unicos
+
 DB_FILE = os.path.join(BASE_DIR, 'database_vendas.json')
 TOKEN_FILE = 'ml_tokens_autorizacao.json'
 
@@ -4069,12 +4118,12 @@ class AppColetorPro:
         self.logger("Todos os campos e o log foram limpos com sucesso!", "SUCESSO")
         
     def carregar_script_ia_reclamacao(self, folder, permitir_dialogo=True):
-        candidatos = [
-            os.path.join(folder, "scriptIAreclamacao.txt"),
-            os.path.join(BASE_DIR, "scriptIAreclamacao.txt"),
-            os.path.join(r"H:\Meu Drive\Sistema Captura WPP", "scriptIAreclamacao.txt"),
-            os.path.join(r"G:\Meu Drive\Sistema Captura WPP", "scriptIAreclamacao.txt"),
-        ]
+        candidatos = [os.path.join(folder, "scriptIAreclamacao.txt")]
+        for base in _diretorios_base_candidatos():
+            candidatos.append(os.path.join(base, "scriptIAreclamacao.txt"))
+        candidatos.append(os.path.join(r"H:\Meu Drive\Sistema Captura WPP", "scriptIAreclamacao.txt"))
+        candidatos.append(os.path.join(r"G:\Meu Drive\Sistema Captura WPP", "scriptIAreclamacao.txt"))
+
         for caminho in candidatos:
             if os.path.exists(caminho):
                 with open(caminho, "r", encoding="utf-8") as f:
@@ -4082,16 +4131,19 @@ class AppColetorPro:
                     if texto:
                         self.logger(f"Script IA carregado: {caminho}", "INFO")
                         return texto
-        self.logger("Script da IA não encontrado. Crie scriptIAreclamacao.txt na pasta da conta, na pasta do sistema ou no Google Drive.", "ERRO")
+        self.logger(
+            f"Script da IA não encontrado. Crie scriptIAreclamacao.txt na pasta da conta, na pasta do sistema ou no Google Drive. Locais verificados: {candidatos}",
+            "ERRO"
+        )
         return ""
     
     def carregar_script_ia_question(self, folder, permitir_dialogo=True):
-        candidatos = [
-            os.path.join(folder, "scriptIAquestion.txt"),
-            os.path.join(BASE_DIR, "scriptIAquestion.txt"),
-            os.path.join(r"H:\Meu Drive\Sistema Captura WPP", "scriptIAquestion.txt"),
-            os.path.join(r"G:\Meu Drive\Sistema Captura WPP", "scriptIAquestion.txt"),
-        ]
+        candidatos = [os.path.join(folder, "scriptIAquestion.txt")]
+        for base in _diretorios_base_candidatos():
+            candidatos.append(os.path.join(base, "scriptIAquestion.txt"))
+        candidatos.append(os.path.join(r"H:\Meu Drive\Sistema Captura WPP", "scriptIAquestion.txt"))
+        candidatos.append(os.path.join(r"G:\Meu Drive\Sistema Captura WPP", "scriptIAquestion.txt"))
+
         for caminho in candidatos:
             if os.path.exists(caminho):
                 with open(caminho, "r", encoding="utf-8") as f:
@@ -4099,7 +4151,10 @@ class AppColetorPro:
                     if texto:
                         self.logger(f"Script IA carregado: {caminho}", "INFO")
                         return texto
-        self.logger("Script da IA não encontrado. Crie scriptIAreclamacao.txt na pasta da conta, na pasta do sistema ou no Google Drive.", "ERRO")
+        self.logger(
+            f"Script da IA não encontrado. Crie scriptIAquestion.txt na pasta da conta, na pasta do sistema ou no Google Drive. Locais verificados: {candidatos}",
+            "ERRO"
+        )
         return ""
     def encontrar_pasta_imagens_brindes(self, folder, nome_pasta="Brindes"):
         """
@@ -4124,10 +4179,11 @@ class AppColetorPro:
         )
         return None
     def carregar_script_ia_comum(self, folder):
-        candidatos = [
-            os.path.join(folder, "scriptIAcomum.txt"),
-            os.path.join(BASE_DIR, "scriptIAcomum.txt"),
-        ]
+        candidatos = [os.path.join(folder, "scriptIAcomum.txt")]
+        for base in _diretorios_base_candidatos():
+            candidatos.append(os.path.join(base, "scriptIAcomum.txt"))
+        candidatos.append(os.path.join(r"H:\Meu Drive\Sistema Captura WPP", "scriptIAcomum.txt"))
+        candidatos.append(os.path.join(r"G:\Meu Drive\Sistema Captura WPP", "scriptIAcomum.txt"))
 
         for caminho in candidatos:
             if os.path.exists(caminho):
@@ -4137,7 +4193,10 @@ class AppColetorPro:
                     self.logger(f"Script IA comum carregado: {caminho}", "INFO")
                     return texto
 
-        self.logger("Script da IA comum não encontrado. Crie scriptIAcomum.txt na pasta da conta ou na pasta do sistema.", "ERRO")
+        self.logger(
+            f"Script da IA comum não encontrado. Crie scriptIAcomum.txt na pasta da conta ou na pasta do sistema. Locais verificados: {candidatos}",
+            "ERRO"
+        )
         return ""
 
     def _mensagens_cliente_apos_ultima_resposta(self, conversa):
