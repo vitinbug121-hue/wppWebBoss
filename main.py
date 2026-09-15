@@ -4751,7 +4751,8 @@ class AppColetorPro:
         if not script_ia:
             self.logger("Script único da IA (scriptIAcomum.txt) não carregado. A resposta foi cancelada.", "ERRO")
             return False
-
+        
+        
         mensagens_cliente = self._mensagens_cliente_apos_ultima_resposta(conversa)
         if not mensagens_cliente:
             self.logger(f"Ordem {order_id}: nenhuma mensagem nova da cliente após a última resposta.", "AVISO")
@@ -4764,6 +4765,11 @@ class AppColetorPro:
         if dados_pedido.get("ultima_ia_chave") == chave_conversa:
             self.logger(f"Ordem {order_id}: IA já respondeu essa última sequência de mensagens.", "AVISO")
             return False
+        
+        if dados_pedido.get("solicitado") is not True:
+            self.logger(f"Ordem {order_id}: Primeira MSG. IA NAO EXECUTADA.", "ERRO")
+            return False
+
 
         try:
             precisa = precisa_responder_groq(texto_cliente)
@@ -4793,7 +4799,14 @@ class AppColetorPro:
                 self.logger(f"Ordem {order_id}: IA retornou resposta vazia nas duas tentativas.", "ERRO")
                 return False
         
-        return True
+        # Loga a resposta gerada pela IA na tela, pra acompanhar o desempenho
+        # enquanto ela ainda está em treinamento.
+        self.logger(
+            f"Ordem {order_id} — mensagem do cliente:\n{texto_cliente}\n"
+            f"Ordem {order_id} — resposta gerada pela IA:\n{resposta_ia}",
+            "SUCESSO"
+        )
+
         envio = self.enviarMSG(order_id, buyer_id, resposta_ia, headers, seller_id, tem_reclamacao, claim_id)
         if envio:
             dados_pedido["ultima_ia_chave"] = chave_conversa
@@ -6135,6 +6148,7 @@ class AppColetorPro:
         cobrar_nao_pagos = False
         cobrar_nao_autorizados = False
         responder_ia_comum = False
+        lim_ia = None
         cod_rastreio = self.var_rastreio.get().strip()
         lote_filtro_numero = None
         lote_filtro_ids = None
@@ -6560,7 +6574,19 @@ class AppColetorPro:
             # pedido a pedido, se aquela ordem tem reclamação aberta ou não, e
             # direciona para responder_reclamacao_com_ia ou responder_chat_comum_com_ia
             # automaticamente — ambos usando o mesmo cérebro de IA unificado.
+            self.root.lift()
+            self.root.focus_force()
+            lim_ia = simpledialog.askinteger(
+                "Limite da IA",
+                f"Quantas conversas responder com a IA? (Total disponível: {total_chats})\n\n"
+                "Use um número baixo enquanto está testando/treinando a IA, "
+                "pra acompanhar as respostas no log antes de liberar em lote maior.",
+                minvalue=1, parent=self.root
+            )
+            if not lim_ia:
+                return
             responder_ia_comum = True
+            self.logger(f"Modo IA ativado: respondendo no máximo {lim_ia} conversa(s) para acompanhar o desempenho.", "INFO")
         elif acao == "rastreio":
             if not pagInicial or not cod_rastreio:
                 self.logger("Erro: Página Inicial e Cód. Rastreio são obrigatórios para esta ação.", "ERRO")
@@ -6585,7 +6611,7 @@ class AppColetorPro:
                 target=self.passo_1_solicitar, 
                 args=(token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, 
                       pagInicial, prazo_usuario, chats, config, env_erroBoleto, tipo_proc, 
-                      env_boleto_agradecimento, reenviarBoleto, solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio,autorizar_boleto, env_boleto_autorizados, lim_atorizar, responder_ia_comum,lote_filtro_numero, lote_filtro_ids, cobrar_nao_pagos, cobrar_nao_autorizados, lim_nao_autorizados, reenviar_boleto_atraso,filtrar_reenvio_frase,cobrar_dobrado_metodo,reenviarBoletoDobrado, reenviar_boleto_dobrado_atraso, filtrar_reenvio_dobro_frase )
+                      env_boleto_agradecimento, reenviarBoleto, solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio,autorizar_boleto, env_boleto_autorizados, lim_atorizar, responder_ia_comum,lote_filtro_numero, lote_filtro_ids, cobrar_nao_pagos, cobrar_nao_autorizados, lim_nao_autorizados, reenviar_boleto_atraso,filtrar_reenvio_frase,cobrar_dobrado_metodo,reenviarBoletoDobrado, reenviar_boleto_dobrado_atraso, filtrar_reenvio_dobro_frase, lim_ia )
             )
             thread.daemon = True
             thread.start()
@@ -6598,14 +6624,14 @@ class AppColetorPro:
             self.passo_1_solicitar(
                 token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, 
                 pagInicial, prazo_usuario, chats, config, env_erroBoleto, tipo_proc, 
-                env_boleto_agradecimento, reenviarBoleto, solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio,autorizar_boleto, env_boleto_autorizados, lim_atorizar, responder_ia_comum ,lote_filtro_numero, lote_filtro_ids, cobrar_nao_pagos, cobrar_nao_autorizados, lim_nao_autorizados, reenviar_boleto_atraso, filtrar_reenvio_frase,  cobrar_dobrado_metodo,reenviarBoletoDobrado, reenviar_boleto_dobrado_atraso, filtrar_reenvio_dobro_frase)
+                env_boleto_agradecimento, reenviarBoleto, solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio,autorizar_boleto, env_boleto_autorizados, lim_atorizar, responder_ia_comum ,lote_filtro_numero, lote_filtro_ids, cobrar_nao_pagos, cobrar_nao_autorizados, lim_nao_autorizados, reenviar_boleto_atraso, filtrar_reenvio_frase,  cobrar_dobrado_metodo,reenviarBoletoDobrado, reenviar_boleto_dobrado_atraso, filtrar_reenvio_dobro_frase, lim_ia)
             self.logger(f"Ação '{acao}' concluída com sucesso.", "SUCESSO")
             return None
         
        
         
     # --- PASSO 1: SOLICITAÇÃO --- PROCESSO PRINCIPAL
-    def passo_1_solicitar(self, token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, pagInicial, prazo_usuario, chats, config,env_erroBoleto, tipo,env_boleto_agradecimento,reenviarBoleto,solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio,autorizar_boleto, env_boleto_autorizados, lim_atorizar, responder_ia_comum ,lote_filtro_numero=None, lote_filtro_ids=None, cobrar_nao_pagos=False, cobrar_nao_autorizados = None, lim_nao_autorizados=None, reenviar_boleto_atraso=False, filtrar_reenvio_frase=False, cobrar_dobrado_metodo="boleto", reenviarBoletoDobrado=False, reenviar_boleto_dobrado_atraso=False, filtrar_reenvio_dobro_frase=False):
+    def passo_1_solicitar(self, token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, pagInicial, prazo_usuario, chats, config,env_erroBoleto, tipo,env_boleto_agradecimento,reenviarBoleto,solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio,autorizar_boleto, env_boleto_autorizados, lim_atorizar, responder_ia_comum ,lote_filtro_numero=None, lote_filtro_ids=None, cobrar_nao_pagos=False, cobrar_nao_autorizados = None, lim_nao_autorizados=None, reenviar_boleto_atraso=False, filtrar_reenvio_frase=False, cobrar_dobrado_metodo="boleto", reenviarBoletoDobrado=False, reenviar_boleto_dobrado_atraso=False, filtrar_reenvio_dobro_frase=False, lim_ia=None):
         folder = self.get_pasta_conta()
         if not folder: return
         
@@ -6642,6 +6668,7 @@ class AppColetorPro:
         try:
             db = self.carregar_db()
             enviados = 0
+            respostas_ia_enviadas = 0
 
             for i, pedido in enumerate(pedidos):
                 self._check_stop()
@@ -6733,7 +6760,10 @@ class AppColetorPro:
                 self.root.after(0, lambda v=i+1: self.progress.configure(value=v))    
                 
                 if responder_ia_comum:
-                        self.responder_chat_comum_com_ia(
+                        if lim_ia is not None and respostas_ia_enviadas >= lim_ia:
+                            self.logger(f"Limite de {lim_ia} conversa(s) com IA atingido. Encerrando o processamento.", "AVISO")
+                            break
+                        resultado_ia = self.responder_chat_comum_com_ia(
                             order_id,
                             dados_pedido.get('buyer_id') or buyer_id,
                             headers,
@@ -6743,6 +6773,10 @@ class AppColetorPro:
                             executar_reclamacao,
                             claim_id
                         )
+                        if resultado_ia:
+                            respostas_ia_enviadas += 1
+                            if lim_ia is not None:
+                                self.logger(f"IA: {respostas_ia_enviadas}/{lim_ia} conversa(s) respondida(s) até agora.", "INFO")
                     
                     
                 

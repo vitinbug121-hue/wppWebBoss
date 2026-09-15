@@ -1,0 +1,135 @@
+15:00:00 [INFO] Script IA comum carregado: H:\Meu Drive\Sistema Captura WPP\scriptIAcomum.txt
+15:00:00 [INFO] Modo COMUM + RECLAMAÇÕES ativado: buscando em segundo plano (isso pode levar alguns segundos, a tela não vai travar)...
+15:00:00 [INFO] Buscando offset 0...
+15:00:00 [INFO] Busca finalizada. Total capturado: 41
+15:00:00 [INFO] Buscando offset 0...
+15:00:02 [INFO] Busca finalizada. Total capturado: 0
+15:00:02 [INFO] Busca mista finalizada. Comuns: 41; reclamações: 0; total: 41
+15:00:02 [INFO] Busca concluída. Iniciando ação: IA...
+15:00:07 [INFO] Modo IA ativado: respondendo no máximo 2 conversa(s) para acompanhar o desempenho.
+15:00:07 [INFO] Thread de ia iniciada...
+15:00:14 [INFO] Ordem 2000017174695154: enviando mensagens para a IA (reclamação=False)...
+15:00:15 [INFO] Ordem 2000017174695154 — mensagem do cliente:
+Cliente: Segunda vez acontece isso
+Ordem 2000017174695154 — resposta gerada pela IA:
+Olá, desculpe, não entendi direito. Você poderia me explicar de outra forma ou detalhar um pouco mais?
+15:00:18 [INFO] Ordem 2000017174695154: resposta da IA enviada com sucesso.
+15:00:18 [INFO] IA: 1/2 conversa(s) respondida(s) até agora.
+15:00:18 [INFO] Processamento da ordem 2000017174695154 concluído. Próxima ordem...
+15:00:19 [INFO] Ordem 2000017180171880: nenhuma mensagem nova da cliente após a última resposta.
+15:00:19 [INFO] Processamento da ordem 2000017180171880 concluído. Próxima ordem...
+15:00:22 [INFO] Ordem 2000017182389242: enviando mensagens para a IA (reclamação=False)...
+15:00:23 [INFO] Ordem 2000017182389242 — mensagem do cliente:
+Cliente: Bom dia
+
+Cliente: Bom dia
+
+Cliente: Preciso de um retorno
+
+Cliente: ???
+
+Cliente: Oi
+
+Cliente: Preciso do retorno
+
+Cliente: Não recebi me produto ainda
+
+Cliente: Oi
+
+Cliente: Estou entrando em contato com meu advogado para resolver essa situação
+Ordem 2000017182389242 — resposta gerada pela IA:
+Olá, Seu pedido está com um atraso na transportadora. Já estamos verificando o que houve e assim que tivermos uma nova previsão, te avisamos.
+15:02:50 [INFO] Script IA comum carregado: H:\Meu Drive\Sistema Captura WPP\scriptIAcomum.txt
+15:02:50 [INFO] Modo COMUM + RECLAMAÇÕES ativado: buscando em segundo plano (isso pode levar alguns segundos, a tela não vai travar)...
+15:02:50 [INFO] Buscando offset 0...
+15:02:51 [INFO] Busca finalizada. Total capturado: 41
+15:02:51 [INFO] Buscando offset 0...
+15:02:52 [INFO] Busca finalizada. Total capturado: 0
+15:02:52 [INFO] Busca mista finalizada. Comuns: 41; reclamações: 0; total: 41
+15:02:52 [INFO] Busca concluída. Iniciando ação: IA...
+15:02:53 [INFO] Modo IA ativado: respondendo no máximo 2 conversa(s) para acompanhar o desempenho.
+15:02:53 [INFO] Thread de ia iniciada...
+15:03:26 [ERROR] Erro no Passo 1: cannot access local variable 'dados_pedido' where it is not associated with a value
+15:04:15 [INFO] Script IA comum carregado: H:\Meu Drive\Sistema Captura WPP\scriptIAcomum.txt
+15:04:15 [INFO] Modo COMUM + RECLAMAÇÕES ativado: buscando em segundo plano (isso pode levar alguns segundos, a tela não vai travar)...
+15:04:15 [INFO] Buscando offset 0...
+15:04:16 [INFO] Busca finalizada. Total capturado: 41
+15:04:16 [INFO] Buscando offset 0...
+15:04:17 [INFO] Busca finalizada. Total capturado: 0
+15:04:17 [INFO] Busca mista finalizada. Comuns: 41; reclamações: 0; total: 41
+15:04:17 [INFO] Busca concluída. Iniciando ação: IA...
+15:04:19 [INFO] Modo IA ativado: respondendo no máximo 2 conversa(s) para acompanhar o desempenho.
+15:04:19 [INFO] Thread de ia iniciada...
+15:06:00 [INFO] Script IA comum carregado: H:\Meu Drive\Sistema Captura WPP\scriptIAcomum.txt
+15:06:00 [INFO] Modo COMUM + RECLAMAÇÕES ativado: buscando em segundo plano (isso pode levar alguns segundos, a tela não vai travar)...
+15:06:00 [INFO] Buscando offset 0...
+15:06:00 [INFO] Busca finalizada. Total capturado: 41
+15:06:00 [INFO] Buscando offset 0...
+15:06:02 [INFO] Busca finalizada. Total capturado: 0
+15:06:02 [INFO] Busca mista finalizada. Comuns: 41; reclamações: 0; total: 41
+15:06:02 [INFO] Busca concluída. Iniciando ação: IA...
+15:06:03 [INFO] Modo IA ativado: respondendo no máximo 2 conversa(s) para acompanhar o desempenho.
+15:06:03 [INFO] Thread de ia iniciada...
+15:06:10 [INFO] Ordem 2000017174695154: nenhuma mensagem nova da cliente após a última resposta.
+15:06:10 [INFO] Processamento da ordem 2000017174695154 concluído. Próxima ordem...
+15:06:12 [INFO] Ordem 2000017180171880: nenhuma mensagem nova da cliente após a última resposta.
+15:06:12 [INFO] Processamento da ordem 2000017180171880 concluído. Próxima ordem...
+15:06:49 [INFO] Ordem 2000017182389242: enviando mensagens para a IA (reclamação=False)...
+15:06:50 [INFO] Ordem 2000017182389242 — mensagem do cliente:
+Cliente: Bom dia
+
+Cliente: Bom dia
+
+Cliente: Preciso de um retorno
+
+Cliente: ???
+
+Cliente: Oi
+
+Cliente: Preciso do retorno
+
+Cliente: Não recebi me produto ainda
+
+Cliente: Oi
+
+Cliente: Estou entrando em contato com meu advogado para resolver essa situação
+Ordem 2000017182389242 — resposta gerada pela IA:
+Olá, Seu pedido está com um atraso na transportadora. Já estamos verificando o que houve e assim que tivermos uma nova previsão, te avisamos.
+15:06:55 [INFO] Ordem 2000017182389242: resposta da IA enviada com sucesso.
+15:06:55 [INFO] IA: 1/2 conversa(s) respondida(s) até agora.
+15:06:55 [INFO] Processamento da ordem 2000017182389242 concluído. Próxima ordem...
+15:06:56 [INFO] Ordem 2000017189975194: nenhuma mensagem nova da cliente após a última resposta.
+15:06:56 [INFO] Processamento da ordem 2000017189975194 concluído. Próxima ordem...
+15:06:57 [INFO] Ordem 2000017191016284: IA já respondeu essa última sequência de mensagens.
+15:06:57 [INFO] Processamento da ordem 2000017191016284 concluído. Próxima ordem...
+15:06:59 [INFO] Ordem 2000017198242556: enviando mensagens para a IA (reclamação=False)...
+15:07:00 [INFO] Ordem 2000017198242556 — mensagem do cliente:
+Cliente: Eu não vou pagar a taxa, eu avisei que gostaria de cancelar
+
+Cliente: E esta debitando meu cartão
+
+Cliente: Por favor, fazer cancelar minha compra
+
+Cliente: Bom dia! 
+
+Nao recebi minha encomenda,  não  quero mais receber como ja havia comunicado e ainda segue descontando do meu cartão  as parcelas
+
+Cliente: Sigo sem resposta
+
+Cliente: Eu não  recebi o produto e as parcelas estão  sendo debitada no cartão
+Ordem 2000017198242556 — resposta gerada pela IA:
+Olá, entendemos sua preocupação. Sabemos que a taxa pode ser um incômodo, por isso gostaríamos de oferecer alguns benefícios como compensação pelo transtorno:
+
+- Montagem totalmente gratuita;
+- 3 vasos de cerâmica decorativos;
+- 1 suporte para TV;
+- 2 puffs para a sala.
+
+Além disso, vale destacar que, mesmo pagando a taxa, o custo‑benefício continua muito vantajoso: um painel com a mesma qualidade costuma custar em torno de R$ 800 no Brasil, sem contar o frete e a montagem que você teria que arcar separadamente. 
+
+Essas opções visam facilitar sua experiência e garantir que você receba o produto com o melhor valor possível. Estamos à disposição para prosseguir com a sua compra ou esclarecer qualquer outra dúvida.
+15:07:02 [INFO] Ordem 2000017198242556: resposta da IA enviada com sucesso.
+15:07:02 [INFO] IA: 2/2 conversa(s) respondida(s) até agora.
+15:07:02 [INFO] Processamento da ordem 2000017198242556 concluído. Próxima ordem...
+15:07:02 [INFO] Limite de 2 conversa(s) com IA atingido. Encerrando o processamento.
+15:07:02 [INFO] Fim da Execução. Novas solicitações enviadas: 0
