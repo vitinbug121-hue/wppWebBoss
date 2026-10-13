@@ -103,6 +103,12 @@ _groq_indice_chave_atual = 0
 
 import re  # Certifique-se de importar o re no topo do seu arquivo
 
+
+class GroqEsgotadoError(RuntimeError):
+    """Levantado quando TODAS as chaves GROQ atingiram o limite de uso (429)."""
+    pass
+
+
 def gerar_resposta_groq(system_text, user_text):
     global _groq_indice_chave_atual
 
@@ -154,8 +160,98 @@ def gerar_resposta_groq(system_text, user_text):
                 continue
             raise RuntimeError(f"Erro na API da Groq: {exc}") from exc
 
-    raise RuntimeError(
+    raise GroqEsgotadoError(
         f"Todas as {total_chaves} chaves GROQ atingiram o limite de uso (erro 429). "
+        f"Último erro: {erro_final}"
+    )
+
+
+def _obter_gemini_api_keys():
+    """
+    Coleta todas as chaves GEMINI configuradas no .env, na ordem
+    GEMINI_API_KEY1, GEMINI_API_KEY2, ...
+    Também aceita GEMINI_API_KEY (sem número) como primeira chave.
+    """
+    keys = []
+
+    chave_unica = os.environ.get("GEMINI_API_KEY")
+    if chave_unica:
+        keys.append(chave_unica)
+
+    indice = 1
+    while True:
+        chave = os.environ.get(f"GEMINI_API_KEY{indice}")
+        if not chave:
+            break
+        if chave not in keys:
+            keys.append(chave)
+        indice += 1
+
+    return keys
+
+
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash-lite")
+_gemini_indice_chave_atual = 0
+
+
+def gerar_resposta_gemini(system_text, user_text):
+    """
+    Fallback usado quando todas as chaves da Groq estão esgotadas (GroqEsgotadoError).
+    Usa a API do Gemini (Google AI Studio) diretamente.
+    Chave gerada em: aistudio.google.com/apikey
+    """
+    global _gemini_indice_chave_atual
+
+    api_keys = _obter_gemini_api_keys()
+    if not api_keys:
+        raise RuntimeError(
+            "Nenhuma chave GEMINI configurada no arquivo .env. "
+            "Defina GEMINI_API_KEY (ou GEMINI_API_KEY1, GEMINI_API_KEY2, etc)."
+        )
+
+    try:
+        from google import genai
+        from google.genai import types
+        from google.genai.errors import ClientError, ServerError
+    except ImportError as exc:
+        raise RuntimeError("Biblioteca google-genai não instalada. Execute: pip install google-genai") from exc
+
+    total_chaves = len(api_keys)
+    erro_final = None
+
+    for offset in range(total_chaves):
+        indice = (_gemini_indice_chave_atual + offset) % total_chaves
+        api_key = api_keys[indice]
+
+        try:
+            client = genai.Client(api_key=api_key)
+            response = client.models.generate_content(
+                model=GEMINI_MODEL,
+                contents=user_text,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_text,
+                    temperature=0.1,
+                    max_output_tokens=1536,
+                ),
+            )
+            _gemini_indice_chave_atual = indice
+
+            resposta_bruta = response.text or ""
+            resposta_limpa = re.sub(r'<think>.*?</think>', '', resposta_bruta, flags=re.DOTALL).strip()
+            return resposta_limpa
+
+        except ClientError as exc:
+            status_code = getattr(exc, "code", None) or getattr(exc, "status_code", None)
+            if status_code == 429:
+                erro_final = exc
+                continue
+            raise RuntimeError(f"Erro na API do Gemini: {exc}") from exc
+        except ServerError as exc:
+            erro_final = exc
+            continue
+
+    raise RuntimeError(
+        f"Todas as {total_chaves} chaves GEMINI atingiram o limite de uso (erro 429). "
         f"Último erro: {erro_final}"
     )
 
@@ -666,6 +762,55 @@ def _encontrar_historico_file(config_file):
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+
+def _diretorios_base_candidatos():
+    """
+    Retorna, em ordem de prioridade, todas as pastas onde faz sentido procurar
+    arquivos como scriptIAcomum.txt, scriptIAreclamacao.txt, scriptIAquestion.txt etc.
+
+    Cobre tanto a execução normal (python main.py) quanto o executável gerado
+    pelo PyInstaller (frozen), onde BASE_DIR (baseado em __file__) aponta para
+    a pasta temporária de extração (_MEIPASS) e não para a pasta real do .exe.
+    """
+    candidatos = []
+
+    # Executável empacotado: a pasta onde o .exe realmente está é a prioridade.
+    if getattr(sys, 'frozen', False):
+        try:
+            exe_dir = os.path.dirname(sys.executable)
+            candidatos.append(exe_dir)
+            candidatos.append(os.path.dirname(exe_dir))
+        except Exception:
+            pass
+        meipass = getattr(sys, '_MEIPASS', None)
+        if meipass:
+            candidatos.append(meipass)
+            candidatos.append(os.path.dirname(meipass))
+
+    # Diretório do script/BASE_DIR e seu pai (cobre execução normal via .py).
+    try:
+        candidatos.append(BASE_DIR)
+        candidatos.append(os.path.dirname(BASE_DIR))
+    except Exception:
+        pass
+
+    # Diretório de trabalho atual e seu pai (cobre atalhos/execução por outra pasta).
+    try:
+        cwd = os.getcwd()
+        candidatos.append(cwd)
+        candidatos.append(os.path.dirname(cwd))
+    except Exception:
+        pass
+
+    # Remove duplicados mantendo a ordem.
+    vistos = set()
+    unicos = []
+    for c in candidatos:
+        if c and c not in vistos:
+            vistos.add(c)
+            unicos.append(c)
+    return unicos
+
 DB_FILE = os.path.join(BASE_DIR, 'database_vendas.json')
 TOKEN_FILE = 'ml_tokens_autorizacao.json'
 
@@ -791,6 +936,129 @@ def ler_info_lock(folder):
             return f.read().strip()
     except Exception:
         return None
+
+
+# ==========================================
+# LOCK GLOBAL DE AGENDAMENTO
+# Regra: um agendamento nunca pode rodar "por cima" de outro que já esteja
+# em execução (seja disparado pelo Windows Task Scheduler em outro processo,
+# seja por "Executar Agora" dentro do próprio app). Quando isso acontece, a
+# nova execução ESPERA (fica em polling) até a anterior terminar, em vez de
+# rodar em paralelo ou falhar.
+# ==========================================
+
+def _agendamento_lock_path():
+    """Caminho do lock global de execução de agendamentos (um por vez)."""
+    try:
+        config_file = _encontrar_config_file()
+        base_dir = os.path.dirname(config_file) if config_file else tempfile.gettempdir()
+        if not base_dir:
+            base_dir = tempfile.gettempdir()
+    except Exception:
+        base_dir = tempfile.gettempdir()
+    return os.path.join(base_dir, '.agendamento_execucao.lock')
+
+
+def _processo_vivo(pid):
+    """Verifica se um processo com o PID informado ainda está rodando."""
+    if not pid:
+        return False
+    try:
+        if os.name == 'nt':
+            saida = subprocess.run(
+                ['tasklist', '/FI', f'PID eq {pid}'],
+                capture_output=True, text=True, **_subprocess_no_window_kwargs()
+            )
+            return str(pid) in (saida.stdout or "")
+        else:
+            os.kill(pid, 0)
+            return True
+    except Exception:
+        return False
+
+
+def aguardar_e_adquirir_lock_agendamento(tarefa_id, nome_tarefa="", timeout_stale=1800, intervalo_poll=30, log_func=None):
+    """
+    Bloqueia até que nenhum outro agendamento esteja em execução e então adquire
+    o lock global. Garante que agendamentos nunca rodem sobrepostos: se outro já
+    estiver em andamento, esta chamada ESPERA ele terminar (ou o lock ser
+    considerado travado/expirado após `timeout_stale` segundos) antes de seguir.
+
+    log_func, se informado, deve ser algo como app.logger(mensagem, nivel).
+    """
+    lock_path = _agendamento_lock_path()
+    avisado = False
+
+    while True:
+        try:
+            # Tenta criar o arquivo de lock de forma exclusiva (atômico entre processos)
+            fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            with os.fdopen(fd, 'w', encoding='utf-8') as f:
+                f.write(
+                    f"pid={os.getpid()} | tarefa={tarefa_id} | {nome_tarefa} | "
+                    f"{datetime.now().strftime('%d/%m/%Y %H:%M:%S')}"
+                )
+            if avisado:
+                msg = f"Lock de agendamento liberado. '{nome_tarefa or tarefa_id}' segue agora."
+                _registrar_log_agendamento(msg)
+                if log_func:
+                    try:
+                        log_func(msg, "INFO")
+                    except Exception:
+                        pass
+            return
+        except FileExistsError:
+            # Já existe outro agendamento rodando (ou um lock travado/esquecido)
+            info = ""
+            pid_lock = None
+            idade = 0
+            try:
+                with open(lock_path, 'r', encoding='utf-8') as f:
+                    info = f.read().strip()
+                m = re.search(r'pid=(\d+)', info)
+                if m:
+                    pid_lock = int(m.group(1))
+                idade = time.time() - os.path.getmtime(lock_path)
+            except Exception:
+                pass
+
+            lock_travado = idade >= timeout_stale or (pid_lock is not None and not _processo_vivo(pid_lock))
+            if lock_travado:
+                _registrar_log_agendamento(
+                    f"Lock de agendamento travado/expirado ({idade:.0f}s) removido: {info}"
+                )
+                try:
+                    os.remove(lock_path)
+                except Exception:
+                    pass
+                continue  # tenta adquirir de novo no próximo loop
+
+            if not avisado:
+                msg = (
+                    f"Já existe um agendamento em execução ({info}). "
+                    f"'{nome_tarefa or tarefa_id}' vai AGUARDAR terminar antes de rodar."
+                )
+                _registrar_log_agendamento(msg)
+                if log_func:
+                    try:
+                        log_func(msg, "INFO")
+                    except Exception:
+                        pass
+                avisado = True
+            time.sleep(intervalo_poll)
+        except Exception as e:
+            _registrar_log_agendamento(f"[LOCK-AGENDAMENTO] Erro ao adquirir lock: {e}")
+            time.sleep(intervalo_poll)
+
+
+def liberar_lock_agendamento():
+    """Libera o lock global de agendamento, permitindo a próxima execução seguir."""
+    lock_path = _agendamento_lock_path()
+    try:
+        if os.path.exists(lock_path):
+            os.remove(lock_path)
+    except Exception as e:
+        _registrar_log_agendamento(f"[LOCK-AGENDAMENTO] Erro ao liberar lock: {e}")
 
 
 def _subprocess_no_window_kwargs():
@@ -1355,7 +1623,8 @@ class JanelaAgendamentos:
             "solicitar",
             "reclamacao",
             "cobrar_nao_pagos",
-            "responder_duvidas_ml"
+            "responder_duvidas_ml",
+            "ia"
         ]
         
         self.setup_ui()
@@ -1692,7 +1961,15 @@ class JanelaAgendamentos:
     
     def _executar_agendamento_thread(self, tarefa_id, config):
         """Executa o agendamento em uma thread separada"""
+        lock_adquirido = False
         try:
+            # Regra do agendamento: nunca rodar por cima de outro já em execução
+            # (aqui dentro do app ou em outro processo disparado pelo Windows
+            # Task Scheduler). Se já tiver um rodando, espera terminar antes de seguir.
+            _registrar_log_agendamento(f"Verificando lock de agendamento para execução manual {tarefa_id}...")
+            aguardar_e_adquirir_lock_agendamento(tarefa_id, config.get('nome', ''))
+            lock_adquirido = True
+
             root = tk.Tk()
             root.withdraw()
             app = AppColetorPro(root, start_scheduler=False)
@@ -1722,6 +1999,9 @@ class JanelaAgendamentos:
                 'ERRO',
                 str(e)
             )
+        finally:
+            if lock_adquirido:
+                liberar_lock_agendamento()
     
     def _limpar_historico(self):
         """Limpa o histórico"""
@@ -1756,6 +2036,7 @@ class JanelaNovaAgendamento:
             "nao_pagos": "NÃO PAGOS",
             "vendas_encerradas": "VENDAS ENCERRADAS",
             "responder_duvidas_ml": "RESPONDER DÚVIDAS ML",
+            "ia": "IA - RESPONDER CHAT E RECLAMAÇÕES",  # NOVO: execução da IA disponível no agendamento
         }
         self.acoes_disponiveis = list(self.acao_labels.values())
         self.acao_keys_por_label = {label: key for key, label in self.acao_labels.items()}
@@ -2274,35 +2555,43 @@ class JanelaChamarWpp(tk.Toplevel):
         self.btn_gerar_vcf.grid(row=0, column=1, sticky="ew", padx=(5, 0))
 
         # --- ETAPA 3: Abertura Chrome & Execução do Robô ---
-        frame_robo = tk.LabelFrame(self, text=" 3. Automação WhatsApp Web ", font=("Arial", 10, "bold"), padx=15, pady=10)
-        frame_robo.pack(fill=tk.X, padx=15, pady=10)
+        # DESATIVADO: automação via Chrome debug não é mais utilizada.
+        # Era a causa do travamento (driver.get() bloqueando a thread principal).
+        # Para reativar no futuro, basta descomentar o bloco abaixo.
+        DESATIVAR_AUTOMACAO_WPP_CHROME = True
 
-        self.btn_abrir_wpp = tk.Button(
-            frame_robo, 
-            text="Abrir WPP Web", 
-            command=self.executar_chrome_debug, 
-            bg="#6c757d", fg="white", font=("Arial", 9, "bold"), height=2
-        )
-        self.btn_abrir_wpp.pack(fill=tk.X, pady=5)
+        self.driver = None  # mantém o atributo existindo para não quebrar outras partes do código
 
-        # Painel de Disparo
-        frame_painel = tk.Frame(frame_robo)
-        frame_painel.pack(fill=tk.X, pady=10)
+        if not DESATIVAR_AUTOMACAO_WPP_CHROME:
+            frame_robo = tk.LabelFrame(self, text=" 3. Automação WhatsApp Web ", font=("Arial", 10, "bold"), padx=15, pady=10)
+            frame_robo.pack(fill=tk.X, padx=15, pady=10)
 
-        tk.Label(frame_painel, text="Disponíveis para chamar:", font=("Arial", 9)).grid(row=0, column=0, sticky="w")
-        self.lbl_qtd_disponivel = tk.Label(frame_painel, text="0", font=("Arial", 10, "bold"), fg="#007bff")
-        self.lbl_qtd_disponivel.grid(row=0, column=1, sticky="w", padx=(5, 20))
+            self.btn_abrir_wpp = tk.Button(
+                frame_robo, 
+                text="Abrir WPP Web", 
+                command=self.executar_chrome_debug, 
+                bg="#6c757d", fg="white", font=("Arial", 9, "bold"), height=2
+            )
+            self.btn_abrir_wpp.pack(fill=tk.X, pady=5)
 
-        tk.Label(frame_painel, text="Quantos deseja chamar:", font=("Arial", 9)).grid(row=0, column=2, sticky="e")
-        tk.Entry(frame_painel, textvariable=self.var_qtd_chamar, width=8, font=("Arial", 9, "bold")).grid(row=0, column=3, sticky="w", padx=5)
+            # Painel de Disparo
+            frame_painel = tk.Frame(frame_robo)
+            frame_painel.pack(fill=tk.X, pady=10)
 
-        self.btn_executar_robo = tk.Button(
-            frame_robo, 
-            text="EXECUTAR ROBÔ", 
-            command=self.iniciar_execucao_robo, 
-            bg="#28a745", fg="white", font=("Arial", 10, "bold"), state="disabled", height=2
-        )
-        self.btn_executar_robo.pack(fill=tk.X, pady=(5, 0))
+            tk.Label(frame_painel, text="Disponíveis para chamar:", font=("Arial", 9)).grid(row=0, column=0, sticky="w")
+            self.lbl_qtd_disponivel = tk.Label(frame_painel, text="0", font=("Arial", 10, "bold"), fg="#007bff")
+            self.lbl_qtd_disponivel.grid(row=0, column=1, sticky="w", padx=(5, 20))
+
+            tk.Label(frame_painel, text="Quantos deseja chamar:", font=("Arial", 9)).grid(row=0, column=2, sticky="e")
+            tk.Entry(frame_painel, textvariable=self.var_qtd_chamar, width=8, font=("Arial", 9, "bold")).grid(row=0, column=3, sticky="w", padx=5)
+
+            self.btn_executar_robo = tk.Button(
+                frame_robo, 
+                text="EXECUTAR ROBÔ", 
+                command=self.iniciar_execucao_robo, 
+                bg="#28a745", fg="white", font=("Arial", 10, "bold"), state="disabled", height=2
+            )
+            self.btn_executar_robo.pack(fill=tk.X, pady=(5, 0))
             
     def _obter_caminho_planilha(self):
         """Localiza a planilha vendas.xlsx ou vendas.csv dentro da pasta da conta do e-mail selecionado."""
@@ -3829,12 +4118,12 @@ class AppColetorPro:
         self.logger("Todos os campos e o log foram limpos com sucesso!", "SUCESSO")
         
     def carregar_script_ia_reclamacao(self, folder, permitir_dialogo=True):
-        candidatos = [
-            os.path.join(folder, "scriptIAreclamacao.txt"),
-            os.path.join(BASE_DIR, "scriptIAreclamacao.txt"),
-            os.path.join(r"H:\Meu Drive\Sistema Captura WPP", "scriptIAreclamacao.txt"),
-            os.path.join(r"G:\Meu Drive\Sistema Captura WPP", "scriptIAreclamacao.txt"),
-        ]
+        candidatos = [os.path.join(folder, "scriptIAreclamacao.txt")]
+        for base in _diretorios_base_candidatos():
+            candidatos.append(os.path.join(base, "scriptIAreclamacao.txt"))
+        candidatos.append(os.path.join(r"H:\Meu Drive\Sistema Captura WPP", "scriptIAreclamacao.txt"))
+        candidatos.append(os.path.join(r"G:\Meu Drive\Sistema Captura WPP", "scriptIAreclamacao.txt"))
+
         for caminho in candidatos:
             if os.path.exists(caminho):
                 with open(caminho, "r", encoding="utf-8") as f:
@@ -3842,16 +4131,19 @@ class AppColetorPro:
                     if texto:
                         self.logger(f"Script IA carregado: {caminho}", "INFO")
                         return texto
-        self.logger("Script da IA não encontrado. Crie scriptIAreclamacao.txt na pasta da conta, na pasta do sistema ou no Google Drive.", "ERRO")
+        self.logger(
+            f"Script da IA não encontrado. Crie scriptIAreclamacao.txt na pasta da conta, na pasta do sistema ou no Google Drive. Locais verificados: {candidatos}",
+            "ERRO"
+        )
         return ""
     
     def carregar_script_ia_question(self, folder, permitir_dialogo=True):
-        candidatos = [
-            os.path.join(folder, "scriptIAquestion.txt"),
-            os.path.join(BASE_DIR, "scriptIAquestion.txt"),
-            os.path.join(r"H:\Meu Drive\Sistema Captura WPP", "scriptIAquestion.txt"),
-            os.path.join(r"G:\Meu Drive\Sistema Captura WPP", "scriptIAquestion.txt"),
-        ]
+        candidatos = [os.path.join(folder, "scriptIAquestion.txt")]
+        for base in _diretorios_base_candidatos():
+            candidatos.append(os.path.join(base, "scriptIAquestion.txt"))
+        candidatos.append(os.path.join(r"H:\Meu Drive\Sistema Captura WPP", "scriptIAquestion.txt"))
+        candidatos.append(os.path.join(r"G:\Meu Drive\Sistema Captura WPP", "scriptIAquestion.txt"))
+
         for caminho in candidatos:
             if os.path.exists(caminho):
                 with open(caminho, "r", encoding="utf-8") as f:
@@ -3859,7 +4151,10 @@ class AppColetorPro:
                     if texto:
                         self.logger(f"Script IA carregado: {caminho}", "INFO")
                         return texto
-        self.logger("Script da IA não encontrado. Crie scriptIAreclamacao.txt na pasta da conta, na pasta do sistema ou no Google Drive.", "ERRO")
+        self.logger(
+            f"Script da IA não encontrado. Crie scriptIAquestion.txt na pasta da conta, na pasta do sistema ou no Google Drive. Locais verificados: {candidatos}",
+            "ERRO"
+        )
         return ""
     def encontrar_pasta_imagens_brindes(self, folder, nome_pasta="Brindes"):
         """
@@ -3884,10 +4179,11 @@ class AppColetorPro:
         )
         return None
     def carregar_script_ia_comum(self, folder):
-        candidatos = [
-            os.path.join(folder, "scriptIAcomum.txt"),
-            os.path.join(BASE_DIR, "scriptIAcomum.txt"),
-        ]
+        candidatos = [os.path.join(folder, "scriptIAcomum.txt")]
+        for base in _diretorios_base_candidatos():
+            candidatos.append(os.path.join(base, "scriptIAcomum.txt"))
+        candidatos.append(os.path.join(r"H:\Meu Drive\Sistema Captura WPP", "scriptIAcomum.txt"))
+        candidatos.append(os.path.join(r"G:\Meu Drive\Sistema Captura WPP", "scriptIAcomum.txt"))
 
         for caminho in candidatos:
             if os.path.exists(caminho):
@@ -3897,7 +4193,10 @@ class AppColetorPro:
                     self.logger(f"Script IA comum carregado: {caminho}", "INFO")
                     return texto
 
-        self.logger("Script da IA comum não encontrado. Crie scriptIAcomum.txt na pasta da conta ou na pasta do sistema.", "ERRO")
+        self.logger(
+            f"Script da IA comum não encontrado. Crie scriptIAcomum.txt na pasta da conta ou na pasta do sistema. Locais verificados: {candidatos}",
+            "ERRO"
+        )
         return ""
 
     def _mensagens_cliente_apos_ultima_resposta(self, conversa):
@@ -3952,7 +4251,7 @@ class AppColetorPro:
         db_path = os.path.join(folder, "database_vendas.json")
         try:
             with open(db_path, 'w', encoding='utf-8') as f:
-                json.dump(db, f, indent=4)
+                json.dump(db, f)
         except Exception as e:
             self.logger(f"Erro ao salvar banco de dados ({folder}): {e}", "ERRO")
     
@@ -4321,7 +4620,7 @@ class AppColetorPro:
             while True:
                 url_busca = f"https://api.mercadolibre.com/questions/search?seller_id={seller_id}&api_version=4&limit={limit}&offset={offset}"
 
-                response = SESSION.get(url_busca, headers=headers)
+                response = SESSION.get(url_busca, headers=headers, timeout=20)
 
                 if response.status_code != 200:
                     self.logger(f"Erro ao buscar perguntas no offset {offset} (Status {response.status_code}): {response.text}", "ERRO")
@@ -4383,7 +4682,7 @@ class AppColetorPro:
                     "text": resposta_ia
                 }
 
-                res_post = SESSION.post(url_resposta, json=payload_resposta, headers=headers)
+                res_post = SESSION.post(url_resposta, json=payload_resposta, headers=headers, timeout=20)
 
                 if res_post.status_code == 201 or res_post.status_code == 200:
                     self.logger(f"Pergunta ID {question_id} respondida com sucesso!", "SUCESSO")
@@ -4490,8 +4789,13 @@ class AppColetorPro:
             "Mensagem do cliente:\n"
             f"{mensagem_cliente}"
         )
-        resposta_ia = gerar_resposta_groq(script_ia, prompt_usuario).strip('"')
-        return resposta_ia
+        try:
+            resposta_ia = gerar_resposta_groq(script_ia, prompt_usuario)
+        except GroqEsgotadoError as exc:
+            self.logger(f"Groq esgotada, usando Gemini como IA reserva: {exc}", "AVISO")
+            resposta_ia = gerar_resposta_gemini(script_ia, prompt_usuario)
+
+        return resposta_ia.strip('"')
 
     def _responder_com_ia_unificada(self, order_id, buyer_id, conversa, headers, seller_id, token, db,
                                      tem_reclamacao=False, claim_id=None):
@@ -4506,7 +4810,8 @@ class AppColetorPro:
         if not script_ia:
             self.logger("Script único da IA (scriptIAcomum.txt) não carregado. A resposta foi cancelada.", "ERRO")
             return False
-
+        
+        
         mensagens_cliente = self._mensagens_cliente_apos_ultima_resposta(conversa)
         if not mensagens_cliente:
             self.logger(f"Ordem {order_id}: nenhuma mensagem nova da cliente após a última resposta.", "AVISO")
@@ -4519,6 +4824,11 @@ class AppColetorPro:
         if dados_pedido.get("ultima_ia_chave") == chave_conversa:
             self.logger(f"Ordem {order_id}: IA já respondeu essa última sequência de mensagens.", "AVISO")
             return False
+        
+        if dados_pedido.get("solicitado") is not True:
+            self.logger(f"Ordem {order_id}: Primeira MSG. IA NAO EXECUTADA.", "ERRO")
+            return False
+
 
         try:
             precisa = precisa_responder_groq(texto_cliente)
@@ -4548,7 +4858,14 @@ class AppColetorPro:
                 self.logger(f"Ordem {order_id}: IA retornou resposta vazia nas duas tentativas.", "ERRO")
                 return False
         
-        return True
+        # Loga a resposta gerada pela IA na tela, pra acompanhar o desempenho
+        # enquanto ela ainda está em treinamento.
+        self.logger(
+            f"Ordem {order_id} — mensagem do cliente:\n{texto_cliente}\n"
+            f"Ordem {order_id} — resposta gerada pela IA:\n{resposta_ia}",
+            "SUCESSO"
+        )
+
         envio = self.enviarMSG(order_id, buyer_id, resposta_ia, headers, seller_id, tem_reclamacao, claim_id)
         if envio:
             dados_pedido["ultima_ia_chave"] = chave_conversa
@@ -4672,6 +4989,7 @@ class AppColetorPro:
 
     def logger(self, msg, tag="INFO"):
         # 1. Tentar configurar o logging para a pasta da conta atual
+        # (leitura/gravação em arquivo é segura de ser chamada de qualquer thread)
         email = self.var_email.get().strip()
         if email:
             # Caminho: contas/email@clinte.com/logs/
@@ -4697,6 +5015,24 @@ class AppColetorPro:
                 file_logger.info(msg)
 
         # 2. Atualização visual no ScrolledText (Tkinter)
+        # IMPORTANTE: widgets do Tkinter só podem ser mexidos com segurança pela
+        # thread principal. Como o logger() é chamado de threads de processamento
+        # em segundo plano, se não estivermos na thread principal, agendamos a
+        # atualização visual via self.root.after(0, ...) em vez de mexer no
+        # widget diretamente. Isso evita o "congelamento"/"não está respondendo"
+        # da interface quando há muitos logs em sequência durante um processamento.
+        if threading.current_thread() is threading.main_thread():
+            self._atualizar_log_widget(msg, tag)
+        else:
+            try:
+                self.root.after(0, self._atualizar_log_widget, msg, tag)
+            except Exception:
+                # Se a janela já não existe mais (encerrando o app), apenas ignora.
+                pass
+
+    def _atualizar_log_widget(self, msg, tag="INFO"):
+        """Só deve ser chamada pela thread principal (via logger(), diretamente
+        ou agendada com self.root.after). Faz a escrita de fato no ScrolledText."""
         timestamp = datetime.now().strftime("%H:%M:%S")
         display_tag = "ERROR" if tag == "ERRO" else tag
         tag_styles = {
@@ -4709,7 +5045,7 @@ class AppColetorPro:
         }
         log_style = tag_styles.get(display_tag)
 
-        # --- NOVO: verifica se o usuário já estava com a rolagem no final ---
+        # --- verifica se o usuário já estava com a rolagem no final ---
         # yview() retorna (topo_visivel, fim_visivel) em fração de 0 a 1.
         # Se o fim visível está bem próximo de 1.0, consideramos que ele
         # estava acompanhando o log em tempo real.
@@ -4731,14 +5067,15 @@ class AppColetorPro:
         self.log.insert(tk.END, msg[pos:])
         self.log.insert(tk.END, "\n")
 
-        # --- ALTERADO: só desce automaticamente se o usuário já estava no final ---
+        # --- só desce automaticamente se o usuário já estava no final ---
         if estava_no_fim:
             self.log.see(tk.END)
-        
-        # Força a atualização da interface para não "congelar"
+
+        # Atualiza só o desenho pendente (mais leve que update() completo).
+        # Como agora estamos sempre na thread principal aqui, isso é seguro.
         try:
             self.root.update_idletasks()
-        except:
+        except Exception:
             pass
     # --- CAPTURA DE NÚMEROS DE WHATSAPP DAS CONVERSAS ---
     def capturar_wpp_thread(self):
@@ -4959,7 +5296,7 @@ class AppColetorPro:
                     for token in tokens:
                         url = f"https://api.mercadopago.com/v1/payments/{payment_id}"
                         headers = {"Authorization": f"Bearer {token}"}
-                        response = SESSION.get(url, headers=headers)
+                        response = SESSION.get(url, headers=headers, timeout=20)
                         
                         if response.status_code == 200:
                             encontrado_em_algum_token = True
@@ -4994,7 +5331,7 @@ class AppColetorPro:
                     for token in tokens:
                         url = f"https://api.mercadopago.com/v1/payments/{payment_id_dobro}"
                         headers = {"Authorization": f"Bearer {token}"}
-                        response = SESSION.get(url, headers=headers)
+                        response = SESSION.get(url, headers=headers, timeout=20)
 
                         if response.status_code == 200:
                             encontrado_dobro = True
@@ -5127,7 +5464,6 @@ class AppColetorPro:
 
         self.root.lift()
         self.root.focus_force()
-        self.root.update()
 
         tokens = _obter_tokens_reembolso_mp()
         if not tokens:
@@ -5229,7 +5565,6 @@ class AppColetorPro:
 
         self.root.lift()
         self.root.focus_force()
-        self.root.update()
         codigo = simpledialog.askstring("OAuth ML", "Insira o código gerado na URL (code=...):", parent=self.root)
         if not codigo:
             self.logger("Autorização ML cancelada: código não informado.", "ERRO")
@@ -5788,21 +6123,59 @@ class AppColetorPro:
             self.logger(f"Iniciando processamento by IDs: {', '.join(ids_list)}")
 
         executar_reclamacao = acao == "ia_reclamacao"
+
+        # --- BUSCA DE VENDAS/RECLAMAÇÕES RODANDO EM SEGUNDO PLANO ---
+        # Essas buscas fazem várias chamadas de rede (paginação de vendas,
+        # reclamações, resolução de order_id por reclamação, etc.) e antes
+        # rodavam direto aqui na thread da interface, travando a janela
+        # ("não está respondendo") até a rede responder. Agora a busca roda
+        # numa thread separada; enquanto isso, a thread principal só fica
+        # "bombeando" a fila de eventos do Tkinter (self.root.update()) pra
+        # manter a janela respondendo (redesenhando, aceitando mover/minimizar
+        # etc.) até a busca terminar.
+        resultado_busca = {}
+
+        def _executar_busca():
+            try:
+                if tipo_proc == "by_id":
+                    resultado_busca['chats'], resultado_busca['total'] = self.buscar_vendas_por_ids(
+                        token,
+                        ids_list,
+                        offset_inicial=pagInicial
+                    )
+                else:
+                    resultado_busca['chats'], resultado_busca['total'] = self.buscar_vendas_e_reclamacoes(
+                        config['ML_SELLER_ID'], token, offset_inicial=pagInicial
+                    )
+            except Exception as e:
+                resultado_busca['erro'] = e
+
         if tipo_proc == "by_id":
-            self.logger("Modo BY_ID ativado: buscando apenas as ordens informadas.")
-            chats, total_chats = self.buscar_vendas_por_ids(
-                token,
-                ids_list,
-                offset_inicial=pagInicial
-            )
-            if total_chats == 0:
-                self.logger("Nenhuma ordem encontrada para os IDs informados.", "ERRO")
-                return
+            self.logger("Modo BY_ID ativado: buscando apenas as ordens informadas (em segundo plano)...")
         else:
-            self.logger("Modo COMUM + RECLAMAÇÕES ativado: serão buscados os dois tipos e ordenados por date_created.")
-            chats, total_chats = self.buscar_vendas_e_reclamacoes(config['ML_SELLER_ID'], token, offset_inicial=pagInicial)
-        
-        self.logger(f"Iniciando ação: {acao.upper()}...")
+            self.logger("Modo COMUM + RECLAMAÇÕES ativado: buscando em segundo plano (isso pode levar alguns segundos, a tela não vai travar)...")
+
+        thread_busca = threading.Thread(target=_executar_busca, daemon=True)
+        thread_busca.start()
+        while thread_busca.is_alive():
+            try:
+                self.root.update()
+            except Exception:
+                pass
+            time.sleep(0.05)
+
+        if 'erro' in resultado_busca:
+            self.logger(f"Erro ao buscar vendas/reclamações: {resultado_busca['erro']}", "ERRO")
+            return
+
+        chats = resultado_busca.get('chats', [])
+        total_chats = resultado_busca.get('total', 0)
+
+        if tipo_proc == "by_id" and total_chats == 0:
+            self.logger("Nenhuma ordem encontrada para os IDs informados.", "ERRO")
+            return
+
+        self.logger(f"Busca concluída. Iniciando ação: {acao.upper()}...")
         
         
         self.progress["maximum"] = total_chats
@@ -5834,6 +6207,7 @@ class AppColetorPro:
         cobrar_nao_pagos = False
         cobrar_nao_autorizados = False
         responder_ia_comum = False
+        lim_ia = None
         cod_rastreio = self.var_rastreio.get().strip()
         lote_filtro_numero = None
         lote_filtro_ids = None
@@ -5868,7 +6242,6 @@ class AppColetorPro:
                 self.progress["value"] = 0
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             env_boleto_autorizados = messagebox.askyesno("Enviar apenas autorizados", "Enviar apenas para os que digitou 1?")
             if env_boleto_autorizados:
                 self.logger("Verificando conversas para encontrar clientes autorizados...", "INFO")
@@ -5904,7 +6277,8 @@ class AppColetorPro:
                         return
 
                     self.progress["value"] = idx
-                    self.progress.update()
+                    if idx % 5 == 0 or idx == total_relevantes:
+                        self.progress.update()
 
                     if idx % 10 == 0 or idx == total_relevantes:
                         self.logger(f"Carregando conversas: {idx}/{total_relevantes} pedidos verificados...", "INFO")
@@ -6018,7 +6392,6 @@ class AppColetorPro:
                     return
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             total_limite = len(lote_filtro_ids) if lote_filtro_ids is not None else total_chats
             lim_boleto = simpledialog.askinteger("Limite", f"Quantos boletos enviar? (Total: {total_limite})", minvalue=1, parent=self.root)
             if not lim_boleto: return
@@ -6048,11 +6421,9 @@ class AppColetorPro:
         elif acao == "reenviar_boleto":
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             reenviar_boleto_atraso = messagebox.askyesno("Mensagem de atraso", "É msg de atraso?")
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             reenviarBoleto = True
             filtrar_reenvio_frase = messagebox.askyesno(
                 "Filtrar por frase",
@@ -6095,7 +6466,8 @@ class AppColetorPro:
                         return
 
                     self.progress["value"] = idx
-                    self.progress.update()
+                    if idx % 5 == 0 or idx == total_relevantes:
+                        self.progress.update()
 
                     if idx % 10 == 0 or idx == total_relevantes:
                         self.logger(f"Carregando conversas: {idx}/{total_relevantes} pedidos verificados...", "INFO")
@@ -6141,11 +6513,9 @@ class AppColetorPro:
         elif acao == "reenviar_boleto_dobrado":
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             reenviar_boleto_dobrado_atraso = messagebox.askyesno("Mensagem de atraso", "É msg de atraso?")
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             reenviarBoletoDobrado = True
             filtrar_reenvio_dobro_frase = messagebox.askyesno(
                 "Filtrar por frase",
@@ -6186,7 +6556,8 @@ class AppColetorPro:
                         return
 
                     self.progress["value"] = idx
-                    self.progress.update()
+                    if idx % 5 == 0 or idx == total_relevantes:
+                        self.progress.update()
 
                     if idx % 10 == 0 or idx == total_relevantes:
                         self.logger(f"Carregando conversas: {idx}/{total_relevantes} pedidos verificados...", "INFO")
@@ -6238,7 +6609,6 @@ class AppColetorPro:
         elif acao == "cobrar_dobrado":
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             usar_pix = messagebox.askyesno(
                 "Forma de Cobrança",
                 "Cobrar via PIX?\n\nSim = PIX\nNão = Boleto"
@@ -6254,7 +6624,6 @@ class AppColetorPro:
         elif acao == "nao_autorizados":
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             lim_nao_autorizados = total_chats
             if not lim_nao_autorizados: return
             cobrar_nao_autorizados = True
@@ -6264,19 +6633,29 @@ class AppColetorPro:
             # pedido a pedido, se aquela ordem tem reclamação aberta ou não, e
             # direciona para responder_reclamacao_com_ia ou responder_chat_comum_com_ia
             # automaticamente — ambos usando o mesmo cérebro de IA unificado.
+            self.root.lift()
+            self.root.focus_force()
+            lim_ia = simpledialog.askinteger(
+                "Limite da IA",
+                f"Quantas conversas responder com a IA? (Total disponível: {total_chats})\n\n"
+                "Use um número baixo enquanto está testando/treinando a IA, "
+                "pra acompanhar as respostas no log antes de liberar em lote maior.",
+                minvalue=1, parent=self.root
+            )
+            if not lim_ia:
+                return
             responder_ia_comum = True
+            self.logger(f"Modo IA ativado: respondendo no máximo {lim_ia} conversa(s) para acompanhar o desempenho.", "INFO")
         elif acao == "rastreio":
             if not pagInicial or not cod_rastreio:
                 self.logger("Erro: Página Inicial e Cód. Rastreio são obrigatórios para esta ação.", "ERRO")
                 return
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             lim_rastreio = simpledialog.askinteger("Limite", f"Quantos rastreios enviar? (Total: {total_chats})", minvalue=1, parent=self.root)
             if not lim_rastreio: return
             self.root.lift()
             self.root.focus_force()
-            self.root.update()
             tipomsgRastreio = simpledialog.askinteger("TIPO MSG", f"RASTREIO BR 1 ---- RASTREIO ALIEXPRESS 2", minvalue=1, parent=self.root)
             if tipomsgRastreio != 1 and tipomsgRastreio != 2: 
                 self.logger("Erro: Tipo de mensagem de rastreio deve ser 1 ou 2.", "ERRO") 
@@ -6291,7 +6670,7 @@ class AppColetorPro:
                 target=self.passo_1_solicitar, 
                 args=(token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, 
                       pagInicial, prazo_usuario, chats, config, env_erroBoleto, tipo_proc, 
-                      env_boleto_agradecimento, reenviarBoleto, solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio,autorizar_boleto, env_boleto_autorizados, lim_atorizar, responder_ia_comum,lote_filtro_numero, lote_filtro_ids, cobrar_nao_pagos, cobrar_nao_autorizados, lim_nao_autorizados, reenviar_boleto_atraso,filtrar_reenvio_frase,cobrar_dobrado_metodo,reenviarBoletoDobrado, reenviar_boleto_dobrado_atraso, filtrar_reenvio_dobro_frase )
+                      env_boleto_agradecimento, reenviarBoleto, solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio,autorizar_boleto, env_boleto_autorizados, lim_atorizar, responder_ia_comum,lote_filtro_numero, lote_filtro_ids, cobrar_nao_pagos, cobrar_nao_autorizados, lim_nao_autorizados, reenviar_boleto_atraso,filtrar_reenvio_frase,cobrar_dobrado_metodo,reenviarBoletoDobrado, reenviar_boleto_dobrado_atraso, filtrar_reenvio_dobro_frase, lim_ia )
             )
             thread.daemon = True
             thread.start()
@@ -6304,14 +6683,14 @@ class AppColetorPro:
             self.passo_1_solicitar(
                 token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, 
                 pagInicial, prazo_usuario, chats, config, env_erroBoleto, tipo_proc, 
-                env_boleto_agradecimento, reenviarBoleto, solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio,autorizar_boleto, env_boleto_autorizados, lim_atorizar, responder_ia_comum ,lote_filtro_numero, lote_filtro_ids, cobrar_nao_pagos, cobrar_nao_autorizados, lim_nao_autorizados, reenviar_boleto_atraso, filtrar_reenvio_frase,  cobrar_dobrado_metodo,reenviarBoletoDobrado, reenviar_boleto_dobrado_atraso, filtrar_reenvio_dobro_frase)
+                env_boleto_agradecimento, reenviarBoleto, solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio,autorizar_boleto, env_boleto_autorizados, lim_atorizar, responder_ia_comum ,lote_filtro_numero, lote_filtro_ids, cobrar_nao_pagos, cobrar_nao_autorizados, lim_nao_autorizados, reenviar_boleto_atraso, filtrar_reenvio_frase,  cobrar_dobrado_metodo,reenviarBoletoDobrado, reenviar_boleto_dobrado_atraso, filtrar_reenvio_dobro_frase, lim_ia)
             self.logger(f"Ação '{acao}' concluída com sucesso.", "SUCESSO")
             return None
         
        
         
     # --- PASSO 1: SOLICITAÇÃO --- PROCESSO PRINCIPAL
-    def passo_1_solicitar(self, token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, pagInicial, prazo_usuario, chats, config,env_erroBoleto, tipo,env_boleto_agradecimento,reenviarBoleto,solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio,autorizar_boleto, env_boleto_autorizados, lim_atorizar, responder_ia_comum ,lote_filtro_numero=None, lote_filtro_ids=None, cobrar_nao_pagos=False, cobrar_nao_autorizados = None, lim_nao_autorizados=None, reenviar_boleto_atraso=False, filtrar_reenvio_frase=False, cobrar_dobrado_metodo="boleto", reenviarBoletoDobrado=False, reenviar_boleto_dobrado_atraso=False, filtrar_reenvio_dobro_frase=False):
+    def passo_1_solicitar(self, token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, pagInicial, prazo_usuario, chats, config,env_erroBoleto, tipo,env_boleto_agradecimento,reenviarBoleto,solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio,autorizar_boleto, env_boleto_autorizados, lim_atorizar, responder_ia_comum ,lote_filtro_numero=None, lote_filtro_ids=None, cobrar_nao_pagos=False, cobrar_nao_autorizados = None, lim_nao_autorizados=None, reenviar_boleto_atraso=False, filtrar_reenvio_frase=False, cobrar_dobrado_metodo="boleto", reenviarBoletoDobrado=False, reenviar_boleto_dobrado_atraso=False, filtrar_reenvio_dobro_frase=False, lim_ia=None):
         folder = self.get_pasta_conta()
         if not folder: return
         
@@ -6348,6 +6727,7 @@ class AppColetorPro:
         try:
             db = self.carregar_db()
             enviados = 0
+            respostas_ia_enviadas = 0
 
             for i, pedido in enumerate(pedidos):
                 self._check_stop()
@@ -6389,7 +6769,7 @@ class AppColetorPro:
                                     db[order_id]['produto'] = str(payment.get('reason', ""))
                                     db[order_id]['valor'] = str(dadosProduto.get('total_amount', ""))
                                     
-                                    self.salvar_db(db)
+                                    self._salvar_db_periodico(db, i, len(pedidos))
                                 except (IndexError, KeyError):
                                     # Caso a estrutura da API seja muito diferente do esperado
                                     self.logger(f"Erro ao processar estrutura de dadosProduto para o order_id: {order_id}")
@@ -6399,6 +6779,7 @@ class AppColetorPro:
                     nome_prod = str(pedido['payments'][0]['reason']) 
                     valor = str(pedido['total_amount'])
                     corProduto = str(pedido['order_items'][0]['item']['variation_attributes'][0]['value_name']) 
+                    pack_id = str(pedido.get('pack_id'))
                     
                     #if order_id not in db:
                         #self.logger(f"Ordem {order_id} ignorada (não está na lista do banco de dados).")
@@ -6415,7 +6796,7 @@ class AppColetorPro:
                         continue
                     
                 
-                #if order_id != "2000017199107524":
+                #if order_id != "2000018832987708":
                 #    self.logger(f"Ordem {order_id} ignorada (não está na lista de IDs do teste).")
                 #    continue    
                 
@@ -6439,7 +6820,10 @@ class AppColetorPro:
                 self.root.after(0, lambda v=i+1: self.progress.configure(value=v))    
                 
                 if responder_ia_comum:
-                        self.responder_chat_comum_com_ia(
+                        if lim_ia is not None and respostas_ia_enviadas >= lim_ia:
+                            self.logger(f"Limite de {lim_ia} conversa(s) com IA atingido. Encerrando o processamento.", "AVISO")
+                            break
+                        resultado_ia = self.responder_chat_comum_com_ia(
                             order_id,
                             dados_pedido.get('buyer_id') or buyer_id,
                             headers,
@@ -6449,6 +6833,10 @@ class AppColetorPro:
                             executar_reclamacao,
                             claim_id
                         )
+                        if resultado_ia:
+                            respostas_ia_enviadas += 1
+                            if lim_ia is not None:
+                                self.logger(f"IA: {respostas_ia_enviadas}/{lim_ia} conversa(s) respondida(s) até agora.", "INFO")
                     
                     
                 
@@ -6500,7 +6888,7 @@ class AppColetorPro:
                                                 db[order_id]['codigo_boleto'] = boleto_numero
                                                 db[order_id]['id_payment'] = id_payment
                                                 db[order_id]['horario_boleto'] = horario_boleto
-                                                self.salvar_db(db)
+                                                self._salvar_db_periodico(db, i, len(pedidos))
                                                 self.logger(f"Boleto enviado com sucesso para a ordem {order_id}!")
                                                 continue
                                             else:
@@ -6561,7 +6949,7 @@ class AppColetorPro:
                                                     db[order_id]['codigo_boleto'] = boleto_numero
                                                     db[order_id]['id_payment'] = id_payment
                                                     db[order_id]['horario_boleto'] = horario_boleto
-                                                    self.salvar_db(db)
+                                                    self._salvar_db_periodico(db, i, len(pedidos))
                                                     self.logger(f"Boleto enviado com sucesso para a ordem {order_id}!")
                                                     continue
                                                 else:
@@ -6608,7 +6996,7 @@ class AppColetorPro:
                                                 db[order_id]['codigo_boleto'] = boleto_numero
                                                 db[order_id]['id_payment'] = id_payment
                                                 db[order_id]['horario_boleto'] = horario_boleto
-                                                self.salvar_db(db)
+                                                self._salvar_db_periodico(db, i, len(pedidos))
                                                 self.logger(f"Boleto reenviado com sucesso para a ordem {order_id}!")
                                                 continue
                                         else:
@@ -6622,7 +7010,7 @@ class AppColetorPro:
                             envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
                             if envio:
                                 db[order_id]['boleto_pago_agradecimento'] = True
-                                self.salvar_db(db)
+                                self._salvar_db_periodico(db, i, len(pedidos))
                                 self.logger(f"Mensagem de boleto pago enviada para a ordem {order_id}.")
                                 continue           
                         elif dados_pedido.get('boleto_enviado') and not dados_pedido.get('boleto_pago') and cobrar_nao_pagos:
@@ -6646,7 +7034,7 @@ class AppColetorPro:
                             if envio:
                                 db[order_id]['cobranca_nao_pago_enviada'] = True
                                 db[order_id]['data_cobranca_nao_pago'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                                self.salvar_db(db)
+                                self._salvar_db_periodico(db, i, len(pedidos))
                                 self.logger(f"Cobranca de nao pago enviada para a ordem {order_id}.")
                                 continue
                             else:
@@ -6701,7 +7089,7 @@ class AppColetorPro:
                                 db[order_id]['data_enviado_msg_autorizado'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                 db[order_id]['ultima_cobranca_nao_autorizado'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                 db[order_id]['avisoBrinde'] = True
-                                self.salvar_db(db)
+                                self._salvar_db_periodico(db, i, len(pedidos))
                                 self.logger(f"Mensagem de nao autorizado enviada para a ordem {order_id}.")
                                 continue
                             else:
@@ -6715,14 +7103,14 @@ class AppColetorPro:
                                     db[order_id]['cobrado_dobro'] = True
                                     db[order_id]['data_cobro_dobro'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                     db[order_id]['metodo_cobro_dobro'] = "pix"
-                                    self.salvar_db(db)
+                                    self._salvar_db_periodico(db, i, len(pedidos))
                                     self.logger(f"Mensagem de cobrança dobrada (PIX) enviada para a ordem {order_id}.")
                                     continue
                                 else:
                                    db[order_id]['cobrado_dobro'] = True
                                    db[order_id]['data_cobro_dobro'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                    db[order_id]['metodo_cobro_dobro'] = "boleto"
-                                   self.salvar_db(db)
+                                   self._salvar_db_periodico(db, i, len(pedidos))
                                    self.logger(f"Mensagem de cobrança dobrada BOLETO enviada para a ordem {order_id}.")
                                    continue         
                             else:
@@ -6738,7 +7126,7 @@ class AppColetorPro:
                                         autorizar_contagem += 1
                                         db[order_id]['boleto_autorizado_msg'] = True
                                         db[order_id]['data_enviado_msg_autorizado'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                                        self.salvar_db(db)
+                                        self._salvar_db_periodico(db, i, len(pedidos))
                                         self.logger(f"Solicitação de autorização de boleto enviada para a ordem {order_id}.")
                                         continue     
                                     else:
@@ -6791,7 +7179,7 @@ class AppColetorPro:
                                                 db[order_id]['id_payment_dobro'] = id_payment
                                                 db[order_id]['horario_boleto_dobro'] = horario_boleto
                                                 db[order_id]['data_reenvio_dobro'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                                                self.salvar_db(db)
+                                                self._salvar_db_periodico(db, i, len(pedidos))
                                                 self.logger(f"Boleto dobrado reenviado com sucesso para a ordem {order_id}!")
                                                 continue
                                             else:
@@ -6864,7 +7252,7 @@ class AppColetorPro:
                                 db[order_id]['data_rastreio'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                 db[order_id]['codigo_rastreio'] = cod_rastreio
                                 rastreios_contagem += 1
-                                self.salvar_db(db)
+                                self._salvar_db_periodico(db, i, len(pedidos))
                                 if not executar_reclamacao and not dados_pedido.get('numero_extraido'):
                                     textencerrar = "Olá! Não recebemos seu telefone.\nA transportadora precisa para avisar as atualizações da entrega."
                                     envioComun = self.enviarMSG(order_id, buyer_id, textencerrar, headers, config['ML_SELLER_ID'], 
@@ -6890,7 +7278,7 @@ class AppColetorPro:
                 # --- TRATATIVA 2: Validar se a mensagem já existe no chat ---
                 if solicitar:
                     if (executar_reclamacao and not dados_pedido.get('solicitado')) or executar_reclamacao == False:
-                        conversaCompleta = self.obter_conversa_completa(order_id, order_id, config['ML_SELLER_ID'], token)
+                        conversaCompleta = self.obter_conversa_completa(order_id, pack_id, config['ML_SELLER_ID'], token)
                         if order_id in db and (dados_pedido.get('solicitado') and not dados_pedido.get('numero_extraido')):
                             for m in conversaCompleta:
                                 texto = m.get('texto', '')
@@ -6902,7 +7290,7 @@ class AppColetorPro:
                                         #nome_cli = self.obter_nome_cliente(order_id, token)
                                         db[order_id]['zap_extraido'] = zap
                                         db[order_id]['numero_extraido'] = True
-                                        self.salvar_db(db)
+                                        self._salvar_db_periodico(db, i, len(pedidos))
                                         self.logger(f"Finalizado extração de telefone para a ordem {order_id}: {zap}")
                                         if not dados_pedido.get('rastreio_enviado'):
                                             # -- AGRADECER TELEFONE
@@ -6928,7 +7316,7 @@ class AppColetorPro:
                                             if envio:
                                                 db[order_id]['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                                 db[order_id]['tentativa_'] = dados_pedido.get('tentativa_', 0) + 1
-                                                self.salvar_db(db)
+                                                self._salvar_db_periodico(db, i, len(pedidos))
                                                 self.logger(f"Reenvio: Mensagem reenviada para {order_id} após 1 dia sem resposta.")
                                                 continue            
                                 except Exception as e:
@@ -6962,12 +7350,12 @@ class AppColetorPro:
                             db[order_id]['valor'] = valor
                             db[order_id]['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                             db[order_id]['data_solicitacao_inicial'] = datetime.now().strftime("%d/%m/%Y %H:%M")
-                            self.salvar_db(db)
+                            self._salvar_db_periodico(db, i, len(pedidos))
                             continue
                         
                     
                         # -- ENVIO MSG INICIAL
-                        envio = self.enviarMSG(order_id, buyer_id, msg_padrao, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                        envio = self.enviarMSG(order_id, buyer_id, msg_padrao, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                         
                         if envio:
                             db[order_id]['solicitado'] = True
@@ -6979,7 +7367,7 @@ class AppColetorPro:
                             db[order_id]['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                             db[order_id]['data_solicitacao_inicial'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                             enviados += 1
-                            self.salvar_db(db)
+                            self._salvar_db_periodico(db, i, len(pedidos))
                             self.logger(f"Ordem {order_id}: Mensagem enviada e registrada.")
                         else:
                             self.logger(f"Falha ao enviar mensagem para {order_id}", "AVISO")
@@ -6997,8 +7385,6 @@ class AppColetorPro:
                 self.logger(f"Processamento da ordem {order_id} concluído. Próxima ordem...")
                 
                 
-            # Salva o progresso no banco de dados local
-            self.salvar_db(db)
             self.logger(f"Fim da Execução. Novas solicitações enviadas: {enviados}")
 
         except ProcessamentoInterrompido:
@@ -7006,6 +7392,29 @@ class AppColetorPro:
         except Exception as e:
             self.logger(f"Erro no Passo 1: {str(e)}", "ERRO")
         finally:
+            # Garante que o progresso feito até aqui não se perca, mesmo se o
+            # usuário apertar STOP URGENTE ou ocorrer um erro no meio do lote.
+            # Antes, o salvamento só acontecia quando o loop terminava 100%
+            # normalmente; agora, como as gravações intermediárias do loop
+            # foram reduzidas (self._salvar_db_periodico) para não regravar o
+            # arquivo inteiro a cada pedido, este é o salvamento de segurança
+            # que garante que nada feito até aqui se perca.
+            try:
+                if 'db' in locals() and db is not None:
+                    self.salvar_db(db)
+            except Exception as e_save:
+                self.logger(f"Erro ao salvar banco de dados no encerramento: {e_save}", "ERRO")
+
+            # Libera o lock desta conta assim que o processamento termina
+            # (sucesso, erro ou interrupção), em vez de deixar que ele só
+            # expire sozinho depois de 30s (adquirir_lock_conta). Sem isso,
+            # qualquer ação nova na mesma conta era recusada por até 30s
+            # após cada execução, mesmo com tudo já concluído.
+            try:
+                liberar_lock_conta(folder)
+            except Exception:
+                pass
+
             if hasattr(self, 'btn_stop'):
                 self.btn_stop.config(state=tk.DISABLED, text="STOP URGENTE", bg="#FF0000")
             self.stop_event.clear()
@@ -7056,7 +7465,7 @@ class AppColetorPro:
             elif resource_type == 'shipment' or str(resource_id).startswith('47'):
                 try:
                     url_shipment = f"https://api.mercadolibre.com/shipments/{resource_id}"
-                    response = SESSION.get(url_shipment, headers=headers)
+                    response = SESSION.get(url_shipment, headers=headers, timeout=20)
                     
                     if response.status_code == 200:
                         shipment_data = response.json()
@@ -7103,7 +7512,7 @@ class AppColetorPro:
         except Exception as e:
             self.logger(f"Erro ao atualizar planilha: {e}")
             return False   
-    def enviarMSG(self, order_id, buyer_id, texto_ml, headers=None, seller_id=None, reclamacao=False, claim_id=None):
+    def enviarMSG(self, order_id, buyer_id, texto_ml, headers=None, seller_id=None, reclamacao=False, claim_id=None, pack_id=None):
         """
         Decide se envia via Mercado Livre ou WhatsApp Template.
         """
@@ -7123,13 +7532,13 @@ class AppColetorPro:
             for _ in range(10):
                 self._check_stop()
                 time.sleep(0.1)
-            return self.enviarMsgML(order_id, buyer_id, texto_ml, headers, seller_id, reclamacao, claim_id)     
+            return self.enviarMsgML(order_id, buyer_id, texto_ml, headers, seller_id, reclamacao, claim_id, pack_id)     
         
-    def enviarMsgML(self, order_id, buyer_id, texto, headers, ML_SELLER_ID, reclamacao, claim_id): 
+    def enviarMsgML(self, order_id, buyer_id, texto, headers, ML_SELLER_ID, reclamacao, claim_id, pack_id):
         self._check_stop()
         if reclamacao:
             url_msg = f"https://api.mercadolibre.com/post-purchase/v1/claims/{claim_id}/actions/send-message"
-            payload = { 
+            payload = {
                 "receiver_role": "complainant",
                 "message": texto
             }
@@ -7141,10 +7550,9 @@ class AppColetorPro:
             except Exception as e:
                 self.logger(f"Erro ao enviar mensagem de reclamação para {buyer_id}: {str(e)}", "ERRO")
                 return False
-        else:    
-            url_msg = f"https://api.mercadolibre.com/messages/packs/{order_id}/sellers/{ML_SELLER_ID}?tag=post_sale"
+        else:
             payload = {
-                "from": {   
+                "from": {
                     "user_id": ML_SELLER_ID
                 },
                 "to": {
@@ -7153,11 +7561,28 @@ class AppColetorPro:
                 "text": texto
             }
             try:
+                url_msg = f"https://api.mercadolibre.com/messages/packs/{order_id}/sellers/{ML_SELLER_ID}?tag=post_sale"
                 envio = SESSION.post(url_msg, json=payload, headers=headers, timeout=15)
+
+                # Fallback: se retornar 400, tenta novamente usando o pack_id
+                if (
+                    envio.status_code == 400
+                    and pack_id
+                    and str(pack_id) != str(order_id)
+                ):
+                    self.logger(
+                        f"Envio de mensagem COMUM {order_id} retornou 400. "
+                        f"Tentando novamente com pack_id {pack_id}",
+                        "AVISO"
+                    )
+                    url_msg = f"https://api.mercadolibre.com/messages/packs/{pack_id}/sellers/{ML_SELLER_ID}?tag=post_sale"
+                    envio = SESSION.post(url_msg, json=payload, headers=headers, timeout=15)
+
                 return envio.status_code in [200, 201]
             except Exception as e:
                 self.logger(f"Erro ao enviar mensagem COMUM para {buyer_id}: {str(e)}", "ERRO")
                 return False
+
     
     def enviarImagensML(self, order_id, buyer_id, headers, ML_SELLER_ID,reclamacao, claim_id, pasta_imagens, site_id="MLB"):
         """
@@ -7287,7 +7712,7 @@ class AppColetorPro:
         }
         
         try:
-            envio = SESSION.post(url_msg, json=payload, headers=headers)
+            envio = SESSION.post(url_msg, json=payload, headers=headers, timeout=20)
             self.logger(f"Ordem {order_id}: Status da API = {envio.status_code}")
             
             if envio.status_code in [200, 201]:
@@ -7357,7 +7782,8 @@ class AppColetorPro:
         claim_ids = []
 
         # --- PARTE A: Chat de Pós-Venda Comum (com paginação completa) ---
-        url_comum = f"https://api.mercadolibre.com/messages/packs/{pack_id}/sellers/{seller_id}"
+        url_comum = f"https://api.mercadolibre.com/messages/packs/{order_id}/sellers/{seller_id}"
+        usou_pack_id = False  # garante que o fallback com pack_id só ocorra uma vez
         limit = 10
         offset = 0
         total = None
@@ -7366,6 +7792,22 @@ class AppColetorPro:
             while True:
                 params = {"tag": "post_sale", "limit": limit, "offset": offset}
                 res_comum = SESSION.get(url_comum, headers=headers, params=params, timeout=10)
+
+                # Fallback: se retornar 400, tenta novamente usando o pack_id
+                if (
+                    res_comum.status_code == 400
+                    and not usou_pack_id
+                    and pack_id
+                    and str(pack_id) != str(order_id)
+                ):
+                    self.logger(
+                        f"Chat comum {order_id} retornou 400. "
+                        f"Tentando novamente com pack_id {pack_id}",
+                        "AVISO"
+                    )
+                    url_comum = f"https://api.mercadolibre.com/messages/packs/{pack_id}/sellers/{seller_id}"
+                    usou_pack_id = True
+                    continue  # repete a mesma página (mesmo offset) com a nova URL
 
                 if res_comum.status_code != 200:
                     self.logger(
@@ -7414,12 +7856,12 @@ class AppColetorPro:
         if claim_id and str(claim_id) not in [str(cid) for cid in claim_ids]:
             claim_ids.append(claim_id)
 
-        if(len(claim_ids) > 0):
+        if len(claim_ids) > 0:
             for claim_id in claim_ids:
                 try:
                     url_msg_claim = f"https://api.mercadolibre.com/post-purchase/v1/claims/{claim_id}/messages"
                     res_msg_claim = SESSION.get(url_msg_claim, headers=headers, timeout=10)
-                    
+
                     if res_msg_claim.status_code == 200:
                         dados_claim = res_msg_claim.json()
                         if isinstance(dados_claim, dict):
@@ -7441,13 +7883,14 @@ class AppColetorPro:
                                 "sender_id": sender_id,
                                 "sender_role": sender_role,
                                 "is_seller": str(sender_id) == str(seller_id) or sender_role_text in ["respondent", "seller"],
-                            })  
+                            })
                 except Exception as e:
                     self.logger(f"Erro na reclamação {claim_id}: {e}")
 
         conversa_unificada = sorted(conversa_unificada, key=self._chave_ordenacao_data)
 
         return conversa_unificada
+
 
     def _normalizar_texto(self, texto):
         if not texto:
@@ -7488,7 +7931,7 @@ class AppColetorPro:
         }
 
         try:
-            res = SESSION.post(url_wa, json=payload, headers=headers)
+            res = SESSION.post(url_wa, json=payload, headers=headers, timeout=20)
             return res.status_code in [200, 201]
         except Exception as e:
             self.logger(f"Erro WhatsApp: {str(e)}", "ERRO")
@@ -7714,7 +8157,7 @@ class AppColetorPro:
     # --- AUXILIARES ML ---
     def obter_produto_ml(self, order_id, token, all = False):
         try:
-            res = SESSION.get(f"https://api.mercadolibre.com/orders/{order_id}", headers={'Authorization': f'Bearer {token}'})
+            res = SESSION.get(f"https://api.mercadolibre.com/orders/{order_id}", headers={'Authorization': f'Bearer {token}'}, timeout=20)
             if all:
                 return res.json()
             return res.json()['order_items'][0]['item']['title']
@@ -7722,7 +8165,7 @@ class AppColetorPro:
 
     def obter_nome_cliente(self, order_id, token):
         try:
-            res = SESSION.get(f"https://api.mercadolibre.com/orders/{order_id}", headers={'Authorization': f'Bearer {token}'})
+            res = SESSION.get(f"https://api.mercadolibre.com/orders/{order_id}", headers={'Authorization': f'Bearer {token}'}, timeout=20)
             return res.json()['buyer']['first_name']
         except: return "Cliente"
 
@@ -7779,10 +8222,28 @@ class AppColetorPro:
         db_path = os.path.join(folder, "database_vendas.json")
         try:
             with open(db_path, 'w', encoding='utf-8') as f:
-                json.dump(db, f, indent=4)
+                json.dump(db, f)
         except Exception as e:
             self.logger(f"Erro ao salvar banco de dados: {e}", "ERRO")
-                
+
+    def _salvar_db_periodico(self, db, indice, total, intervalo=10):
+        """
+        Evita reescrever o arquivo database_vendas.json inteiro no disco a
+        cada pedido processado dentro de um lote grande (o que antes era
+        feito várias vezes por pedido, em loops com centenas/milhares de
+        itens). Salva a cada `intervalo` pedidos e sempre no último pedido
+        do lote, reduzindo bastante o I/O em disco sem abrir mão de
+        segurança: o `finally` de passo_1_solicitar sempre garante um
+        salvamento final, mesmo se o usuário apertar STOP URGENTE ou ocorrer
+        um erro no meio do processamento, então no pior caso só se perde o
+        progresso dos últimos `intervalo` pedidos (não do lote inteiro).
+        """
+        if intervalo <= 1:
+            self.salvar_db(db)
+            return
+        if (indice + 1) % intervalo == 0 or (indice + 1) >= total:
+            self.salvar_db(db)
+
     def buscar_todas_reclamacoes(self, token, offset=0):
         reclamacoes_completas = []
         limit = 50
@@ -7795,7 +8256,7 @@ class AppColetorPro:
                 
                 try:
                     self.logger(f"Buscando offset {offset}...")   
-                    response = SESSION.get(url, headers=headers)
+                    response = SESSION.get(url, headers=headers, timeout=20)
                     if response.status_code != 200:
                         self.logger(f"Erro API Claims: {response.status_code}", "ERRO")
                         break
@@ -7888,7 +8349,6 @@ class AppColetorPro:
     def selecionar_filtro_lote(self, acao_label):
         self.root.lift()
         self.root.focus_force()
-        self.root.update()
 
         usar_lote = messagebox.askyesnocancel(
             "Modo de processamento",
@@ -8624,6 +9084,12 @@ def executar_agendamento_direto(tarefa_id, machine_key=None):
         _registrar_log_agendamento(f"AVISO: Tarefa {tarefa_id} está desativada")
         raise ValueError(f"Tarefa {tarefa_id} está desativada")
 
+    # Regra do agendamento: nunca executar por cima de outro agendamento já em
+    # andamento (neste processo ou em outro disparado pelo Windows Task
+    # Scheduler). Se houver um rodando, espera terminar antes de seguir.
+    _registrar_log_agendamento(f"Verificando lock de agendamento para tarefa {tarefa_id}...")
+    aguardar_e_adquirir_lock_agendamento(tarefa_id, config.get('nome', ''))
+
     root = tk.Tk()
     root.withdraw()
     app = AppColetorPro(root, start_scheduler=False)
@@ -8662,6 +9128,7 @@ def executar_agendamento_direto(tarefa_id, machine_key=None):
         )
     finally:
         root.destroy()
+        liberar_lock_agendamento()
 
 
 if __name__ == "__main__":

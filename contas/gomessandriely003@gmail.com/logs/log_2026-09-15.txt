@@ -134,3 +134,63 @@ Essas opções visam facilitar sua experiência e garantir que você receba o pr
 15:07:02 [INFO] Limite de 2 conversa(s) com IA atingido. Encerrando o processamento.
 15:07:02 [INFO] Fim da Execução. Novas solicitações enviadas: 0
 15:20:36 [ERROR] Script da IA comum não encontrado. Crie scriptIAcomum.txt na pasta da conta ou na pasta do sistema.
+15:32:21 [INFO] Script IA comum carregado: H:\Meu Drive\Sistema Captura WPP\scriptIAcomum.txt
+15:32:21 [INFO] Modo COMUM + RECLAMAÇÕES ativado: buscando em segundo plano (isso pode levar alguns segundos, a tela não vai travar)...
+15:32:21 [INFO] Buscando offset 0...
+15:32:21 [INFO] Busca finalizada. Total capturado: 41
+15:32:21 [INFO] Buscando offset 0...
+15:32:22 [INFO] Busca finalizada. Total capturado: 0
+15:32:22 [INFO] Busca mista finalizada. Comuns: 41; reclamações: 0; total: 41
+15:32:22 [INFO] Busca concluída. Iniciando ação: IA...
+15:32:25 [INFO] Modo IA ativado: respondendo no máximo 2 conversa(s) para acompanhar o desempenho.
+15:32:25 [INFO] Thread de ia iniciada...
+15:32:27 [INFO] Ordem 2000017174695154: nenhuma mensagem nova da cliente após a última resposta.
+15:32:27 [INFO] Processamento da ordem 2000017174695154 concluído. Próxima ordem...
+15:32:28 [INFO] Ordem 2000017180171880: nenhuma mensagem nova da cliente após a última resposta.
+15:32:28 [INFO] Processamento da ordem 2000017180171880 concluído. Próxima ordem...
+15:32:29 [INFO] Ordem 2000017182389242: nenhuma mensagem nova da cliente após a última resposta.
+15:32:29 [INFO] Processamento da ordem 2000017182389242 concluído. Próxima ordem...
+15:32:30 [INFO] Ordem 2000017189975194: nenhuma mensagem nova da cliente após a última resposta.
+15:32:30 [INFO] Processamento da ordem 2000017189975194 concluído. Próxima ordem...
+15:32:30 [INFO] Ordem 2000017191016284: IA já respondeu essa última sequência de mensagens.
+15:32:31 [INFO] Processamento da ordem 2000017191016284 concluído. Próxima ordem...
+15:32:32 [INFO] Ordem 2000017198242556: nenhuma mensagem nova da cliente após a última resposta.
+15:32:32 [INFO] Processamento da ordem 2000017198242556 concluído. Próxima ordem...
+15:32:34 [INFO] Ordem 2000017200521956: enviando mensagens para a IA (reclamação=False)...
+15:32:35 [INFO] Ordem 2000017200521956 — mensagem do cliente:
+Cliente: Eu não recebi o painel
+
+Cliente: Ou vcs manda o painel ou devolver o dinheiro
+
+Cliente: Oii
+
+Cliente: Eu vou falar com meu advogado
+
+Cliente: Vc me deu um golpe
+
+Cliente: Eu quero meu dinheiro
+
+Cliente: Oii
+
+Cliente: Eu quero meu dinheiro
+
+Cliente: Oii
+
+Cliente: Sir vc não me devolver o dinheiro eu vou falar com o advogado
+
+Cliente: Eu quero meu dinheiro
+Ordem 2000017200521956 — resposta gerada pela IA:
+Olá, entendo sua preocupação. Seu pedido está em fase de preparação e, assim que for enviado, enviaremos o código de rastreamento aqui no chat. Fique tranquilo, estamos acompanhando o processo para que você receba o painel o quanto antes.
+15:32:37 [INFO] Ordem 2000017200521956: resposta da IA enviada com sucesso.
+15:32:37 [INFO] IA: 1/2 conversa(s) respondida(s) até agora.
+15:32:37 [INFO] Processamento da ordem 2000017200521956 concluído. Próxima ordem...
+15:32:39 [INFO] Ordem 2000017203536912: enviando mensagens para a IA (reclamação=False)...
+15:32:40 [INFO] Ordem 2000017203536912 — mensagem do cliente:
+Cliente: Cancelar compra por favor... estornar o valor..
+Ordem 2000017203536912 — resposta gerada pela IA:
+Olá, Em breve enviaremos o próximo passo para prosseguirmos com o seu pedido. Fique atento ao chat.
+15:32:42 [INFO] Ordem 2000017203536912: resposta da IA enviada com sucesso.
+15:32:42 [INFO] IA: 2/2 conversa(s) respondida(s) até agora.
+15:32:42 [INFO] Processamento da ordem 2000017203536912 concluído. Próxima ordem...
+15:32:42 [INFO] Limite de 2 conversa(s) com IA atingido. Encerrando o processamento.
+15:32:42 [INFO] Fim da Execução. Novas solicitações enviadas: 0

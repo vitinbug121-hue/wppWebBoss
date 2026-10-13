@@ -1,17 +1,9 @@
 import re
 from main import gerar_resposta_groq 
-with open("scriptIAboletos.txt", "r", encoding="utf-8") as arquivo:
+with open("scriptIAcomum.txt", "r", encoding="utf-8") as arquivo:
     script_ia = arquivo.read()
     
-mensagem_cliente = """[CLIENTE] Oi
-[CLIENTE] Tem como eu receber antes
-[CLIENTE] Estou precisando muito
-[CLIENTE] quando chega
-[CLIENTE] Tô precisando muito
-[CLIENTE] Qual o código de rastreio
-[CLIENTE] ?
-[CLIENTE] Responde moço
-[CLIENTE] Cadê o código de rastreio"""   
+mensagem_cliente = """Demora quanto tempo para chegar?"""   
     
 def precisa_responder_groq(mensagem_cliente: str) -> bool:
     system_text = (
@@ -33,11 +25,23 @@ def precisa_responder_groq(mensagem_cliente: str) -> bool:
     
 need_response = precisa_responder_groq(mensagem_cliente)
 
+linhas = [
+            f"conversa_com_reclamação = false",
+            f"solicitado = true",
+            f"rastreio_enviado = false ",
+            f"boleto_autorizado_msg = false",
+            f"cliente_autorizou = false",
+            f"boleto_enviado = false",
+            f"boleto_pago = false",
+        ]
+parametros = "\n        ".join(linhas)
+
 if need_response:
     prompt_usuario = (
-                f"{script_ia}\n"
+                "PARAMETROS:\n"
+                f"        {parametros}\n"
                 "Mensagem do cliente:\n"
-                f"""{mensagem_cliente}"""
+                f"{mensagem_cliente}"
             )
 
     script_ia2 = (

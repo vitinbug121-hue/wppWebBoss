@@ -1,0 +1,6 @@
+12:00:11 [INFO] [AGENDAMENTO] Iniciando task tarefa_1783713095.74143 para gomessandriely003@gmail.com com ação solicitar
+12:00:12 [INFO] Modo COMUM + RECLAMAÇÕES ativado: buscando em segundo plano (isso pode levar alguns segundos, a tela não vai travar)...
+12:00:13 [ERROR] Erro ao buscar vendas/reclamações: main thread is not in main loop
+13:00:08 [INFO] [AGENDAMENTO] Iniciando task tarefa_1783713127.309574 para gomessandriely003@gmail.com com ação vendas_encerradas
+13:00:08 [INFO] Modo COMUM + RECLAMAÇÕES ativado: buscando em segundo plano (isso pode levar alguns segundos, a tela não vai travar)...
+13:00:10 [ERROR] Erro ao buscar vendas/reclamações: main thread is not in main loop

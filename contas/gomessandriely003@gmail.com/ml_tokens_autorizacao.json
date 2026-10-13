@@ -1,8 +1,8 @@
 {
-    "access_token": "APP_USR-6981030452392864-091514-c3f7ef18c68e72e375ea643e5efe7ad7-3088264010",
+    "access_token": "APP_USR-6981030452392864-101012-3577465d57d5322ea4ff81041ef76b58-3088264010",
     "token_type": "Bearer",
     "expires_in": 21600,
     "scope": "offline_access read urn:global:admin:info:/read-only urn:global:admin:info:/read-write urn:global:admin:oauth:/read-only urn:global:admin:oauth:/read-write urn:global:admin:users:/read-only urn:global:admin:users:/read-write urn:ml:all:comunication:/read-write urn:ml:all:publish-sync:/read-write urn:ml:mktp:ads:/read-write urn:ml:mktp:comunication:/read-write urn:ml:mktp:invoices:/read-write urn:ml:mktp:metrics:/read-only urn:ml:mktp:offers:/read-write urn:ml:mktp:orders-shipments:/read-write urn:ml:mktp:publish-sync:/read-write urn:ml:vis:comunication:/read-write urn:ml:vis:publish-sync:/read-write write",
     "user_id": 3088264010,
-    "refresh_token": "TG-6aa98c73ca782b00010a408f-3088264010"
+    "refresh_token": "TG-6aca61265c0c48000128c991-3088264010"
 }
