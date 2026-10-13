@@ -8799,6 +8799,9 @@ class AppColetorPro:
         for order_id, dados in db.items():
             if not isinstance(dados, dict) or not dados.get('rastreio_enviado'):
                 continue
+            # Vendas encerradas (marcadas pelo botão VENDAS ENCERRADAS) não entram nos lotes
+            if dados.get('encerrada'):
+                continue
             dia = self._data_rastreio_para_dia(dados.get('data_rastreio'))
             if dia is None:
                 continue
