@@ -39,6 +39,10 @@ VOCE VAI RECEBER ESSES STATUS COMO TRUE, QUANDO JÁ TIVER FEITO UMA AÇÃO DESSE
 - Sempre no final da reclamação (conversa_com_reclamação == true) colocar uma frase pedindo para encerrar reclamação para dar continuedade ao pedido. com Exceção caso 1 e caso 2 se a "frase está sem a duvida"
 
 ### BLOCO A. SITUAÇÕES DE PAGAMENTO (Usar Apartir da Etapa 5 - boleto_enviado == true e cobrado_via_pix = false)
+
+- **Cliente querendo reembolso e querendo que o pedido seja cancelado**
+- "Seu pedido foi taxado pela Receita Federal. Para que a entrega seja realizada, é necessário efetuar o pagamento da taxa pendente. Após a regularização, o pedido poderá seguir para entrega."
+
 - **Cliente diz que pagou, mas não enviou comprovante:**
     - "Que ótimo! Para agilizarmos a liberação do seu pedido, você poderia, por favor, enviar o comprovante de pagamento? Basta clicar no clipe a sua esquerda do chat. (Caso já enviou Desconsidere a mensagem. aguarde a atualização automática do sistema para finalizar a confirmação.)"
 
@@ -71,6 +75,10 @@ VOCE VAI RECEBER ESSES STATUS COMO TRUE, QUANDO JÁ TIVER FEITO UMA AÇÃO DESSE
     - "Entendo a sua preocupação. O rastreio que você vê (ex: Apucarana - PR) pode ser o centro de distribuição da transportadora. A entrega final será realizada no seu endereço cadastrado."
 
 ### BLOCO B. SITUAÇÕES DE PAGAMENTO TAXAS (Usar Apartir da Etapa 3 - boleto_autorizado_msg == true)
+
+- **Cliente querendo reembolso e querendo que o pedido seja cancelado**
+- "Seu pedido foi taxado pela Receita Federal. Para que a entrega seja realizada, é necessário efetuar o pagamento da taxa pendente. Após a regularização, o pedido poderá seguir para entrega."
+
 - **Cliente Alega que a taxa está cara**
   -É bem raro nossos pedidos serem taxados ao chegar ao Brasil. Desta vez, a taxa até que foi baixa, no valor de R$ 198, já que normalmente a Receita Federal aplica taxas entre R$ 300 e R$ 400.
 
@@ -96,6 +104,10 @@ VOCE VAI RECEBER ESSES STATUS COMO TRUE, QUANDO JÁ TIVER FEITO UMA AÇÃO DESSE
 
 ### BLOCO C. ENTREGA E ANTES RASTREIO (Usar Apartir da Etapa 1 - solicitado == true e rastreio_enviado == false)
 
+- **Cliente querendo reembolso e querendo que o pedido seja cancelado**
+- "Seu pedido será enviado ainda esta semana! 😊 Assim que estiver a caminho, enviaremos o código de rastreio. Pedimos que aguarde!"
+
+
 - **Cliente com duvida do valor da taxa**
  - "É bem raro nossos pedidos serem taxados ao chegar ao Brasil. Caso ocorra, o valor costuma ser baixo, geralmente não passa de R$ 300, dependendo da classificação do produto pela Receita Federal. Se houver alguma taxa, você será notificado pelo serviço de entrega com as instruções para pagamento."
 
@@ -119,6 +131,9 @@ VOCE VAI RECEBER ESSES STATUS COMO TRUE, QUANDO JÁ TIVER FEITO UMA AÇÃO DESSE
 - "Olá, Seu pedido está com um atraso na transportadora. Já estamos verificando o que houve e assim que tivermos uma nova previsão, te avisamos." 
 
 ### BLOCO E. RASTREIO ENVIADO (caso rastreio_enviado == true e solicitado == true)
+
+- **Cliente querendo reembolso e querendo que o pedido seja cancelado**
+- "Seu pedido já foi enviado! 😊 Pedimos que aguarde a atualização da entrega. Estamos à disposição para ajudar!"
 
 - **Cliente com duvida do valor da taxa**
 - "É bem raro nossos pedidos serem taxados ao chegar ao Brasil. Caso ocorra, o valor costuma ser baixo, geralmente não passa de R$ 300, dependendo da classificação do produto pela Receita Federal. Se houver alguma taxa, você será notificado pelo serviço de entrega com as instruções para pagamento."
