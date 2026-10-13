@@ -786,7 +786,7 @@ def montar_texto_recebedor_pix():
         linhas.append(f"Nome: {nome}")
     if banco:
         linhas.append(f"Banco: {banco}")
-    return "\n".join(linhas)
+    return "\n\n".join(linhas)
 
 
 def _encontrar_config_file():
@@ -3624,224 +3624,316 @@ class JanelaDocumentacao:
         self.janela.transient(parent)
         self.janela.grab_set()
     
+    # ------------------------------------------------------------------
+    # Helpers de escrita (mantêm o conteúdo abaixo curto e uniforme)
+    # ------------------------------------------------------------------
+    def _escrever(self, partes, padrao="descricao"):
+        """Insere uma sequência de partes. Cada parte é str (usa a tag padrão) ou (texto, tag)."""
+        for p in partes:
+            texto, tag = (p, padrao) if isinstance(p, str) else p
+            self.text_widget.insert(tk.END, texto, tag)
+
+    def _secao(self, titulo):
+        self.text_widget.insert(tk.END, f"{titulo}\n", "secao_titulo")
+        self.text_widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
+
+    def _texto(self, *partes):
+        """Parágrafo livre (termina com linha em branco)."""
+        self._escrever([*partes, "\n\n"])
+
+    def _item(self, nome, *partes, subs=()):
+        """Item de lista: '• Nome: descrição'. 'subs' é uma lista de sub-itens (str ou list de partes)."""
+        self._escrever([("• ", "info"), (f"{nome}:", "botao"), " ", *partes, "\n"])
+        for s in subs:
+            self._sub(*(s if isinstance(s, list) else [s]))
+        self.text_widget.insert(tk.END, "\n", "descricao")
+
+    def _sub(self, *partes):
+        self._escrever([("   ↳ ", "info"), *partes, "\n"], padrao="info")
+
+    def _passo(self, numero, *partes):
+        self._escrever([(f"{numero}. ", "info"), *partes, "\n"])
+
     def _inserir_conteudo(self):
         """Insere o conteúdo estruturado com formatação limpa"""
-        widget = self.text_widget
-        
-        # Seção 1: Autenticação e Conexão
-        widget.insert(tk.END, "🔑 Autenticação e Conexão\n", "secao_titulo")
-        widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Autorizar ML:", "botao")
-        widget.insert(tk.END, " Realiza a conexão com a conta do Mercado Livre gerando um novo token de acesso. Também é utilizado para renovar o token caso ele expire.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Logar WhatsApp:", "botao")
-        widget.insert(tk.END, " Realiza a autenticação e conexão com o WhatsApp (via QR Code).\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Inserir Token MP:", "botao")
-        widget.insert(tk.END, " Conecta a conta do Mercado Pago ao e-mail correspondente para identificar e conciliar os boletos pagos.\n\n", "descricao")
-        
+        PIX = ("PIX", "destaque")
+
+        # ==============================================================
+        # 1) TELA PRINCIPAL: CAMPOS
+        # ==============================================================
+        self._secao("🖥️ Tela Principal: Campos de Configuração")
+
+        self._item("Conta do Cliente. Email",
+                   "Conta do Mercado Livre usada em todas as ações. ",
+                   ("+ Novo", "botao"), " cadastra um novo e-mail e ", ("Config", "botao"),
+                   " abre a configuração dos e-mails/contas.")
+        self._item("Contexto (Cliente / Desenvolvedor)",
+                   "Botões no topo da tela que alternam o contexto de trabalho exibido ao lado de \"Contexto:\".")
+        self._item("Prazo Entrega / Cód. Rastreio / Data Entrega",
+                   "Prazo é usado na primeira mensagem; Cód. Rastreio é o código enviado em ",
+                   ("Enviar Rastreio", "botao"),
+                   "; Data Entrega entra nas mensagens de taxa, agradecimento e cobrança dobrada.")
+        self._item("Página Inicial (Offset) / Ordem IDs",
+                   "Offset define a partir de onde a busca de vendas começa; Ordem IDs permite limitar a ação a ordens específicas.")
+        self._item("Nome da Loja",
+                   "Aparece no fim das mensagens (\"Att, Time <loja>\"). Salvo automaticamente.")
+        self._item("Valor do Boleto (R$)",
+                   "Valor da taxa usado em todas as mensagens (boleto e ", PIX, ") e no dashboard. Salvo automaticamente.")
+        self._item("Chave PIX",
+                   "Chave enviada ao cliente nos pedidos taxados via ", PIX,
+                   ". Só é exigida se existir pedido taxado via PIX (veja ", ("Enviar Boleto", "botao"), "). Salva automaticamente.")
+        self._item("Nome do Recebedor PIX / Banco do PIX",
+                   "Enviados na mensagem logo depois da chave PIX (\"Nome: ...\" e \"Banco: ...\"). "
+                   "Se um deles estiver vazio, essa linha é omitida. Salvos automaticamente.")
+        self._item("Rodar via WhatsApp?",
+                   "Quando marcado, as mensagens saem pela API do WhatsApp em vez do chat do Mercado Livre. "
+                   "Exige o WhatsApp logado (botão ", ("Logar WPP", "botao"), ").")
+
+        # ==============================================================
+        # 2) AUTENTICAÇÃO E CONEXÃO
+        # ==============================================================
+        self._secao("🔑 Autenticação e Conexão")
+
+        self._item("Autorizar ML",
+                   "Realiza a conexão com a conta do Mercado Livre gerando um novo token de acesso. "
+                   "Também é utilizado para renovar o token caso ele expire.")
+        self._item("Logar WPP",
+                   "Realiza a autenticação e conexão com o WhatsApp (via QR Code).")
+        self._item("Inserir Token MP",
+                   "Conecta a conta do Mercado Pago ao e-mail correspondente para identificar e conciliar os boletos pagos.")
+
         # Tópico: Como conectar o Mercado Livre no sistema
-        widget.insert(tk.END, "🛒 Como conectar o Mercado Livre no sistema\n", "secao_titulo")
-        widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
+        self._secao("🛒 Como conectar o Mercado Livre no sistema")
+        self._texto("Passo a passo para vincular uma conta do Mercado Livre ao sistema:")
 
-        widget.insert(tk.END, "Passo a passo para vincular uma conta do Mercado Livre ao sistema:\n\n", "descricao")
-
-        widget.insert(tk.END, "1. ", "info")
-        widget.insert(tk.END, "Crie o aplicativo no Mercado Livre Developers e anote o ", "descricao")
-        widget.insert(tk.END, "ML_CLIENT_ID", "destaque")
-        widget.insert(tk.END, " e o ", "descricao")
-        widget.insert(tk.END, "ML_CLIENT_SECRET", "destaque")
-        widget.insert(tk.END, " (detalhes no PDF abaixo).\n", "descricao")
-
-        widget.insert(tk.END, "2. ", "info")
-        widget.insert(tk.END, "Na tela principal, selecione o e-mail da conta que será conectada.\n", "descricao")
-
-        widget.insert(tk.END, "3. ", "info")
-        widget.insert(tk.END, "Clique em ", "descricao")
-        widget.insert(tk.END, "Autorizar ML", "botao")
-        widget.insert(tk.END, " e informe o Client ID e o Client Secret quando o sistema pedir.\n", "descricao")
-
-        widget.insert(tk.END, "4. ", "info")
-        widget.insert(tk.END, "O navegador abrirá a página do Mercado Livre: faça login e autorize o aplicativo.\n", "descricao")
-
-        widget.insert(tk.END, "5. ", "info")
-        widget.insert(tk.END, "Copie da URL final o código que vem depois de ", "descricao")
-        widget.insert(tk.END, "code=", "destaque")
-        widget.insert(tk.END, " (começa com TG-) e cole no sistema. Os tokens são salvos automaticamente.\n\n", "descricao")
-
-        widget.insert(tk.END, "📄 Guia completo em PDF: ", "descricao")
-        widget.insert(tk.END, "Baixar Guia_Conectar_API_Mercado_Livre_.pdf", "link")
-        widget.insert(tk.END, "\n\n", "descricao")
+        self._passo(1, "Crie o aplicativo no Mercado Livre Developers e anote o ", ("ML_CLIENT_ID", "destaque"),
+                    " e o ", ("ML_CLIENT_SECRET", "destaque"), " (detalhes no PDF abaixo).")
+        self._passo(2, "Na tela principal, selecione o e-mail da conta que será conectada.")
+        self._passo(3, "Clique em ", ("Autorizar ML", "botao"), " e informe o Client ID e o Client Secret quando o sistema pedir.")
+        self._passo(4, "O navegador abrirá a página do Mercado Livre: faça login e autorize o aplicativo.")
+        self._passo(5, "Copie da URL final o código que vem depois de ", ("code=", "destaque"),
+                    " (começa com TG-) e cole no sistema. Os tokens são salvos automaticamente.")
+        self.text_widget.insert(tk.END, "\n", "descricao")
+        self._escrever(["📄 Guia completo em PDF: ", ("Baixar Guia_Conectar_API_Mercado_Livre_.pdf", "link"), "\n\n"])
 
         # Tópico: Como conectar o Mercado Pago no sistema
-        widget.insert(tk.END, "💰 Como conectar o Mercado Pago no sistema\n", "secao_titulo")
-        widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
+        self._secao("💰 Como conectar o Mercado Pago no sistema")
+        self._texto("Passo a passo para vincular o Mercado Pago a uma conta (usado para identificar e conciliar os boletos pagos):")
 
-        widget.insert(tk.END, "Passo a passo para vincular o Mercado Pago a uma conta (usado para identificar e conciliar os boletos pagos):\n\n", "descricao")
+        self._passo(1, "Gere o ", ("Access Token", "destaque"), " da conta do Mercado Pago (detalhes no PDF abaixo).")
+        self._passo(2, "Na tela principal, selecione o e-mail da conta. A conta precisa já estar conectada ao Mercado Livre (",
+                    ("Autorizar ML", "botao"), "), pois é ela que cria o arquivo de configuração da conta.")
+        self._passo(3, "Clique em ", ("Inserir Token MP", "botao"), " e cole o Access Token quando o sistema pedir.")
+        self._passo(4, "O token é salvo na conta. Se já houver um token cadastrado, o novo é guardado como token adicional (TOKEN_MP2).")
+        self.text_widget.insert(tk.END, "\n", "descricao")
+        self._escrever(["📄 Guia completo em PDF: ", ("Baixar Guia_Conectar_Mercado_Pago_Access_Token.pdf", "link_mp"), "\n\n"])
 
-        widget.insert(tk.END, "1. ", "info")
-        widget.insert(tk.END, "Gere o ", "descricao")
-        widget.insert(tk.END, "Access Token", "destaque")
-        widget.insert(tk.END, " da conta do Mercado Pago (detalhes no PDF abaixo).\n", "descricao")
+        # ==============================================================
+        # 3) AUTOMAÇÃO DE MENSAGENS
+        # ==============================================================
+        self._secao("💬 Automação de Mensagens (WhatsApp e ML)")
 
-        widget.insert(tk.END, "2. ", "info")
-        widget.insert(tk.END, "Na tela principal, selecione o e-mail da conta. A conta precisa já estar conectada ao Mercado Livre (", "descricao")
-        widget.insert(tk.END, "Autorizar ML", "botao")
-        widget.insert(tk.END, "), pois é ela que cria o arquivo de configuração da conta.\n", "descricao")
+        self._item("Primeira Msg e Wpp",
+                   "Envia a primeira mensagem com o prazo de entrega para novas vendas. Captura o número do WhatsApp do cliente; "
+                   "caso ele não envie, o sistema solicita o número mais duas vezes.")
+        self._item("Chamar Wpp",
+                   "Abre a janela de disparo da primeira mensagem no WhatsApp, percorrendo as linhas da planilha de clientes:",
+                   subs=[
+                       [("Extrair Dobro (Pagos)", "destaque"), " / ", ("Extrair Comum (Não Enviados)", "destaque"),
+                        ": extraem da planilha os números que serão chamados."],
+                       [("Gerar (Google Contatos)", "destaque"), " / ", ("Gerar para iCloud/iPhone", "destaque"),
+                        ": geram o arquivo de contatos (CSV ou VCF)."],
+                       [("Abrir WPP Web", "destaque"), " e ", ("Executar Robô", "destaque"),
+                        ": abrem o WhatsApp Web e disparam a quantidade de chamadas escolhida."],
+                   ])
+        self._item("Enviar Rastreio",
+                   "Dispara uma mensagem com o código de rastreio (Correios Brasil ou AliExpress).",
+                   subs=[
+                       "Se houver reclamação aberta: Solicita o encerramento da reclamação.",
+                       "Se for um caso comum (sem telefone cadastrado): Solicita o número de telefone ao cliente.",
+                   ])
+        self._item("Agradecimento",
+                   "Envia a mensagem de agradecimento aos clientes que pagaram a taxa, seja ",
+                   ("boleto pago", "destaque"), " ou ", ("PIX confirmado", "destaque"), ". Mensagem enviada:",
+                   subs=[
+                       [("\"Obrigado, o pagamento da taxa foi realizado Vamos dar continuidade a entrega. "
+                         "O seu pedido vai chegar <Data Entrega> no período da tarde!\"", "destaque")],
+                       [("Para pedidos PIX, rode antes o botão ", "info"), ("Atualizar PIX Pagos", "botao"),
+                        (" para que o sistema marque o PIX como pago.", "info")],
+                   ])
 
-        widget.insert(tk.END, "3. ", "info")
-        widget.insert(tk.END, "Clique em ", "descricao")
-        widget.insert(tk.END, "INSERIR TOKEN MP", "botao")
-        widget.insert(tk.END, " e cole o Access Token quando o sistema pedir.\n", "descricao")
+        # ==============================================================
+        # 4) FLUXO PIX
+        # ==============================================================
+        self._secao("💠 Fluxo de Cobrança via PIX (passo a passo)")
+        self._texto("A forma de cobrança (", PIX, " ou Boleto) é escolhida uma vez, em ",
+                    ("Taxar e Autorizar BLT", "botao"), ", e fica gravada em cada pedido. Os botões seguintes leem essa escolha.")
 
-        widget.insert(tk.END, "4. ", "info")
-        widget.insert(tk.END, "O token é salvo na conta. Se já houver um token cadastrado, o novo é guardado como token adicional (TOKEN_MP2).\n\n", "descricao")
+        self._passo(1, ("Taxar e Autorizar BLT", "botao"), " → responda ", ("Sim", "destaque"),
+                    " à pergunta \"A taxa será cobrada via PIX?\". O cliente recebe o aviso da taxa e o pedido para digitar 1.")
+        self._passo(2, "O cliente digita ", ("1", "destaque"), " (ou o atendente envia manualmente a frase de liberação, veja ",
+                    ("Enviar Boleto", "botao"), ").")
+        self._passo(3, ("Enviar Boleto", "botao"), " → envia a chave PIX da tela principal, o nome do recebedor, o banco e o pedido de comprovante.")
+        self._passo(4, "Quando o pagamento cair, o atendente escreve no chat do pedido a frase de confirmação: ",
+                    ("\"Recebemos o pagamento da Taxa.\"", "destaque"))
+        self._passo(5, ("Atualizar PIX Pagos", "botao"), " → lê o chat dos pedidos PIX pendentes e marca como pago os que tiverem a frase.")
+        self._passo(6, ("Agradecimento", "botao"), " → agradece aos clientes com PIX confirmado.")
+        self.text_widget.insert(tk.END, "\n", "descricao")
+        self._escrever([("⚠️ A confirmação do PIX é manual: o sistema não consulta o banco. Ele só procura a frase "
+                         "\"Recebemos o pagamento da Taxa.\" nas mensagens enviadas por você (vendedor); a mesma frase escrita pelo cliente é ignorada. Escreva-a exatamente assim.\n\n", "info")])
 
-        widget.insert(tk.END, "📄 Guia completo em PDF: ", "descricao")
-        widget.insert(tk.END, "Baixar Guia_Conectar_Mercado_Pago_Access_Token.pdf", "link_mp")
-        widget.insert(tk.END, "\n\n", "descricao")
+        # ==============================================================
+        # 5) BOLETOS E TAXAS
+        # ==============================================================
+        self._secao("💳 Gestão de Boletos e Taxas")
 
-        # Seção 2: Automação de Mensagens
-        widget.insert(tk.END, "💬 Automação de Mensagens (WhatsApp e ML)\n", "secao_titulo")
-        widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Primeira Msg e Wpp:", "botao")
-        widget.insert(tk.END, " Envia a primeira mensagem com o prazo de entrega para novas vendas. Captura o número do WhatsApp do cliente; caso ele não envie, o sistema solicita o número mais duas vezes.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Chamar Wpp:", "botao")
-        widget.insert(tk.END, " Dispara a primeira mensagem no WhatsApp percorrendo as linhas da planilha de clientes.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Enviar Rastreio:", "botao")
-        widget.insert(tk.END, " Dispara uma mensagem com o código de rastreio (Correios Brasil ou AliExpress).\n", "descricao")
-        widget.insert(tk.END, "   ↳ Se houver reclamação aberta: Solicita o encerramento da reclamação.\n", "info")
-        widget.insert(tk.END, "   ↳ Se for um caso comum (sem telefone cadastrado): Solicita o número de telefone ao cliente.\n\n", "info")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Agradecimento:", "botao")
-        widget.insert(tk.END, " Envia uma mensagem de agradecimento aos clientes que pagaram a taxa: boleto pago ou PIX confirmado (use antes o botão ATUALIZAR PIX PAGOS, que lê no chat a frase \"Recebemos o pagamento da Taxa.\" enviada pelo analista).\n\n", "descricao")
-        
-        # Seção 3: Gestão de Boletos e Taxas
-        widget.insert(tk.END, "💳 Gestão de Boletos e Taxas\n", "secao_titulo")
-        widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Enviar Boleto:", "botao")
-        widget.insert(tk.END, " Envia o boleto bancário apenas para os clientes que ainda não receberam a primeira cobrança. Possui o filtro ", "descricao")
-        widget.insert(tk.END, "\"Enviar apenas para os que digitou 1?\"", "destaque")
-        widget.insert(tk.END, ":\n", "descricao")
-        widget.insert(tk.END, "   ↳ Se SIM: Filtra e envia apenas para as vendas onde o cliente digitou \"1\" ou que contenham a frase ", "info")
-        widget.insert(tk.END, "\"A liberação do seu boleto já está sendo processada.\"", "destaque")
-        widget.insert(tk.END, "\n", "info")
-        widget.insert(tk.END, "   ↳ Se NÃO: Envia o boleto para todos que ainda não receberam, independentemente da interação.\n", "info")
-        widget.insert(tk.END, "   ↳ Não pergunta mais a forma de cobrança: usa o que foi escolhido em \"Taxar e Autorizar BLT\" para cada pedido. Se o pedido foi taxado via PIX, envia a chave do campo \"Chave PIX\" da tela principal (se estiver vazia, a execução para com o erro \"Chave PIX tem que ser preenchida\"); o pedido é gravado como cobrado via PIX. Depois da chave, a mensagem também informa o nome do recebedor e o banco, preenchidos nos campos \"Nome do Recebedor PIX\" e \"Banco do PIX\" da tela principal (se um deles estiver vazio, essa linha é omitida).\n\n", "info")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Taxar e Autorizar BLT:", "botao")
-        widget.insert(tk.END, " Notifica o cliente que o produto foi taxado e solicita que ele digite \"1\" para autorizar o procedimento. Antes de iniciar, pergunta se a taxa será cobrada via PIX ou Boleto e grava essa escolha em cada pedido.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Erro no Boleto:", "botao")
-        widget.insert(tk.END, " Envia uma mensagem solicitando que o cliente desconsidere o código de barras anterior e encaminha um novo boleto válido.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Cobrar Dobrado:", "botao")
-        widget.insert(tk.END, " Envia dois boletos simultaneamente para efetuar a cobrança de uma nova taxa.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Reenviar Boleto:", "botao")
-        widget.insert(tk.END, " Força o reenvio do boleto com duas opções de abordagem:\n", "descricao")
-        widget.insert(tk.END, "   ↳ Com mensagem de atraso: ", "info")
-        widget.insert(tk.END, "\"Olá! Passando para pedir desculpas pela demora no envio do seu boleto. Tivemos uma pequena instabilidade, mas já foi resolvido!\"", "destaque")
-        widget.insert(tk.END, "\n", "info")
-        widget.insert(tk.END, "   ↳ Com mensagem normal: ", "info")
-        widget.insert(tk.END, "\"Vamos gerar o boleto agora mesmo! Prontinho, boleto gerado!\"", "destaque")
-        widget.insert(tk.END, "\n", "info")
-        widget.insert(tk.END, "   ↳ Frase : ", "info")
-        widget.insert(tk.END, "\"Estamos gerando seu boleto. Aguarde um momento, por favor.\"", "destaque")
-        widget.insert(tk.END, "\n\n", "info")
-        
-        # Seção 4: Inteligência Artificial
-        widget.insert(tk.END, "🤖 Inteligência Artificial (IA)\n", "secao_titulo")
-        widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Rodar IA Reclamação:", "botao")
-        widget.insert(tk.END, " Executa a Inteligência Artificial para analisar e responder de forma automatizada às reclamações abertas.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Rodar IA Comum:", "botao")
-        widget.insert(tk.END, " Executa a Inteligência Artificial para responder às mensagens e dúvidas gerais dos clientes.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Responder Dúvidas ML:", "botao")
-        widget.insert(tk.END, " Utiliza IA para responder automaticamente às perguntas feitas pelos usuários nos anúncios do Mercado Livre.\n\n", "descricao")
-        
-        # Seção 5: Dashboards e Dados
-        widget.insert(tk.END, "📊 Dashboards, Relatórios e Dados\n", "secao_titulo")
-        widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Dashboard:", "botao")
-        widget.insert(tk.END, " Gráfico geral de controle e monitoramento da conta.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Todos Pagos:", "botao")
-        widget.insert(tk.END, " Gráfico analítico de resultados financeiros e vendas concluídas.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Dash Lote:", "botao")
-        widget.insert(tk.END, " Gráfico de desempenho segmentado por lote, baseado na data de envio do código de rastreio.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Exportar Excel:", "botao")
-        widget.insert(tk.END, " Gera uma planilha com os dados e a envia para o e-mail informado, salvando-a na pasta padrão do e-mail.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Atualizar Pagos:", "botao")
-        widget.insert(tk.END, " Analisa o status dos boletos enviados, identifica os que foram pagos e atualiza as informações na planilha.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Vendas Encerradas:", "botao")
-        widget.insert(tk.END, " Atualiza o status de todas as vendas finalizadas, replicando os dados tanto nos gráficos quanto na planilha.\n\n", "descricao")
-        
-        # Seção 6: Filtros de Status
-        widget.insert(tk.END, "⚠️ Pendências\n", "secao_titulo")
-        widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Não Pagos:", "botao")
-        widget.insert(tk.END, " Cobra os clientes que receberam o boleto há mais de 24 horas e ainda não realizaram o pagamento.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Não Autorizados:", "botao")
-        widget.insert(tk.END, " Cobra os clientes que ainda não deram autorização. O sistema envia a mensagem:\n\n", "descricao")
-        widget.insert(tk.END, "   ", "info")
-        widget.insert(tk.END, "\"Olá! Precisamos da sua autorização para dar andamento. Caso não receba a confirmação, o pedido será cancelado automaticamente. Para receber o boleto da taxa, DIGITE 1.\"", "destaque")
-        widget.insert(tk.END, "\n\n", "info")
-        widget.insert(tk.END, "   ↳ Caso a rotina rode novamente e o cliente ainda não tenha digitado \"1\": O sistema envia uma nova mensagem oferecendo brindes para incentivar a resposta.\n\n", "info")
-        
-        # Seção 7: Controle do Sistema
-        widget.insert(tk.END, "⚙️ Controle do Sistema e Rotinas\n", "secao_titulo")
-        widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Agendamentos:", "botao")
-        widget.insert(tk.END, " Permite criar e gerenciar tarefas agendadas para que as rotinas do sistema rodem de forma 100% automática.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Stop Urgente:", "botao")
-        widget.insert(tk.END, " Interrompe imediatamente todas as operações e execuções do sistema em caso de emergência.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Limpar Tudo:", "botao")
-        widget.insert(tk.END, " Limpa os logs e as informações visíveis na tela do sistema.\n", "descricao")
+        self._item("Taxar e Autorizar BLT",
+                   "Notifica o cliente que o produto foi taxado e pede que ele digite \"1\" para autorizar. "
+                   "Antes de iniciar, pergunta a forma de cobrança e grava a escolha em cada pedido (Sim = PIX, Não = Boleto, Cancelar = voltar). "
+                   "Depois pede o filtro de lote e a quantidade de clientes.",
+                   subs=[
+                       [("Via PIX: ", "info"),
+                        ("\"O pagamento é feito exclusivamente via PIX, com a chave oficial da nossa empresa... "
+                         "Assim que você autorizar, enviaremos a chave PIX para pagamento.\"", "destaque"),
+                        (" + \"DIGITE 1 ... para que possamos enviar a chave PIX...\"", "destaque")],
+                       [("Via Boleto: ", "info"),
+                        ("\"O pagamento é feito exclusivamente pelo boleto do Mercado Pago que enviamos... "
+                         "Assim que você autorizar, o boleto será gerado.\"", "destaque"),
+                        (" + \"DIGITE 1 ... para que possamos gerar o boleto...\"", "destaque")],
+                   ])
+
+        self._item("Enviar Boleto",
+                   "Envia a cobrança apenas para os clientes que ainda não receberam a primeira. "
+                   "Não pergunta mais a forma de cobrança: usa a que foi escolhida em \"Taxar e Autorizar BLT\" para cada pedido. "
+                   "Possui o filtro ", ("\"Enviar apenas para os que digitou 1?\"", "destaque"), ":",
+                   subs=[
+                       [("Se SIM: filtra e envia apenas para quem digitou \"1\" ou que contenha uma das frases manuais: ", "info"),
+                        ("\"A liberação do seu boleto já está sendo processada.\"", "destaque"), (" (boleto) ou ", "info"),
+                        ("\"A liberação da sua chave PIX já está sendo processada.\"", "destaque"), (" (PIX).", "info")],
+                       "Se NÃO: envia para todos que ainda não receberam, independentemente da interação.",
+                       [("Pedido de boleto: ", "info"), ("envia o código de barras e o pedido de comprovante.", "info")],
+                       [("Pedido de PIX: ", "info"),
+                        ("envia \"Vamos gerar o pagamento agora mesmo! Para pagar a taxa de R$ X via PIX, é só copiar a chave PIX abaixo...\"", "destaque"),
+                        (", depois a chave PIX sozinha (fácil de copiar), depois nome do recebedor + banco e ", "info"),
+                        ("\"Esperamos o comprovante!\"", "destaque"), (". O pedido fica gravado como cobrado via PIX.", "info")],
+                       [("Se houver pedido PIX e o campo \"Chave PIX\" estiver vazio, a execução para com o erro ", "info"),
+                        ("\"Chave PIX tem que ser preenchida\"", "destaque"), (".", "info")],
+                   ])
+
+        self._item("Erro no Boleto",
+                   "Envia uma mensagem pedindo que o cliente desconsidere o código de barras anterior e encaminha um novo boleto válido.",
+                   subs=["⚠️ Use apenas em pedidos de boleto: o botão envia sempre um novo boleto, mesmo que o pedido tenha sido cobrado via PIX."])
+
+        self._item("Cobrar Dobrado",
+                   "Avisa o cliente que faltam mais R$ 100 para completar a taxa (erro de comunicação com a transportadora/receita). "
+                   "Pergunta a forma de cobrança (Sim = ", PIX, ", Não = Boleto) e grava o método no pedido.",
+                   subs=[
+                       "Só considera pedidos com boleto pago e agradecimento já enviado, e que ainda não foram cobrados em dobro.",
+                       "Para receber o restante via boleto, use depois \"Reenviar BLT Dobrado\".",
+                   ])
+
+        self._item("Reenviar BLT Dobrado",
+                   "Envia o boleto do restante da taxa para quem já recebeu a cobrança dobrada e ainda não pagou. Pergunta:",
+                   subs=[
+                       [("Mensagem de atraso: ", "info"),
+                        ("\"Olá! Passando para pedir desculpas pela demora no envio do restante da taxa. Tivemos uma pequena instabilidade, mas já foi resolvido!\"", "destaque")],
+                       [("Filtrar por frase: reenvia apenas para quem recebeu ", "info"),
+                        ("\"Estamos gerando seu Boleto do restante da taxa. Aguarde um momento, por favor.\"", "destaque")],
+                       "⚠️ Envia sempre boleto (pego da planilha de boletos), mesmo que a cobrança dobrada tenha sido marcada como PIX.",
+                   ])
+
+        self._item("Reenviar Boleto",
+                   "Força o reenvio do boleto para pedidos que já receberam boleto e ainda não pagaram. Pergunta:",
+                   subs=[
+                       [("Mensagem de atraso (Sim): ", "info"),
+                        ("\"Olá! Passando para pedir desculpas pela demora no envio do seu boleto. Tivemos uma pequena instabilidade, mas já foi resolvido!\"", "destaque")],
+                       [("Mensagem normal (Não): ", "info"),
+                        ("\"Vamos gerar o boleto agora mesmo! Prontinho, boleto gerado!\"", "destaque")],
+                       [("Filtrar por frase: reenvia apenas para quem recebeu ", "info"),
+                        ("\"Estamos gerando seu boleto. Aguarde um momento, por favor.\"", "destaque")],
+                       "⚠️ Use apenas em pedidos de boleto; pedidos de PIX não têm boleto para reenviar.",
+                   ])
+
+        # ==============================================================
+        # 6) IA
+        # ==============================================================
+        self._secao("🤖 Inteligência Artificial (IA)")
+
+        self._item("Rodar IA",
+                   "Botão único. Pergunta quantas conversas responder e, pedido a pedido, detecta sozinho se há reclamação aberta "
+                   "ou se é chat comum, respondendo com a mesma IA.",
+                   subs=[
+                       "Use um número baixo ao testar para acompanhar as respostas no log.",
+                       [("Pedidos taxados via ", "info"), ("PIX", "destaque"),
+                        (" são ignorados pela IA (o atendimento deles é manual).", "info")],
+                   ])
+        self._item("Responder Dúvidas ML",
+                   "Utiliza IA para responder automaticamente às perguntas feitas pelos usuários nos anúncios do Mercado Livre.")
+
+        # ==============================================================
+        # 7) DASHBOARDS, PAGAMENTOS E DADOS
+        # ==============================================================
+        self._secao("📊 Dashboards, Pagamentos e Dados")
+
+        self._item("Dashboard", "Gráfico geral de controle e monitoramento da conta.")
+        self._item("Todos Pagos", "Gráfico analítico de resultados financeiros e vendas concluídas.")
+        self._item("Dash Lotes", "Gráfico de desempenho segmentado por lote, baseado na data de envio do código de rastreio.")
+        self._item("Exportar Excel",
+                   "Gera a planilha vendas.xlsx com os dados da conta e a salva na pasta da conta selecionada, substituindo a versão anterior. "
+                   "Vendas encerradas ficam destacadas em vermelho.")
+        self._item("Atualizar Pagos",
+                   "Consulta o Mercado Pago e marca como pagos os ",
+                   ("boletos", "destaque"), " enviados (inclusive o boleto dobrado). Boleto não encontrado é marcado como vencido. ",
+                   "Pedidos cobrados via PIX são ignorados aqui.")
+        self._item("Atualizar PIX Pagos",
+                   "Confirma os pagamentos ", PIX, ". Percorre os pedidos cobrados via PIX (primeira cobrança ou cobrança dobrada) ainda sem confirmação "
+                   "e procura no chat a frase ", ("\"Recebemos o pagamento da Taxa.\"", "destaque"),
+                   ". Se encontrar, marca o pedido como pago via PIX e registra a data/hora.",
+                   subs=[
+                       "Se a frase ainda não existir no chat, o pedido continua pendente e entra na próxima verificação.",
+                       "Mostra no log o total de confirmados, erros e verificados.",
+                   ])
+        self._item("Vendas Encerradas",
+                   "Atualiza o status de todas as vendas finalizadas/canceladas, replicando os dados tanto nos gráficos quanto na planilha.")
+        self._item("Reembolsar Link",
+                   "Abre a seleção de contas ativas (uma ou várias) e reembolsa pelo Mercado Pago os boletos pagos que ainda não foram reembolsados. "
+                   "Usa os tokens de reembolso cadastrados (compartilhados entre as contas; são testados em ordem).",
+                   subs=["Considera apenas boletos pagos com ID de pagamento. Pagamentos PIX não entram neste fluxo."])
+
+        # ==============================================================
+        # 8) PENDÊNCIAS
+        # ==============================================================
+        self._secao("⚠️ Pendências")
+
+        self._item("Não Pagos",
+                   "Cobra os clientes que receberam a cobrança (boleto ou ", PIX, ") há mais de 24 horas e ainda não pagaram. "
+                   "Cada pedido é cobrado uma única vez. Pedidos com PIX já confirmado não são cobrados. Mensagem:",
+                   subs=[[("\"Olá! Identificamos que há uma taxa pendente para a liberação do seu pedido... "
+                           "Caso já tenha efetuado o pagamento, por favor, desconsidere esta mensagem.\"", "destaque")]])
+        self._item("Não Autorizados",
+                   "Cobra os clientes que receberam o pedido de DIGITE 1 há mais de 24 horas e ainda não responderam. "
+                   "O texto se adapta à forma de cobrança do pedido:",
+                   subs=[
+                       [("Boleto: ", "info"),
+                        ("\"Olá! Precisamos da sua autorização para dar andamento. Caso não receba a confirmação, o pedido será cancelado automaticamente. "
+                         "Para receber o boleto da taxa, DIGITE 1.\"", "destaque")],
+                       [("PIX: ", "info"),
+                        ("mesma mensagem, terminando em \"Para receber a chave PIX da taxa, DIGITE 1.\"", "destaque")],
+                       "Na mesma execução, o sistema envia também a mensagem de brinde (e as imagens da pasta Brindes, se existirem). "
+                       "Cada pedido recebe essa cobrança uma única vez.",
+                   ])
+
+        # ==============================================================
+        # 9) CONTROLE DO SISTEMA
+        # ==============================================================
+        self._secao("⚙️ Controle do Sistema e Rotinas")
+
+        self._item("Agendamentos",
+                   "Permite criar, editar, ativar/desativar, executar na hora e acompanhar o histórico de tarefas agendadas "
+                   "para que as rotinas do sistema rodem de forma automática.")
+        self._item("Stop Urgente", "Interrompe imediatamente as operações em andamento em caso de emergência. Fica ativo só durante uma execução.")
+        self._item("Limpar Tudo", "Limpa os logs e as informações visíveis na tela do sistema.")
+        self._item("Documentação", "Abre esta janela. Use \"Copiar para Clipboard\" para levar o texto para outro lugar.")
 
     def _localizar_pdf_guia_ml(self, nome_arquivo="Guia_Conectar_API_Mercado_Livre_.pdf"):
         """Procura o PDF na raiz do projeto (ou ao lado do .exe), compatível com PyInstaller."""
@@ -5132,7 +5224,7 @@ class AppColetorPro:
             f"cliente_autorizou = {_bool(dados_pedido.get('cliente_autorizou'))}.",
             f"boleto_enviado = {_bool(dados_pedido.get('boleto_enviado'))}.",
             f"boleto_pago = {_bool(dados_pedido.get('boleto_pago'))}.",
-            f"cobrado_via_pix = {_bool(dados_pedido.get('cobrado_via_pix'))}.",
+            f"metodo_taxa = {_bool(dados_pedido.get('metodo_taxa'))}.",
         ]
         return "\n        ".join(linhas)
 
@@ -5184,7 +5276,7 @@ class AppColetorPro:
             self.logger(f"Ordem {order_id}: IA já respondeu essa última sequência de mensagens.", "AVISO")
             return False
         
-        if dados_pedido.get("cobrado_via_pix") is True:
+        if dados_pedido.get("metodo_taxa") == "pix":
             self.logger(f"Ordem {order_id}: cliente já foi cobrado via PIX. IA não será acionada.", "INFO")
             return False
         
@@ -5775,7 +5867,10 @@ class AppColetorPro:
             try:
                 conversa = self.obter_conversa_completa(order_id, order_id, seller_id, token, claim_id=claim_id)
 
-                encontrado = self.mensagem_existe_no_historico(frase_confirmacao, conversa)
+                # Considera apenas mensagens enviadas pelo VENDEDOR: o cliente digitando a frase
+                # não pode confirmar o pagamento.
+                conversa_vendedor = [m for m in conversa if m.get('is_seller')]
+                encontrado = self.mensagem_existe_no_historico(frase_confirmacao, conversa_vendedor)
 
                 if encontrado:
                     agora_pix = datetime.now().strftime("%d/%m/%Y %H:%M")
@@ -7189,13 +7284,14 @@ class AppColetorPro:
                         continue
                     
                 
-                #if order_id != "2000015387607339":
+                #ALVO_TESTE = "2000018866506606"
+                #if order_id == ALVO_TESTE or str(pedido.get('pack_id')) == ALVO_TESTE:
+                    # segue executando o código normal aqui dentro
+                #    pass
+                #else:
                 #    self.logger(f"Ordem {order_id} ignorada (não está na lista de IDs do teste).")
-                #    continue    
-                
-                # APOS 2 OU 3 DIAS DO ENVIO DO CODIGO DE RASTREIO, ENVIAR MSG E BOLETO PARA PAGAMENTO DE TAXA E SALVAR NO DB QUE O BOLETO FOI ENVIADO
-                #url_msg = f"https://api.mercadolibre.com/messages/packs/{order_id}/sellers/{config['ML_SELLER_ID']}?tag=post_sale"
-                # Se a ordem não existe no DB, inicializamos como dicionário vazio
+                #    continue
+
                 if order_id not in db:
                     #self.logger(f"Ordem {order_id} ignorada (não está na lista do banco de dados).")
                     #continue
@@ -7263,7 +7359,7 @@ class AppColetorPro:
                                 if envioChavePix:
                                     # -- ENVIO COMPROVANTE
                                     dados_recebedor = montar_texto_recebedor_pix()
-                                    prefixo_recebedor = f"Dados de quem vai receber o PIX:\n{dados_recebedor}\n\n" if dados_recebedor else ""
+                                    prefixo_recebedor = f"\n{dados_recebedor}\n\n" if dados_recebedor else ""
                                     text = f"{prefixo_recebedor}Esperamos o comprovante! Att, Time {get_nome_loja()}".strip()
                                     envioPixComprovante = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
                                     if envioPixComprovante:
@@ -7979,6 +8075,33 @@ class AppColetorPro:
                 time.sleep(0.1)
             return self.enviarMsgML(order_id, buyer_id, texto_ml, headers, seller_id, reclamacao, claim_id, pack_id)     
         
+    @staticmethod
+    def _detalhar_erro_ml(resp, limite=600):
+        """
+        Monta uma descrição legível de uma resposta de erro da API do ML:
+        status HTTP + message/error/cause (quando vier JSON) ou o corpo bruto.
+        """
+        try:
+            corpo = resp.json()
+        except Exception:
+            corpo = None
+
+        if isinstance(corpo, dict):
+            partes = []
+            for chave in ("message", "error", "code"):
+                if corpo.get(chave):
+                    partes.append(f"{chave}={corpo[chave]}")
+            causas = corpo.get("cause")
+            if causas:
+                partes.append(f"cause={causas}")
+            detalhe = " | ".join(partes) if partes else str(corpo)
+        else:
+            detalhe = (resp.text or "").strip() or "(corpo vazio)"
+
+        if len(detalhe) > limite:
+            detalhe = detalhe[:limite] + "..."
+        return f"HTTP {resp.status_code} - {detalhe}"
+
     def enviarMsgML(self, order_id, buyer_id, texto, headers, ML_SELLER_ID, reclamacao, claim_id, pack_id):
         self._check_stop()
         if reclamacao:
@@ -7991,9 +8114,18 @@ class AppColetorPro:
                 envio = SESSION.post(url_msg, json=payload, headers=headers, timeout=15)
                 if envio.status_code in [200, 201]:
                     return True
+                self.logger(
+                    f"Falha ao enviar mensagem de RECLAMAÇÃO (ordem {order_id}, claim {claim_id}, "
+                    f"comprador {buyer_id}): {self._detalhar_erro_ml(envio)}",
+                    "ERRO"
+                )
                 return False
             except Exception as e:
-                self.logger(f"Erro ao enviar mensagem de reclamação para {buyer_id}: {str(e)}", "ERRO")
+                self.logger(
+                    f"Erro ao enviar mensagem de reclamação (ordem {order_id}, claim {claim_id}, "
+                    f"comprador {buyer_id}): {type(e).__name__}: {str(e)}",
+                    "ERRO"
+                )
                 return False
         else:
             payload = {
@@ -8016,16 +8148,29 @@ class AppColetorPro:
                     and str(pack_id) != str(order_id)
                 ):
                     self.logger(
-                        f"Envio de mensagem COMUM {order_id} retornou 400. "
+                        f"Envio de mensagem COMUM {order_id} retornou 400 "
+                        f"({self._detalhar_erro_ml(envio)}). "
                         f"Tentando novamente com pack_id {pack_id}",
                         "AVISO"
                     )
                     url_msg = f"https://api.mercadolibre.com/messages/packs/{pack_id}/sellers/{ML_SELLER_ID}?tag=post_sale"
                     envio = SESSION.post(url_msg, json=payload, headers=headers, timeout=15)
 
-                return envio.status_code in [200, 201]
+                if envio.status_code in [200, 201]:
+                    return True
+
+                self.logger(
+                    f"Falha ao enviar mensagem COMUM (ordem {order_id}, pack {pack_id}, "
+                    f"comprador {buyer_id}): {self._detalhar_erro_ml(envio)}",
+                    "ERRO"
+                )
+                return False
             except Exception as e:
-                self.logger(f"Erro ao enviar mensagem COMUM para {buyer_id}: {str(e)}", "ERRO")
+                self.logger(
+                    f"Erro ao enviar mensagem COMUM (ordem {order_id}, pack {pack_id}, "
+                    f"comprador {buyer_id}): {type(e).__name__}: {str(e)}",
+                    "ERRO"
+                )
                 return False
 
     
