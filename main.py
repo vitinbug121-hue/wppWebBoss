@@ -7273,6 +7273,7 @@ class AppColetorPro:
                         #self.logger(f"Ordem {order_id} ignorada (não está na lista do banco de dados).")
                         #continue
                        
+                       
                 if(tipo == "by_id"):
                     ordem_ids_input = self.var_ordem_ids.get().strip()
                     if not ordem_ids_input:
