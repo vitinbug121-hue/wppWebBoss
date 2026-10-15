@@ -26,6 +26,7 @@ import logging
 import subprocess
 import argparse
 import tempfile
+import shutil
 import hashlib
 import csv
 import calendar
@@ -118,7 +119,6 @@ def gerar_resposta_groq(system_text, user_text):
             "Nenhuma chave GROQ configurada no arquivo .env. "
             "Defina GROQ_API_KEY1, GROQ_API_KEY2, etc."
         )
-
     try:
         from groq import Groq, APIStatusError
     except ImportError as exc:
@@ -1054,43 +1054,82 @@ def _criar_session_http():
 SESSION = _criar_session_http()
 
 
+_TOKEN_LOCKS = {}
+_TOKEN_LOCKS_GUARD = threading.Lock()
+
+
+def _lock_tokens(folder):
+    with _TOKEN_LOCKS_GUARD:
+        return _TOKEN_LOCKS.setdefault(os.path.abspath(folder), threading.Lock())
+
+
 class GerenciadorTokenML:
-    # # ALTERAÇÃO: Agora recebe 'folder' para gerenciar tokens específicos
+    # Gravação atômica: escreve em arquivo temporário e troca com os.replace,
+    # evitando arquivo truncado (JSONDecodeError) se a escrita for interrompida.
     @staticmethod
     def salvar_tokens(dados, folder):
         path = os.path.join(folder, 'ml_tokens_autorizacao.json')
-        with open(path, 'w') as f:
-            json.dump(dados, f, indent=4)
+        fd, tmp = tempfile.mkstemp(dir=folder, prefix='.ml_tokens_', suffix='.tmp')
+        try:
+            with os.fdopen(fd, 'w', encoding='utf-8') as f:
+                json.dump(dados, f, indent=4)
+                f.flush()
+                os.fsync(f.fileno())
+            if os.path.exists(path):
+                try:
+                    shutil.copy2(path, path + '.bak')
+                except Exception:
+                    pass
+            os.replace(tmp, path)
+        except Exception:
+            if os.path.exists(tmp):
+                try:
+                    os.remove(tmp)
+                except Exception:
+                    pass
+            raise
 
     @staticmethod
     def carregar_tokens(folder):
         path = os.path.join(folder, 'ml_tokens_autorizacao.json')
-        if os.path.exists(path):
-            with open(path, 'r') as f:
-                return json.load(f)
+        for p in (path, path + '.bak'):
+            if not os.path.exists(p):
+                continue
+            try:
+                with open(p, 'r', encoding='utf-8') as f:
+                    dados = json.load(f)
+                if isinstance(dados, dict) and dados.get('refresh_token'):
+                    if p != path:
+                        print(f"[TOKEN] Arquivo principal corrompido em {folder}; usando backup.")
+                    return dados
+            except (json.JSONDecodeError, OSError) as e:
+                print(f"[TOKEN] Falha ao ler {p}: {e}")
         return None
 
-    # # ALTERAÇÃO: Usa o config local da pasta em vez de variáveis globais
     def renovar_access_token(self, folder, config):
-        tokens = self.carregar_tokens(folder)
-        if not tokens or not config: return None
-        
-        url = "https://api.mercadolibre.com/oauth/token"
-        payload = {
-            'grant_type': 'refresh_token',
-            'client_id': config.get('ML_CLIENT_ID'),
-            'client_secret': config.get('ML_CLIENT_SECRET'),
-            'refresh_token': tokens['refresh_token']
-        }
-        try:
-            res = SESSION.post(url, data=payload, timeout=15)
-            if res.status_code == 200:
-                novos_tokens = res.json()
-                self.salvar_tokens(novos_tokens, folder)
-                return novos_tokens['access_token']
-            return None
-        except:
-            return None
+        with _lock_tokens(folder):
+            tokens = self.carregar_tokens(folder)
+            if not tokens or not config:
+                return None
+
+            url = "https://api.mercadolibre.com/oauth/token"
+            payload = {
+                'grant_type': 'refresh_token',
+                'client_id': config.get('ML_CLIENT_ID'),
+                'client_secret': config.get('ML_CLIENT_SECRET'),
+                'refresh_token': tokens['refresh_token']
+            }
+            try:
+                res = SESSION.post(url, data=payload, timeout=15)
+                if res.status_code == 200:
+                    novos_tokens = res.json()
+                    self.salvar_tokens(novos_tokens, folder)
+                    return novos_tokens['access_token']
+                print(f"[TOKEN] Renovação falhou ({res.status_code}): {res.text[:200]}")
+                return None
+            except Exception as e:
+                print(f"[TOKEN] Erro na renovação: {e}")
+                return None
 
 def _account_lock_path(folder):
     return os.path.join(folder, '.processing.lock')
@@ -5169,7 +5208,7 @@ class AppColetorPro:
             sender_role_text = str(sender_role or "").lower()
             mensagens.append({
                 "origem": f"Reclamação ({claim_id})",
-                "texto": msg.get("message") or msg.get("text"),
+                "texto": msg.get("message") or msg.get("text") or '',
                 "data": msg.get("date_created") or msg.get("message_date"),
                 "sender_id": sender_id,
                 "sender_role": sender_role,
@@ -5199,7 +5238,7 @@ class AppColetorPro:
             )
             mensagens.append({
                 "origem": "Chat Comum",
-                "texto": msg.get("text"),
+                "texto": msg.get("text") or '',
                 "data": msg.get("message_date"),
                 "sender_id": sender_id,
                 "is_seller": str(sender_id) == str(seller_id),
@@ -5613,7 +5652,7 @@ class AppColetorPro:
                     
                     # Procurar por número de telefone na conversa
                     for m in conversaCompleta:
-                        texto = m.get('texto', '')
+                        texto = m.get('texto') or ''
                         # Regex robusto para capturar vários formatos de telefone BR
                         match = re.search(r'(?:\+?55\s?)?\(?(\d{2})\)?\s*(9)?\s*(\d{4,5})[\s.-]?(\d{4})', texto)
                         if match:
@@ -6780,7 +6819,7 @@ class AppColetorPro:
 
                         ultima_prompt_index = None
                         for msg_idx, m in enumerate(conversa):
-                            texto = str(m.get('texto', '')).strip()
+                            texto = str(m.get('texto') or '').strip()
                             if PADRAO_PROMPT_DIGITE_1.search(texto):
                                 ultima_prompt_index = msg_idx
 
@@ -6824,10 +6863,10 @@ class AppColetorPro:
                         for m in conversa[ultima_prompt_index + 1:]:
                             # Ignora qualquer mensagem enviada pelo próprio vendedor
                             # (nossas próprias mensagens não contam como resposta do cliente).
-                            if m.get('is_seller') and str(m.get('texto', '')).strip().lower() not in _frases_liberacao_manual:
+                            if m.get('is_seller') and str(m.get('texto') or '').strip().lower() not in _frases_liberacao_manual:
                                 continue
 
-                            texto = str(m.get('texto', '')).strip()
+                            texto = str(m.get('texto') or '').strip()
 
                             if PADRAO_MSG_COMPENSACAO.search(texto):
                                continue
@@ -6974,7 +7013,7 @@ class AppColetorPro:
                             if not m.get('is_seller'):
                                continue
                             
-                            texto = str(m.get('texto', '')).strip() 
+                            texto = str(m.get('texto') or '').strip() 
                                 
                             autorizou_por_msg_manual = msg_liberacao_boleto.lower() in texto.lower()
                             if autorizou_por_msg_manual:
@@ -7058,7 +7097,7 @@ class AppColetorPro:
                         for m in conversa:
                             if not m.get('is_seller'):
                                 continue
-                            texto = str(m.get('texto', '')).strip()
+                            texto = str(m.get('texto') or '').strip()
                             if msg_liberacao_boleto_dobro.lower() in texto.lower():
                                 db[order_id]['cliente_autorizou_reenvio_dobro'] = True
                                 autorizados += 1
@@ -7823,7 +7862,7 @@ class AppColetorPro:
                         conversaCompleta = self.obter_conversa_completa(order_id, pack_id, config['ML_SELLER_ID'], token)
                         if order_id in db and (dados_pedido.get('solicitado') and not dados_pedido.get('numero_extraido')):
                             for m in conversaCompleta:
-                                texto = m.get('texto', '')
+                                texto = m.get('texto') or ''
                                 # Regex robusto para capturar vários formatos de telefone BR
                                 match = re.search(r'(?:\+?55\s?)?0?\(?(\d{2})\)?\s*(9)?\s*(\d{4,5})\s*[\s.-]?\s*(\d{4})', texto)
                                 if match:
@@ -8424,7 +8463,7 @@ class AppColetorPro:
                     )
                     conversa_unificada.append({
                         "origem": "Chat Comum",
-                        "texto": m.get('text'),
+                        "texto": m.get('text') or '',
                         "data": m.get('message_date'),
                         "sender_id": sender_id,
                         "is_seller": str(sender_id) == str(seller_id)
@@ -8469,7 +8508,7 @@ class AppColetorPro:
                             sender_role_text = str(sender_role or "").lower()
                             conversa_unificada.append({
                                 "origem": f"Reclamação ({claim_id})",
-                                "texto": mc.get('message') or mc.get('text'),
+                                "texto": mc.get('message') or mc.get('text') or '',
                                 "data": mc.get('date_created') or mc.get('message_date'),
                                 "sender_id": sender_id,
                                 "sender_role": sender_role,
@@ -9767,4 +9806,4 @@ if __name__ == "__main__":
 
     root = tk.Tk()
     app = AppColetorPro(root)
-    root.mainloop()
+    root.mainloop()  
