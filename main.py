@@ -671,6 +671,21 @@ def get_valor_boleto():
         pass
     return VALOR_BOLETO_PADRAO
 
+# Valor assumido para vendas pagas ANTIGAS, gravadas antes de existir o campo 'valor_taxa'.
+VALOR_TAXA_LEGADO = 138.98
+
+def get_valor_taxa_pedido(dados_pedido, padrao=None):
+    """Valor da taxa (boleto ou PIX) gravado na venda no momento do aviso de autorização.
+    Se a venda não tiver o campo 'valor_taxa' (venda antiga), retorna `padrao`;
+    se `padrao` for None, usa o valor atual da tela principal."""
+    try:
+        v = parse_valor_br((dados_pedido or {}).get('valor_taxa'))
+        if v is not None:
+            return v
+    except Exception:
+        pass
+    return padrao if padrao is not None else get_valor_boleto()
+
 def salvar_valor_boleto(valor):
     """Salva o valor do boleto no arquivo de preferências (mantém as outras chaves)."""
     v = parse_valor_br(valor)
@@ -7324,10 +7339,10 @@ class AppColetorPro:
                         continue
                     
                 
-                #ALVO_TESTE = "2000018866506606"
+                #ALVO_TESTE = "2000015411988331"
                 #if order_id == ALVO_TESTE or str(pedido.get('pack_id')) == ALVO_TESTE:
                     # segue executando o código normal aqui dentro
-                #    pass
+                #   pass
                 #else:
                 #    self.logger(f"Ordem {order_id} ignorada (não está na lista de IDs do teste).")
                 #    continue
@@ -7391,7 +7406,7 @@ class AppColetorPro:
                                 break
                             self.logger(f"Enviando PIX para pagamento de taxa para a ordem {order_id}...")
 
-                            text = (f"Vamos gerar o pagamento agora mesmo!\n\nPara pagar a taxa de R$ {formatar_valor_br(get_valor_boleto())} via PIX, é só copiar a chave PIX abaixo e pagar pelo aplicativo do seu Banco: 👇")
+                            text = (f"Vamos gerar o pagamento agora mesmo!\n\nPara pagar a taxa de R$ {formatar_valor_br(get_valor_taxa_pedido(dados_pedido))} via PIX, é só copiar a chave PIX abaixo e pagar pelo aplicativo do seu Banco: 👇")
                             envioMsgPrePix = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
                             if envioMsgPrePix:
                                 # -- CHAVE PIX
@@ -7577,7 +7592,7 @@ class AppColetorPro:
                                         self.logger(f"Falha ao enviar mensagem de comprovante para a ordem {order_id}: {envioBoletoComprovante}", "ERRO")
                         elif dados_pedido.get('boleto_enviado') and (dados_pedido.get('boleto_pago') or dados_pedido.get('pago_via_pix')) and not dados_pedido.get('boleto_pago_agradecimento') and env_boleto_agradecimento:
                             # --- ENVIO AGRADECIMENTO (BOLETO PAGO ou PIX confirmado no chat pelo analista)
-                            text = (f"Obrigado, o pagamento da taxa foi realizado Vamos dar continuidade a entrega.\nO seu pedido vai chegar {self.var_data_entrega.get().strip()} no período da tarde! 😉")
+                            text = (f"Obrigado, o pagamento da taxa foi realizado. \n\n Vamos dar continuidade a entrega.\n\nO seu pedido vai chegar {self.var_data_entrega.get().strip()} no período da tarde! 😉")
                             envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
                             if envio:
                                 db[order_id]['boleto_pago_agradecimento'] = True
@@ -7638,7 +7653,7 @@ class AppColetorPro:
                             if not dados_pedido.get('avisoBrinde'):
                                 pasta_imagens_brinde = self.encontrar_pasta_imagens_brindes("Brindes")
                                 
-                                textoBrinde = (f"Tivemos uma taxa de importação de R$ {formatar_valor_br(get_valor_boleto())}, um valor abaixo da média aplicada pela Receita Federal para esse tipo de produto.\n\n"
+                                textoBrinde = (f"Tivemos uma taxa de importação de R$ {formatar_valor_br(get_valor_taxa_pedido(dados_pedido))}, um valor abaixo da média aplicada pela Receita Federal para esse tipo de produto.\n\n"
                                                "Para compensar o transtorno, estamos te presenteando com: montagem grátis, " 
                                                "3 vasos de cerâmica, um suporte de TV e 2 puffs para sua sala!")
                                 envioBrinde = self.enviarMSG(order_id, buyer_id, textoBrinde, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
@@ -7669,7 +7684,7 @@ class AppColetorPro:
                                 self.logger(f"Falha ao enviar mensagem de nao autorizado para a ordem {order_id}.", "ERRO")
                         elif dados_pedido.get('boleto_pago') and dados_pedido.get('boleto_pago_agradecimento') and not dados_pedido.get('cobrado_dobro') and cobrar_dobrado:
                             #COBRAR DOBRO
-                            text = (f"Olá, tudo bem?\n\nOcorreu um erro aqui de comunicação com a transportadora e a receita\n\nA taxa era R${formatar_valor_br(get_valor_boleto() + 100)} e passaram R${formatar_valor_br(get_valor_boleto())}, foi um erro da transportadora\n\nFalta mais R$100 pra pagar a taxa, para a transportadora entregar o seu painel que chegará na {self.var_data_entrega.get().strip()}")
+                            text = (f"Olá, tudo bem?\n\nOcorreu um erro aqui de comunicação com a transportadora e a receita\n\nA taxa era R${formatar_valor_br(get_valor_taxa_pedido(dados_pedido) + 100)} e passaram R${formatar_valor_br(get_valor_taxa_pedido(dados_pedido))}, foi um erro da transportadora\n\nFalta mais R$100 pra pagar a taxa, para a transportadora entregar o seu painel que chegará na {self.var_data_entrega.get().strip()}")
                             envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
                             if envio:
                                 if cobrar_dobrado_metodo == "pix":
@@ -7694,7 +7709,8 @@ class AppColetorPro:
                                 trecho_pagamento = "O pagamento é feito exclusivamente via PIX, com a chave oficial da nossa empresa, em ambiente bancário seguro. Assim que você autorizar, enviaremos a chave PIX para pagamento."
                             else:
                                 trecho_pagamento = "O pagamento é feito exclusivamente pelo boleto do Mercado Pago que enviamos. A transportadora utiliza o sistema do Mercado Pago para garantir a segurança da plataforma. Assim que você autorizar, o boleto será gerado."
-                            text = (f"Olá, tudo bem?\nO seu painel importado chegou no Brasil. 🥳\nPorém, a Receita Federal taxou o seu produto no valor de R$ {formatar_valor_br(get_valor_boleto())}.\n\nÉ necessário realizar o pagamento desta taxa, para dar continuidade na entrega. Caso seja pago hoje, o seu pedido chegará " + self.var_data_entrega.get().strip() + " 😉\n\n" + trecho_pagamento)
+                            valor_taxa_msg = get_valor_boleto()  # valor informado agora na tela; será gravado na venda
+                            text = (f"Olá, tudo bem?\nO seu painel importado chegou no Brasil. 🥳\nPorém, a Receita Federal taxou o seu produto no valor de R$ {formatar_valor_br(valor_taxa_msg)}.\n\nÉ necessário realizar o pagamento desta taxa, para dar continuidade na entrega. Caso seja pago hoje, o seu pedido chegará " + self.var_data_entrega.get().strip() + " 😉\n\n" + trecho_pagamento)
                             envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
                             if envio:
                                     if env_boleto_metodo == "pix":
@@ -7706,6 +7722,7 @@ class AppColetorPro:
                                         autorizar_contagem += 1
                                         db[order_id]['boleto_autorizado_msg'] = True
                                         db[order_id]['metodo_taxa'] = env_boleto_metodo  # 'pix' ou 'boleto'
+                                        db[order_id]['valor_taxa'] = round(float(valor_taxa_msg), 2)  # valor cobrado nesta venda
                                         db[order_id]['data_enviado_msg_autorizado'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                         self._salvar_db_periodico(db, i, len(pedidos))
                                         self.logger(f"Solicitação de autorização de boleto enviada para a ordem {order_id}.")
@@ -8724,8 +8741,8 @@ class AppColetorPro:
                     if not dados.get('numero_extraido'):
                         continue  # Sem número, pular
                     
-                    if dados.get('boleto_pago'):
-                        continue  # Já pagou, pular
+                    if dados.get('boleto_pago') or dados.get('pago_via_pix'):
+                        continue  # Já pagou (boleto ou PIX), pular
                     
                     if dados.get('contatado_wa'):
                         skip_count += 1
@@ -9177,7 +9194,7 @@ class AppColetorPro:
             "Solicitado": [], 
             "Rastreio": [], 
             "Boleto": [], 
-            "Boleto Pago": [], 
+            "Boleto/PIX Pago": [], 
             "Boleto Vencido": [], 
             "Cobrança Dobrada": [], 
             "Boleto Pago Dobro": [],
@@ -9192,7 +9209,7 @@ class AppColetorPro:
                 etapas["Vendas Encerradas"].append(oid)
             elif dados.get('boleto_pago_dobro'): etapas["Boleto Pago Dobro"].append(oid)
             elif dados.get('cobrado_dobro'): etapas["Cobrança Dobrada"].append(oid)
-            elif dados.get('boleto_pago'): etapas["Boleto Pago"].append(oid)
+            elif dados.get('boleto_pago') or dados.get('pago_via_pix'): etapas["Boleto/PIX Pago"].append(oid)
             elif dados.get('boleto_vencido'): etapas["Boleto Vencido"].append(oid)
             elif dados.get('boleto_enviado'): etapas["Boleto"].append(oid)
             elif dados.get('rastreio_enviado'): etapas["Rastreio"].append(oid)
@@ -9267,8 +9284,6 @@ class AppColetorPro:
     def abrir_dashboard_boletos_pagos(self):
         """Dashboard de todos os boletos pagos de todas as contas, com filtro por conta
         (email) e por período, usando o campo 'data_solicitacao' como base do filtro."""
-        VALOR_BOLETO = get_valor_boleto()
-
         def _parse_data_solicitacao(valor):
             """Converte a string de data_solicitacao em datetime (aceita com ou sem hora)."""
             if not valor:
@@ -9295,21 +9310,23 @@ class AppColetorPro:
                                 db = json.load(f)
                             registros = []
                             for oid, dados in db.items():
-                                if dados.get('boleto_pago') == True:
+                                if dados.get('boleto_pago') == True or dados.get('pago_via_pix') == True:
                                     data_dt = _parse_data_solicitacao(dados.get('data_solicitacao'))
-                                    registros.append({'order_id': oid, 'data': data_dt})
+                                    # Valor gravado na venda; vendas antigas sem o campo usam 138,98
+                                    valor_pedido = get_valor_taxa_pedido(dados, padrao=VALOR_TAXA_LEGADO)
+                                    registros.append({'order_id': oid, 'data': data_dt, 'valor': valor_pedido})
                             if registros:
                                 contas_raw[pasta_conta] = registros
                         except Exception as e:
                             print(f"Erro ao ler {db_path}: {e}")
 
         if not contas_raw:
-            messagebox.showinfo("Dashboard Boletos", "Nenhum boleto pago encontrado em nenhuma conta.")
+            messagebox.showinfo("Dashboard Boletos", "Nenhum boleto/PIX pago encontrado em nenhuma conta.")
             return
 
         # ---- Janela ----
         dash_win = tk.Toplevel(self.root)
-        dash_win.title("Dashboard - Boletos Pagos por Conta")
+        dash_win.title("Dashboard - Boletos e PIX Pagos por Conta")
         dash_win.geometry("1000x780")
         dash_win.configure(bg="#f8f9fa")
 
@@ -9317,7 +9334,7 @@ class AppColetorPro:
         main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
 
         # --- TÍTULO ---
-        titulo = tk.Label(main_frame, text="BOLETOS PAGOS POR CONTA",
+        titulo = tk.Label(main_frame, text="BOLETOS E PIX PAGOS POR CONTA",
                          font=("Arial", 16, "bold"), bg="#f8f9fa", fg="#28a745")
         titulo.pack(pady=(0, 10))
 
@@ -9498,6 +9515,7 @@ class AppColetorPro:
             for email in emails_selecionados:
                 registros = contas_raw.get(email, [])
                 count_pagos = 0
+                total_conta = 0.0
                 for reg in registros:
                     data_dt = reg['data']
                     if dt_inicio and (data_dt is None or data_dt < dt_inicio):
@@ -9505,16 +9523,17 @@ class AppColetorPro:
                     if dt_fim and (data_dt is None or data_dt > dt_fim):
                         continue
                     count_pagos += 1
+                    total_conta += reg['valor']
                 if count_pagos > 0:
                     nome_curto = email.split('@')[0]
                     contas_dados[nome_curto] = {
                         'pagos': count_pagos,
-                        'total': count_pagos * VALOR_BOLETO
+                        'total': round(total_conta, 2)
                     }
 
             if not contas_dados:
                 tk.Label(content_frame,
-                         text="Nenhum boleto pago encontrado para o filtro selecionado.",
+                         text="Nenhum boleto/PIX pago encontrado para o filtro selecionado.",
                          bg="#f8f9fa", fg="#c00", font=("Arial", 11, "bold")).pack(pady=40)
                 return
 
@@ -9529,7 +9548,7 @@ class AppColetorPro:
             bars = ax.bar(nomes, valores, color=cores, width=0.6)
 
             ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'R$ {x:,.2f}'))
-            ax.set_title(f"Total Recebido por Conta (Boletos Pagos x R$ {formatar_valor_br(VALOR_BOLETO)})",
+            ax.set_title("Total Recebido por Conta (soma do valor de cada boleto/PIX pago)",
                         fontsize=12, fontweight='bold', pad=15)
             ax.set_ylabel("Valor Total (R$)", fontsize=10)
             ax.set_xlabel("Conta", fontsize=10)
@@ -9555,7 +9574,7 @@ class AppColetorPro:
             table_frame = tk.Frame(content_frame, bg="white", bd=1, relief=tk.FLAT)
             table_frame.pack(fill=tk.BOTH, expand=True)
 
-            headers = ["Conta", "Boletos Pagos", "Valor Total"]
+            headers = ["Conta", "Boletos/PIX Pagos", "Valor Total"]
             for i, header in enumerate(headers):
                 tk.Label(table_frame, text=header, bg="#343a40", fg="white",
                         font=("Arial", 10, "bold"), padx=10, pady=5).grid(row=0, column=i, sticky="ew")
@@ -9644,8 +9663,8 @@ class AppColetorPro:
                 "numero": d.get('zap_extraido', 'N/A'),
                 "boleto_enviado": d.get('codigo_boleto', 'N/A'),
                 "id_payment": d.get('id_payment', 'N/A'),
-                "boleto_Pago": "Sim" if d.get('boleto_pago') else "Não",
-                "Data Boleto Pago": d.get('data_boleto_pago', 'N/A'),
+                "boleto_Pago": "Sim" if (d.get('boleto_pago') or d.get('pago_via_pix')) else "Não",
+                "Data Boleto Pago": d.get('data_boleto_pago') or d.get('data_pago_via_pix') or 'N/A',
                 "boleto_vencido": "Sim" if d.get('boleto_vencido') else "Não",
                 "horario_boleto": d.get('horario_boleto', 'N/A'),
                 "Vendas Encerradas": "Sim" if d.get('encerrada') else "Não",
@@ -9806,4 +9825,4 @@ if __name__ == "__main__":
 
     root = tk.Tk()
     app = AppColetorPro(root)
-    root.mainloop()  
+    root.mainloop()
