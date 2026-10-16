@@ -4482,8 +4482,11 @@ class AppColetorPro:
         self.var_nome_loja_main.trace_add(
             "write", lambda *_: salvar_nome_loja(self.var_nome_loja_main.get())
         )
-        tk.Label(input_frame, text="Nome da Loja:").grid(row=1, column=0, sticky="w", padx=5, pady=(8, 0))
-        tk.Entry(input_frame, textvariable=self.var_nome_loja_main, width=28).grid(
+        tk.Label(input_frame, text="Nome da Loja *:", fg="#c00000", font=("Arial", 9, "bold")).grid(
+            row=1, column=0, sticky="w", padx=5, pady=(8, 0)
+        )
+        self.entry_nome_loja_main = tk.Entry(input_frame, textvariable=self.var_nome_loja_main, width=28)
+        self.entry_nome_loja_main.grid(
             row=1, column=1, columnspan=3, sticky="w", padx=10, pady=(8, 0)
         )
 
@@ -5074,6 +5077,8 @@ class AppColetorPro:
         
     def iniciar_resposta_duvidas(self):
         """Método acionado pelo botão para iniciar o processo em uma Thread separada"""
+        if not self._validar_nome_loja_obrigatorio():
+            return
         # Cria uma thread para não travar a interface do Tkinter
         thread = threading.Thread(target=self.processar_responder_duvidas, daemon=True)
         thread.start()
@@ -5270,10 +5275,19 @@ class AppColetorPro:
         def _bool(valor):
             return "true" if bool(valor) else "false"
 
+        def _tipo_rastreio_ia(dados):
+            """'aliexpress' ou 'br' conforme salvo no banco; 'nenhum' se o rastreio
+            ainda não foi enviado; 'nao_informado' para pedidos antigos sem o tipo salvo."""
+            tipo = str(dados.get('tipo_rastreio') or '').strip().lower()
+            if tipo in ('aliexpress', 'br'):
+                return tipo
+            return 'nao_informado' if dados.get('rastreio_enviado') else 'nenhum'
+
         linhas = [
             f"conversa_com_reclamação = {_bool(tem_reclamacao)}.",
             f"solicitado = {_bool(dados_pedido.get('solicitado'))}.",
             f"rastreio_enviado = {_bool(dados_pedido.get('rastreio_enviado'))}.",
+            f"tipo_rastreio = {_tipo_rastreio_ia(dados_pedido)}.",
             f"boleto_autorizado_msg = {_bool(dados_pedido.get('boleto_autorizado_msg'))}.",
             f"cliente_autorizou = {_bool(dados_pedido.get('cliente_autorizou'))}.",
             f"boleto_enviado = {_bool(dados_pedido.get('boleto_enviado'))}.",
@@ -6580,8 +6594,32 @@ class AppColetorPro:
         )
         return chats, len(chats)
 
+    def _validar_nome_loja_obrigatorio(self):
+        """Retorna True se o Nome da Loja (tela principal) estiver preenchido.
+        Caso contrário, avisa o usuário e retorna False."""
+        nome = ""
+        if hasattr(self, "var_nome_loja_main"):
+            nome = self.var_nome_loja_main.get().strip()
+        if not nome:
+            nome = get_nome_loja()
+        if nome:
+            return True
+
+        self.logger("Erro: o Nome da Loja é obrigatório. Preencha o campo antes de executar.", "ERRO")
+        # messagebox/foco só na thread principal (agendamentos rodam sem janela/outra thread)
+        if threading.current_thread() is threading.main_thread() and self.root.winfo_viewable():
+            messagebox.showwarning("Campo obrigatório", "Preencha o Nome da Loja antes de executar esta ação.")
+            try:
+                self.entry_nome_loja_main.focus_set()
+            except Exception:
+                pass
+        return False
+
     def iniciar_thread_processamento(self, acao="solicitar", usar_thread=True):
         """Inicia o processamento baseado no botão clicado."""
+        if not self._validar_nome_loja_obrigatorio():
+            return
+
         folder = self.get_pasta_conta()
         if not folder: return
         
@@ -7849,6 +7887,8 @@ class AppColetorPro:
                                 db[order_id]['rastreio_enviado'] = True
                                 db[order_id]['data_rastreio'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                 db[order_id]['codigo_rastreio'] = cod_rastreio
+                                # Tipo do rastreio escolhido (1 = BR/Correios, 2 = AliExpress) para a IA saber
+                                db[order_id]['tipo_rastreio'] = 'aliexpress' if tipomsgRastreio == 2 else 'br'
                                 rastreios_contagem += 1
                                 self._salvar_db_periodico(db, i, len(pedidos))
                                 if not executar_reclamacao and not dados_pedido.get('numero_extraido'):
