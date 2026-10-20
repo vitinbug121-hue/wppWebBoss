@@ -5506,6 +5506,10 @@ class AppColetorPro:
             self.logger(f"Ordem {order_id}: cliente já foi cobrado via PIX. IA não será acionada.", "INFO")
             return False
         
+        if dados_pedido.get("boleto_autorizado_msg") == True:
+            self.logger(f"Ordem {order_id}: cliente já foi cobrado. IA não será acionada.", "INFO")
+            return False
+        
         if dados_pedido.get("solicitado") is not True:
             self.logger(f"Ordem {order_id}: Primeira MSG. IA NAO EXECUTADA.", "ERRO")
             return False
@@ -8206,7 +8210,7 @@ class AppColetorPro:
                             if env_boleto_metodo == "pix":
                                 trecho_pagamento = "O pagamento é feito exclusivamente via PIX, com a chave oficial da nossa empresa, em ambiente bancário seguro. Assim que você autorizar, enviaremos a chave PIX para pagamento."
                             elif env_boleto_provedor == "ASAAS":
-                                trecho_pagamento = "O pagamento é feito exclusivamente pelo boleto do Asaas que enviaremos. Assim que você autorizar, o boleto será gerado."
+                                trecho_pagamento = "O pagamento é feito exclusivamente pelo boleto da empresa que enviaremos. Assim que você autorizar, o boleto será gerado."
                             else:
                                 trecho_pagamento = "O pagamento é feito exclusivamente pelo boleto do Mercado Pago que enviamos. A transportadora utiliza o sistema do Mercado Pago para garantir a segurança da plataforma. Assim que você autorizar, o boleto será gerado."
                             valor_taxa_msg = get_valor_boleto()  # valor informado agora na tela; será gravado na venda
