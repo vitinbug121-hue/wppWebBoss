@@ -3850,8 +3850,9 @@ class JanelaDocumentacao:
         self._texto("A forma de cobrança (", PIX, " ou Boleto) é escolhida uma vez, em ",
                     ("Taxar e Autorizar BLT", "botao"), ", e fica gravada em cada pedido. Os botões seguintes leem essa escolha.")
 
-        self._passo(1, ("Taxar e Autorizar BLT", "botao"), " → responda ", ("Sim", "destaque"),
-                    " à pergunta \"A taxa será cobrada via PIX?\". O cliente recebe o aviso da taxa e o pedido para digitar 1.")
+        self._passo(1, ("Taxar e Autorizar BLT", "botao"), " → escolha ", ("PIX", "destaque"), ", ",
+                    ("Boleto Mercado Pago", "destaque"), " ou ", ("Boleto Asaas", "destaque"),
+                    ". O cliente recebe o aviso da taxa e o pedido para digitar 1.")
         self._passo(2, "O cliente digita ", ("1", "destaque"), " (ou o atendente envia manualmente a frase de liberação, veja ",
                     ("Enviar Boleto", "botao"), ").")
         self._passo(3, ("Enviar Boleto", "botao"), " → envia a chave PIX da tela principal, o nome do recebedor, o banco e o pedido de comprovante.")
@@ -5315,6 +5316,15 @@ class AppColetorPro:
         def _bool(valor):
             return "true" if bool(valor) else "false"
 
+        def _forma_taxa_ia(dados):
+            """'pix', 'boleto_asaas', 'boleto_mercado_pago' conforme gravado na venda; 'nao_informada' se a taxa ainda não foi cobrada."""
+            metodo = str(dados.get('metodo_taxa') or '').strip().lower()
+            if metodo == 'pix':
+                return 'pix'
+            if metodo == 'boleto':
+                return 'boleto_asaas' if self._provedor_venda(dados, 'provedor_taxa') == 'ASAAS' else 'boleto_mercado_pago'
+            return 'nao_informada'
+
         def _tipo_rastreio_ia(dados):
             """'aliexpress' ou 'br' conforme salvo no banco; 'nenhum' se o rastreio
             ainda não foi enviado; 'nao_informado' para pedidos antigos sem o tipo salvo."""
@@ -5333,6 +5343,7 @@ class AppColetorPro:
             f"boleto_enviado = {_bool(dados_pedido.get('boleto_enviado'))}.",
             f"boleto_pago = {_bool(dados_pedido.get('boleto_pago'))}.",
             f"metodo_taxa = {_bool(dados_pedido.get('metodo_taxa'))}.",
+            f"forma_taxa = {_forma_taxa_ia(dados_pedido)}.",
         ]
         return "\n        ".join(linhas)
 
@@ -5821,6 +5832,48 @@ class AppColetorPro:
             messagebox.showerror("Erro no WhatsApp", f"Falha ao alterar estado do serviço: {e}")
             self.logger(f"Erro ao alternar WPP: {e}", "ERRO") 
         
+    def _perguntar_forma_taxa(self):
+        """Pergunta como a taxa será cobrada: PIX, boleto do Mercado Pago ou boleto do Asaas.
+        Retorna "pix", "MP", "ASAAS" ou None (se cancelar/fechar). Deve rodar na thread principal."""
+        resultado = {"valor": None}
+
+        janela = tk.Toplevel(self.root)
+        janela.title("Forma de Cobrança da Taxa")
+        janela.configure(bg="white")
+        janela.transient(self.root)
+        janela.resizable(False, False)
+
+        tk.Label(janela, text="Como a taxa será cobrada?",
+                 bg="white", font=("Arial", 11, "bold")).pack(padx=30, pady=(20, 10))
+
+        frame = tk.Frame(janela, bg="white")
+        frame.pack(padx=20, pady=(5, 20))
+
+        def escolher(valor):
+            resultado["valor"] = valor
+            janela.destroy()
+
+        tk.Button(frame, text="PIX", bg="#00a86b", fg="white", font=("Arial", 10, "bold"),
+                  relief="flat", width=18, cursor="hand2",
+                  command=lambda: escolher("pix")).pack(side="left", padx=6, ipady=6)
+        tk.Button(frame, text="BOLETO MERCADO PAGO", bg="#009ee3", fg="white", font=("Arial", 10, "bold"),
+                  relief="flat", width=18, cursor="hand2",
+                  command=lambda: escolher("MP")).pack(side="left", padx=6, ipady=6)
+        tk.Button(frame, text="BOLETO ASAAS", bg="#0030b9", fg="white", font=("Arial", 10, "bold"),
+                  relief="flat", width=18, cursor="hand2",
+                  command=lambda: escolher("ASAAS")).pack(side="left", padx=6, ipady=6)
+
+        janela.protocol("WM_DELETE_WINDOW", janela.destroy)
+
+        janela.update_idletasks()
+        x = self.root.winfo_x() + (self.root.winfo_width() - janela.winfo_width()) // 2
+        y = self.root.winfo_y() + (self.root.winfo_height() - janela.winfo_height()) // 2
+        janela.geometry(f"+{max(x, 0)}+{max(y, 0)}")
+
+        janela.grab_set()
+        self.root.wait_window(janela)
+        return resultado["valor"]
+
     def _perguntar_provedor_boleto(self):
         """Pergunta se os boletos a atualizar são do Mercado Pago ou do Asaas.
         Retorna "MP", "ASAAS" ou None (se a janela for fechada). Deve rodar na thread principal."""
@@ -7117,6 +7170,7 @@ class AppColetorPro:
         cobrar_dobrado_metodo = "boleto"      
         cobrar_dobrado_pix_chave = None       
         env_boleto_metodo = "boleto"   # "boleto" (padrão) ou "pix" no botão ENVIAR BOLETO
+        env_boleto_provedor = "MP"     # "MP" ou "ASAAS": provedor do boleto da taxa (escolhido em TAXAR)
         chave_pix = None
         cobrar_nao_pagos = False
         cobrar_nao_autorizados = False
@@ -7325,15 +7379,18 @@ class AppColetorPro:
             # Forma de cobrança da taxa: será gravada em cada pedido ('metodo_taxa') e usada no ENVIAR BOLETO
             self.root.lift()
             self.root.focus_force()
-            escolha_metodo = messagebox.askyesnocancel(
-                "Forma de Cobrança da Taxa",
-                "A taxa será cobrada via PIX?\n\nSim = PIX\nNão = Boleto\nCancelar = voltar",
-                parent=self.root
-            )
-            if escolha_metodo is None:
+            escolha_forma = self._perguntar_forma_taxa()
+            if escolha_forma is None:
                 return
-            env_boleto_metodo = "pix" if escolha_metodo else "boleto"
-            self.logger(f"Cobrança da taxa via {env_boleto_metodo.upper()} selecionada.", "INFO")
+            if escolha_forma == "pix":
+                env_boleto_metodo = "pix"
+                env_boleto_provedor = ""
+            else:
+                env_boleto_metodo = "boleto"
+                env_boleto_provedor = escolha_forma  # "MP" (Mercado Pago) ou "ASAAS"
+            nome_forma = "PIX" if env_boleto_metodo == "pix" else (
+                "BOLETO ASAAS" if env_boleto_provedor == "ASAAS" else "BOLETO MERCADO PAGO")
+            self.logger(f"Cobrança da taxa via {nome_forma} selecionada.", "INFO")
             ok_lote, lote_filtro_numero, lote_filtro_ids = self.selecionar_filtro_lote("taxar e autorizar boleto")
             if not ok_lote:
                 return
@@ -7604,7 +7661,7 @@ class AppColetorPro:
                 target=self.passo_1_solicitar, 
                 args=(token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, 
                       pagInicial, prazo_usuario, chats, config, env_erroBoleto, tipo_proc, 
-                      env_boleto_agradecimento, reenviarBoleto, solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio,autorizar_boleto, env_boleto_autorizados, lim_atorizar, responder_ia_comum,lote_filtro_numero, lote_filtro_ids, cobrar_nao_pagos, cobrar_nao_autorizados, lim_nao_autorizados, reenviar_boleto_atraso,filtrar_reenvio_frase,cobrar_dobrado_metodo,reenviarBoletoDobrado, reenviar_boleto_dobrado_atraso, filtrar_reenvio_dobro_frase, lim_ia, env_boleto_metodo, chave_pix )
+                      env_boleto_agradecimento, reenviarBoleto, solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio,autorizar_boleto, env_boleto_autorizados, lim_atorizar, responder_ia_comum,lote_filtro_numero, lote_filtro_ids, cobrar_nao_pagos, cobrar_nao_autorizados, lim_nao_autorizados, reenviar_boleto_atraso,filtrar_reenvio_frase,cobrar_dobrado_metodo,reenviarBoletoDobrado, reenviar_boleto_dobrado_atraso, filtrar_reenvio_dobro_frase, lim_ia, env_boleto_metodo, chave_pix, env_boleto_provedor )
             )
             thread.daemon = True
             thread.start()
@@ -7617,14 +7674,14 @@ class AppColetorPro:
             self.passo_1_solicitar(
                 token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, 
                 pagInicial, prazo_usuario, chats, config, env_erroBoleto, tipo_proc, 
-                env_boleto_agradecimento, reenviarBoleto, solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio,autorizar_boleto, env_boleto_autorizados, lim_atorizar, responder_ia_comum ,lote_filtro_numero, lote_filtro_ids, cobrar_nao_pagos, cobrar_nao_autorizados, lim_nao_autorizados, reenviar_boleto_atraso, filtrar_reenvio_frase,  cobrar_dobrado_metodo,reenviarBoletoDobrado, reenviar_boleto_dobrado_atraso, filtrar_reenvio_dobro_frase, lim_ia, env_boleto_metodo, chave_pix)
+                env_boleto_agradecimento, reenviarBoleto, solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio,autorizar_boleto, env_boleto_autorizados, lim_atorizar, responder_ia_comum ,lote_filtro_numero, lote_filtro_ids, cobrar_nao_pagos, cobrar_nao_autorizados, lim_nao_autorizados, reenviar_boleto_atraso, filtrar_reenvio_frase,  cobrar_dobrado_metodo,reenviarBoletoDobrado, reenviar_boleto_dobrado_atraso, filtrar_reenvio_dobro_frase, lim_ia, env_boleto_metodo, chave_pix, env_boleto_provedor)
             self.logger(f"Ação '{acao}' concluída com sucesso.", "SUCESSO")
             return None
         
        
         
     # --- PASSO 1: SOLICITAÇÃO --- PROCESSO PRINCIPAL
-    def passo_1_solicitar(self, token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, pagInicial, prazo_usuario, chats, config,env_erroBoleto, tipo,env_boleto_agradecimento,reenviarBoleto,solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio,autorizar_boleto, env_boleto_autorizados, lim_atorizar, responder_ia_comum ,lote_filtro_numero=None, lote_filtro_ids=None, cobrar_nao_pagos=False, cobrar_nao_autorizados = None, lim_nao_autorizados=None, reenviar_boleto_atraso=False, filtrar_reenvio_frase=False, cobrar_dobrado_metodo="boleto", reenviarBoletoDobrado=False, reenviar_boleto_dobrado_atraso=False, filtrar_reenvio_dobro_frase=False, lim_ia=None, env_boleto_metodo="boleto", chave_pix=None):
+    def passo_1_solicitar(self, token, env_rastreio, lim_rastreio, cod_rastreio, env_boleto, lim_boleto, pagInicial, prazo_usuario, chats, config,env_erroBoleto, tipo,env_boleto_agradecimento,reenviarBoleto,solicitar,cobrar_dobrado,executar_reclamacao,rodar_wpp,tipomsgRastreio,autorizar_boleto, env_boleto_autorizados, lim_atorizar, responder_ia_comum ,lote_filtro_numero=None, lote_filtro_ids=None, cobrar_nao_pagos=False, cobrar_nao_autorizados = None, lim_nao_autorizados=None, reenviar_boleto_atraso=False, filtrar_reenvio_frase=False, cobrar_dobrado_metodo="boleto", reenviarBoletoDobrado=False, reenviar_boleto_dobrado_atraso=False, filtrar_reenvio_dobro_frase=False, lim_ia=None, env_boleto_metodo="boleto", chave_pix=None, env_boleto_provedor=""):
         folder = self.get_pasta_conta()
         if not folder: return
         
@@ -7834,7 +7891,7 @@ class AppColetorPro:
                             boleto_numero = None
                             indice_boleto = None
                             id_payment = None
-                            boleto_info = self.buscar_proximo_boleto()
+                            boleto_info = self.buscar_proximo_boleto(dados_pedido.get('provedor_taxa') or None)
                             if boleto_info:
                                 boleto_numero = boleto_info["numero"]
                                 indice_boleto = boleto_info["indice"]
@@ -7892,7 +7949,7 @@ class AppColetorPro:
                             boleto_numero = None
                             indice_boleto = None
                             id_payment = None
-                            boleto_info = self.buscar_proximo_boleto()
+                            boleto_info = self.buscar_proximo_boleto(dados_pedido.get('provedor_taxa') or None)
                             if boleto_info:
                                 boleto_numero = boleto_info["numero"]
                                 indice_boleto = boleto_info["indice"]
@@ -7954,7 +8011,7 @@ class AppColetorPro:
                                 indice_boleto = None
                                 id_payment = None
                                 
-                                boleto_info = self.buscar_proximo_boleto()
+                                boleto_info = self.buscar_proximo_boleto(dados_pedido.get('provedor_taxa') or None)
                                 if boleto_info:
                                     boleto_numero = boleto_info["numero"]
                                     indice_boleto = boleto_info["indice"]
@@ -8105,6 +8162,8 @@ class AppColetorPro:
                             # -- AVISO Q TAXOU
                             if env_boleto_metodo == "pix":
                                 trecho_pagamento = "O pagamento é feito exclusivamente via PIX, com a chave oficial da nossa empresa, em ambiente bancário seguro. Assim que você autorizar, enviaremos a chave PIX para pagamento."
+                            elif env_boleto_provedor == "ASAAS":
+                                trecho_pagamento = "O pagamento é feito exclusivamente pelo boleto do Asaas que enviaremos. Assim que você autorizar, o boleto será gerado."
                             else:
                                 trecho_pagamento = "O pagamento é feito exclusivamente pelo boleto do Mercado Pago que enviamos. A transportadora utiliza o sistema do Mercado Pago para garantir a segurança da plataforma. Assim que você autorizar, o boleto será gerado."
                             valor_taxa_msg = get_valor_boleto()  # valor informado agora na tela; será gravado na venda
@@ -8120,6 +8179,7 @@ class AppColetorPro:
                                         autorizar_contagem += 1
                                         db[order_id]['boleto_autorizado_msg'] = True
                                         db[order_id]['metodo_taxa'] = env_boleto_metodo  # 'pix' ou 'boleto'
+                                        db[order_id]['provedor_taxa'] = env_boleto_provedor if env_boleto_metodo == "boleto" else ""
                                         db[order_id]['valor_taxa'] = round(float(valor_taxa_msg), 2)  # valor cobrado nesta venda
                                         db[order_id]['data_enviado_msg_autorizado'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                         self._salvar_db_periodico(db, i, len(pedidos))
@@ -8419,7 +8479,8 @@ class AppColetorPro:
                 self.btn_stop.config(state=tk.DISABLED, text="STOP URGENTE", bg="#FF0000")
             self.stop_event.clear()
             
-    def buscar_proximo_boleto(self):
+    def buscar_proximo_boleto(self, provedor=None):
+        # provedor: "MP" ou "ASAAS" para pegar só boletos desse provedor (None = qualquer)
         folder = self.get_pasta_conta()
         if not folder:
             return None
@@ -8432,6 +8493,9 @@ class AppColetorPro:
             for index, row in df.iterrows():
                 # Verifica se o boleto não foi usado
                 if str(row['Boleto Usado']) == 'False':
+                    # Só boletos do provedor escolhido em TAXAR (coluna Provedor; vazio = Mercado Pago)
+                    if provedor and not self._venda_do_provedor({'provedor': row.get('Provedor')}, provedor):
+                        continue
                     return {
                         "numero": str(row['Código']),
                         "indice": index,
