@@ -26,6 +26,7 @@ import logging
 import subprocess
 import argparse
 import tempfile
+import shutil
 import hashlib
 import csv
 import calendar
@@ -118,7 +119,6 @@ def gerar_resposta_groq(system_text, user_text):
             "Nenhuma chave GROQ configurada no arquivo .env. "
             "Defina GROQ_API_KEY1, GROQ_API_KEY2, etc."
         )
-
     try:
         from groq import Groq, APIStatusError
     except ImportError as exc:
@@ -671,6 +671,21 @@ def get_valor_boleto():
         pass
     return VALOR_BOLETO_PADRAO
 
+# Valor assumido para vendas pagas ANTIGAS, gravadas antes de existir o campo 'valor_taxa'.
+VALOR_TAXA_LEGADO = 138.98
+
+def get_valor_taxa_pedido(dados_pedido, padrao=None):
+    """Valor da taxa (boleto ou PIX) gravado na venda no momento do aviso de autorização.
+    Se a venda não tiver o campo 'valor_taxa' (venda antiga), retorna `padrao`;
+    se `padrao` for None, usa o valor atual da tela principal."""
+    try:
+        v = parse_valor_br((dados_pedido or {}).get('valor_taxa'))
+        if v is not None:
+            return v
+    except Exception:
+        pass
+    return padrao if padrao is not None else get_valor_boleto()
+
 def salvar_valor_boleto(valor):
     """Salva o valor do boleto no arquivo de preferências (mantém as outras chaves)."""
     v = parse_valor_br(valor)
@@ -729,6 +744,64 @@ def salvar_chave_pix(chave):
     except Exception as e:
         print(f"[PREFERENCIAS] ERRO ao salvar chave PIX: {e}")
         return False
+
+
+# ---------------------------------------------------------------------------
+# Dados de quem recebe o PIX (nome do recebedor e banco). Aparecem na mensagem
+# enviada ao cliente junto com a chave PIX. Salvos no arquivo de preferências.
+# ---------------------------------------------------------------------------
+def _get_pref_texto(chave):
+    try:
+        pref_file = _get_preferencias_file()
+        if os.path.exists(pref_file):
+            with open(pref_file, 'r', encoding='utf-8') as f:
+                return str((json.load(f) or {}).get(chave) or '').strip()
+    except Exception:
+        pass
+    return ''
+
+def _salvar_pref_texto(chave, valor):
+    try:
+        pref_file = _get_preferencias_file()
+        os.makedirs(os.path.dirname(pref_file), exist_ok=True)
+        dados = {}
+        if os.path.exists(pref_file):
+            try:
+                with open(pref_file, 'r', encoding='utf-8') as f:
+                    dados = json.load(f) or {}
+            except Exception:
+                dados = {}
+        dados[chave] = (valor or '').strip()
+        with open(pref_file, 'w', encoding='utf-8') as f:
+            json.dump(dados, f, ensure_ascii=False, indent=2)
+        return True
+    except Exception as e:
+        print(f"[PREFERENCIAS] ERRO ao salvar {chave}: {e}")
+        return False
+
+def get_nome_recebedor_pix():
+    return _get_pref_texto('nome_recebedor_pix')
+
+def salvar_nome_recebedor_pix(nome):
+    return _salvar_pref_texto('nome_recebedor_pix', nome)
+
+def get_banco_pix():
+    return _get_pref_texto('banco_pix')
+
+def salvar_banco_pix(banco):
+    return _salvar_pref_texto('banco_pix', banco)
+
+def montar_texto_recebedor_pix():
+    """Texto com nome e banco de quem recebe o PIX ('' se ambos estiverem vazios).
+    Ex.: 'Nome: Jhannikel Pereira\nBanco: Banco Neon'"""
+    linhas = []
+    nome = get_nome_recebedor_pix()
+    banco = get_banco_pix()
+    if nome:
+        linhas.append(f"Nome: {nome}")
+    if banco:
+        linhas.append(f"Banco: {banco}")
+    return "\n\n".join(linhas)
 
 
 def _encontrar_config_file():
@@ -996,43 +1069,96 @@ def _criar_session_http():
 SESSION = _criar_session_http()
 
 
+# ==========================================
+# ASAAS - CONSULTA DE BOLETOS PAGOS (botão ATUALIZAR PAGOS)
+# ==========================================
+ASAAS_URL_LOGIN = "https://www.asaas.com/login/auth"
+ASAAS_URL_COBRANCA = "https://www.asaas.com/payment/show/{payment_id}"   # {payment_id} = código do boleto no Asaas
+ASAAS_DEBUG_PORT = 5555          # mesma porta/perfil do Chrome debug usado no resto do sistema
+ASAAS_TIMEOUT = 20               # segundos esperando a tela da cobrança carregar
+ASAAS_XPATH_SITUACAO = "/html/body/atlas-screen/atlas-page/atlas-page-content/div/div[2]/div[2]/div/div[1]/div[2]/form/div[2]/div[1]/div[1]/div[1]/div/span"
+ASAAS_CSS_SITUACAO = "span.icarus-status-info"   # fallback caso o XPath mude
+# Situações do Asaas que significam "boleto pago" (comparação exata, sem diferenciar maiúsculas).
+# "Confirmada" = pagamento confirmado; "Recebida" = a mesma cobrança depois que o saldo é liberado.
+ASAAS_SITUACOES_PAGAS = ("confirmada", "recebida")
+
+
+_TOKEN_LOCKS = {}
+_TOKEN_LOCKS_GUARD = threading.Lock()
+
+
+def _lock_tokens(folder):
+    with _TOKEN_LOCKS_GUARD:
+        return _TOKEN_LOCKS.setdefault(os.path.abspath(folder), threading.Lock())
+
+
 class GerenciadorTokenML:
-    # # ALTERAÇÃO: Agora recebe 'folder' para gerenciar tokens específicos
+    # Gravação atômica: escreve em arquivo temporário e troca com os.replace,
+    # evitando arquivo truncado (JSONDecodeError) se a escrita for interrompida.
     @staticmethod
     def salvar_tokens(dados, folder):
         path = os.path.join(folder, 'ml_tokens_autorizacao.json')
-        with open(path, 'w') as f:
-            json.dump(dados, f, indent=4)
+        fd, tmp = tempfile.mkstemp(dir=folder, prefix='.ml_tokens_', suffix='.tmp')
+        try:
+            with os.fdopen(fd, 'w', encoding='utf-8') as f:
+                json.dump(dados, f, indent=4)
+                f.flush()
+                os.fsync(f.fileno())
+            if os.path.exists(path):
+                try:
+                    shutil.copy2(path, path + '.bak')
+                except Exception:
+                    pass
+            os.replace(tmp, path)
+        except Exception:
+            if os.path.exists(tmp):
+                try:
+                    os.remove(tmp)
+                except Exception:
+                    pass
+            raise
 
     @staticmethod
     def carregar_tokens(folder):
         path = os.path.join(folder, 'ml_tokens_autorizacao.json')
-        if os.path.exists(path):
-            with open(path, 'r') as f:
-                return json.load(f)
+        for p in (path, path + '.bak'):
+            if not os.path.exists(p):
+                continue
+            try:
+                with open(p, 'r', encoding='utf-8') as f:
+                    dados = json.load(f)
+                if isinstance(dados, dict) and dados.get('refresh_token'):
+                    if p != path:
+                        print(f"[TOKEN] Arquivo principal corrompido em {folder}; usando backup.")
+                    return dados
+            except (json.JSONDecodeError, OSError) as e:
+                print(f"[TOKEN] Falha ao ler {p}: {e}")
         return None
 
-    # # ALTERAÇÃO: Usa o config local da pasta em vez de variáveis globais
     def renovar_access_token(self, folder, config):
-        tokens = self.carregar_tokens(folder)
-        if not tokens or not config: return None
-        
-        url = "https://api.mercadolibre.com/oauth/token"
-        payload = {
-            'grant_type': 'refresh_token',
-            'client_id': config.get('ML_CLIENT_ID'),
-            'client_secret': config.get('ML_CLIENT_SECRET'),
-            'refresh_token': tokens['refresh_token']
-        }
-        try:
-            res = SESSION.post(url, data=payload, timeout=15)
-            if res.status_code == 200:
-                novos_tokens = res.json()
-                self.salvar_tokens(novos_tokens, folder)
-                return novos_tokens['access_token']
-            return None
-        except:
-            return None
+        with _lock_tokens(folder):
+            tokens = self.carregar_tokens(folder)
+            if not tokens or not config:
+                return None
+
+            url = "https://api.mercadolibre.com/oauth/token"
+            payload = {
+                'grant_type': 'refresh_token',
+                'client_id': config.get('ML_CLIENT_ID'),
+                'client_secret': config.get('ML_CLIENT_SECRET'),
+                'refresh_token': tokens['refresh_token']
+            }
+            try:
+                res = SESSION.post(url, data=payload, timeout=15)
+                if res.status_code == 200:
+                    novos_tokens = res.json()
+                    self.salvar_tokens(novos_tokens, folder)
+                    return novos_tokens['access_token']
+                print(f"[TOKEN] Renovação falhou ({res.status_code}): {res.text[:200]}")
+                return None
+            except Exception as e:
+                print(f"[TOKEN] Erro na renovação: {e}")
+                return None
 
 def _account_lock_path(folder):
     return os.path.join(folder, '.processing.lock')
@@ -3566,224 +3692,342 @@ class JanelaDocumentacao:
         self.janela.transient(parent)
         self.janela.grab_set()
     
+    # ------------------------------------------------------------------
+    # Helpers de escrita (mantêm o conteúdo abaixo curto e uniforme)
+    # ------------------------------------------------------------------
+    def _escrever(self, partes, padrao="descricao"):
+        """Insere uma sequência de partes. Cada parte é str (usa a tag padrão) ou (texto, tag)."""
+        for p in partes:
+            texto, tag = (p, padrao) if isinstance(p, str) else p
+            self.text_widget.insert(tk.END, texto, tag)
+
+    def _secao(self, titulo):
+        self.text_widget.insert(tk.END, f"{titulo}\n", "secao_titulo")
+        self.text_widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
+
+    def _texto(self, *partes):
+        """Parágrafo livre (termina com linha em branco)."""
+        self._escrever([*partes, "\n\n"])
+
+    def _item(self, nome, *partes, subs=()):
+        """Item de lista: '• Nome: descrição'. 'subs' é uma lista de sub-itens (str ou list de partes)."""
+        self._escrever([("• ", "info"), (f"{nome}:", "botao"), " ", *partes, "\n"])
+        for s in subs:
+            self._sub(*(s if isinstance(s, list) else [s]))
+        self.text_widget.insert(tk.END, "\n", "descricao")
+
+    def _sub(self, *partes):
+        self._escrever([("   ↳ ", "info"), *partes, "\n"], padrao="info")
+
+    def _passo(self, numero, *partes):
+        self._escrever([(f"{numero}. ", "info"), *partes, "\n"])
+
     def _inserir_conteudo(self):
         """Insere o conteúdo estruturado com formatação limpa"""
-        widget = self.text_widget
-        
-        # Seção 1: Autenticação e Conexão
-        widget.insert(tk.END, "🔑 Autenticação e Conexão\n", "secao_titulo")
-        widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Autorizar ML:", "botao")
-        widget.insert(tk.END, " Realiza a conexão com a conta do Mercado Livre gerando um novo token de acesso. Também é utilizado para renovar o token caso ele expire.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Logar WhatsApp:", "botao")
-        widget.insert(tk.END, " Realiza a autenticação e conexão com o WhatsApp (via QR Code).\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Inserir Token MP:", "botao")
-        widget.insert(tk.END, " Conecta a conta do Mercado Pago ao e-mail correspondente para identificar e conciliar os boletos pagos.\n\n", "descricao")
-        
+        PIX = ("PIX", "destaque")
+
+        # ==============================================================
+        # 1) TELA PRINCIPAL: CAMPOS
+        # ==============================================================
+        self._secao("🖥️ Tela Principal: Campos de Configuração")
+
+        self._item("Conta do Cliente. Email",
+                   "Conta do Mercado Livre usada em todas as ações. ",
+                   ("+ Novo", "botao"), " cadastra um novo e-mail e ", ("Config", "botao"),
+                   " abre a configuração dos e-mails/contas.")
+        self._item("Contexto (Cliente / Desenvolvedor)",
+                   "Botões no topo da tela que alternam o contexto de trabalho exibido ao lado de \"Contexto:\".")
+        self._item("Prazo Entrega / Cód. Rastreio / Data Entrega",
+                   "Prazo é usado na primeira mensagem; Cód. Rastreio é o código enviado em ",
+                   ("Enviar Rastreio", "botao"),
+                   "; Data Entrega entra nas mensagens de taxa, agradecimento e cobrança dobrada.")
+        self._item("Página Inicial (Offset) / Ordem IDs",
+                   "Offset define a partir de onde a busca de vendas começa; Ordem IDs permite limitar a ação a ordens específicas.")
+        self._item("Nome da Loja",
+                   "Aparece no fim das mensagens (\"Att, Time <loja>\"). Salvo automaticamente.")
+        self._item("Valor do Boleto (R$)",
+                   "Valor da taxa usado em todas as mensagens (boleto e ", PIX, ") e no dashboard. Salvo automaticamente.")
+        self._item("Chave PIX",
+                   "Chave enviada ao cliente nos pedidos taxados via ", PIX,
+                   ". Só é exigida se existir pedido taxado via PIX (veja ", ("Enviar Boleto", "botao"), "). Salva automaticamente.")
+        self._item("Nome do Recebedor PIX / Banco do PIX",
+                   "Enviados na mensagem logo depois da chave PIX (\"Nome: ...\" e \"Banco: ...\"). "
+                   "Se um deles estiver vazio, essa linha é omitida. Salvos automaticamente.")
+        self._item("Rodar via WhatsApp?",
+                   "Quando marcado, as mensagens saem pela API do WhatsApp em vez do chat do Mercado Livre. "
+                   "Exige o WhatsApp logado (botão ", ("Logar WPP", "botao"), ").")
+
+        # ==============================================================
+        # 2) AUTENTICAÇÃO E CONEXÃO
+        # ==============================================================
+        self._secao("🔑 Autenticação e Conexão")
+
+        self._item("Autorizar ML",
+                   "Realiza a conexão com a conta do Mercado Livre gerando um novo token de acesso. "
+                   "Também é utilizado para renovar o token caso ele expire.")
+        self._item("Logar WPP",
+                   "Realiza a autenticação e conexão com o WhatsApp (via QR Code).")
+        self._item("Inserir Token MP",
+                   "Conecta a conta do Mercado Pago ao e-mail correspondente para identificar e conciliar os boletos pagos.")
+
         # Tópico: Como conectar o Mercado Livre no sistema
-        widget.insert(tk.END, "🛒 Como conectar o Mercado Livre no sistema\n", "secao_titulo")
-        widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
+        self._secao("🛒 Como conectar o Mercado Livre no sistema")
+        self._texto("Passo a passo para vincular uma conta do Mercado Livre ao sistema:")
 
-        widget.insert(tk.END, "Passo a passo para vincular uma conta do Mercado Livre ao sistema:\n\n", "descricao")
-
-        widget.insert(tk.END, "1. ", "info")
-        widget.insert(tk.END, "Crie o aplicativo no Mercado Livre Developers e anote o ", "descricao")
-        widget.insert(tk.END, "ML_CLIENT_ID", "destaque")
-        widget.insert(tk.END, " e o ", "descricao")
-        widget.insert(tk.END, "ML_CLIENT_SECRET", "destaque")
-        widget.insert(tk.END, " (detalhes no PDF abaixo).\n", "descricao")
-
-        widget.insert(tk.END, "2. ", "info")
-        widget.insert(tk.END, "Na tela principal, selecione o e-mail da conta que será conectada.\n", "descricao")
-
-        widget.insert(tk.END, "3. ", "info")
-        widget.insert(tk.END, "Clique em ", "descricao")
-        widget.insert(tk.END, "Autorizar ML", "botao")
-        widget.insert(tk.END, " e informe o Client ID e o Client Secret quando o sistema pedir.\n", "descricao")
-
-        widget.insert(tk.END, "4. ", "info")
-        widget.insert(tk.END, "O navegador abrirá a página do Mercado Livre: faça login e autorize o aplicativo.\n", "descricao")
-
-        widget.insert(tk.END, "5. ", "info")
-        widget.insert(tk.END, "Copie da URL final o código que vem depois de ", "descricao")
-        widget.insert(tk.END, "code=", "destaque")
-        widget.insert(tk.END, " (começa com TG-) e cole no sistema. Os tokens são salvos automaticamente.\n\n", "descricao")
-
-        widget.insert(tk.END, "📄 Guia completo em PDF: ", "descricao")
-        widget.insert(tk.END, "Baixar Guia_Conectar_API_Mercado_Livre_.pdf", "link")
-        widget.insert(tk.END, "\n\n", "descricao")
+        self._passo(1, "Crie o aplicativo no Mercado Livre Developers e anote o ", ("ML_CLIENT_ID", "destaque"),
+                    " e o ", ("ML_CLIENT_SECRET", "destaque"), " (detalhes no PDF abaixo).")
+        self._passo(2, "Na tela principal, selecione o e-mail da conta que será conectada.")
+        self._passo(3, "Clique em ", ("Autorizar ML", "botao"), " e informe o Client ID e o Client Secret quando o sistema pedir.")
+        self._passo(4, "O navegador abrirá a página do Mercado Livre: faça login e autorize o aplicativo.")
+        self._passo(5, "Copie da URL final o código que vem depois de ", ("code=", "destaque"),
+                    " (começa com TG-) e cole no sistema. Os tokens são salvos automaticamente.")
+        self.text_widget.insert(tk.END, "\n", "descricao")
+        self._escrever(["📄 Guia completo em PDF: ", ("Baixar Guia_Conectar_API_Mercado_Livre_.pdf", "link"), "\n\n"])
 
         # Tópico: Como conectar o Mercado Pago no sistema
-        widget.insert(tk.END, "💰 Como conectar o Mercado Pago no sistema\n", "secao_titulo")
-        widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
+        self._secao("💰 Como conectar o Mercado Pago no sistema")
+        self._texto("Passo a passo para vincular o Mercado Pago a uma conta (usado para identificar e conciliar os boletos pagos):")
 
-        widget.insert(tk.END, "Passo a passo para vincular o Mercado Pago a uma conta (usado para identificar e conciliar os boletos pagos):\n\n", "descricao")
+        self._passo(1, "Gere o ", ("Access Token", "destaque"), " da conta do Mercado Pago (detalhes no PDF abaixo).")
+        self._passo(2, "Na tela principal, selecione o e-mail da conta. A conta precisa já estar conectada ao Mercado Livre (",
+                    ("Autorizar ML", "botao"), "), pois é ela que cria o arquivo de configuração da conta.")
+        self._passo(3, "Clique em ", ("Inserir Token MP", "botao"), " e cole o Access Token quando o sistema pedir.")
+        self._passo(4, "O token é salvo na conta. Se já houver um token cadastrado, o novo é guardado como token adicional (TOKEN_MP2).")
+        self.text_widget.insert(tk.END, "\n", "descricao")
+        self._escrever(["📄 Guia completo em PDF: ", ("Baixar Guia_Conectar_Mercado_Pago_Access_Token.pdf", "link_mp"), "\n\n"])
 
-        widget.insert(tk.END, "1. ", "info")
-        widget.insert(tk.END, "Gere o ", "descricao")
-        widget.insert(tk.END, "Access Token", "destaque")
-        widget.insert(tk.END, " da conta do Mercado Pago (detalhes no PDF abaixo).\n", "descricao")
+        # Tópico: Como atualizar boletos pagos do Asaas
+        self._secao("🏦 Como atualizar boletos pagos do Asaas")
+        self._texto("O Asaas não usa token neste fluxo: o sistema abre a cobrança no Chrome e confere a situação. Passo a passo:")
 
-        widget.insert(tk.END, "2. ", "info")
-        widget.insert(tk.END, "Na tela principal, selecione o e-mail da conta. A conta precisa já estar conectada ao Mercado Livre (", "descricao")
-        widget.insert(tk.END, "Autorizar ML", "botao")
-        widget.insert(tk.END, "), pois é ela que cria o arquivo de configuração da conta.\n", "descricao")
+        self._passo(1, "Deixe o ", ("chromedriver.exe", "destaque"), " na raiz do sistema, na mesma pasta do ", ("main.py", "destaque"),
+                    ". Ele precisa ser compatível com a versão do Chrome instalada.")
+        self._passo(2, "Na tela principal, selecione o e-mail da conta cujos boletos serão atualizados.")
+        self._passo(3, "Clique em ", ("Atualizar Pagos", "botao"), " e escolha ", ("ASAAS", "botao"), ".")
+        self._passo(4, "Se o Chrome de automação estiver fechado, o sistema o abre na tela de login do Asaas. Faça login uma vez; o login fica salvo no perfil do Chrome.")
+        self._passo(5, "O sistema percorre os boletos pendentes e abre cada um pelo ID do pagamento. Quando a ",
+                    ("Situação", "destaque"), " for ", ("Confirmada", "destaque"), " (ou Recebida), o boleto é marcado como pago.")
+        self.text_widget.insert(tk.END, "\n", "descricao")
 
-        widget.insert(tk.END, "3. ", "info")
-        widget.insert(tk.END, "Clique em ", "descricao")
-        widget.insert(tk.END, "INSERIR TOKEN MP", "botao")
-        widget.insert(tk.END, " e cole o Access Token quando o sistema pedir.\n", "descricao")
+        # ==============================================================
+        # 3) AUTOMAÇÃO DE MENSAGENS
+        # ==============================================================
+        self._secao("💬 Automação de Mensagens (WhatsApp e ML)")
 
-        widget.insert(tk.END, "4. ", "info")
-        widget.insert(tk.END, "O token é salvo na conta. Se já houver um token cadastrado, o novo é guardado como token adicional (TOKEN_MP2).\n\n", "descricao")
+        self._item("Primeira Msg e Wpp",
+                   "Envia a primeira mensagem com o prazo de entrega para novas vendas. Captura o número do WhatsApp do cliente; "
+                   "caso ele não envie, o sistema solicita o número mais duas vezes.")
+        self._item("Chamar Wpp",
+                   "Abre a janela de disparo da primeira mensagem no WhatsApp, percorrendo as linhas da planilha de clientes:",
+                   subs=[
+                       [("Extrair Dobro (Pagos)", "destaque"), " / ", ("Extrair Comum (Não Enviados)", "destaque"),
+                        ": extraem da planilha os números que serão chamados."],
+                       [("Gerar (Google Contatos)", "destaque"), " / ", ("Gerar para iCloud/iPhone", "destaque"),
+                        ": geram o arquivo de contatos (CSV ou VCF)."],
+                       [("Abrir WPP Web", "destaque"), " e ", ("Executar Robô", "destaque"),
+                        ": abrem o WhatsApp Web e disparam a quantidade de chamadas escolhida."],
+                   ])
+        self._item("Enviar Rastreio",
+                   "Dispara uma mensagem com o código de rastreio (Correios Brasil ou AliExpress).",
+                   subs=[
+                       "Se houver reclamação aberta: Solicita o encerramento da reclamação.",
+                       "Se for um caso comum (sem telefone cadastrado): Solicita o número de telefone ao cliente.",
+                   ])
+        self._item("Agradecimento",
+                   "Envia a mensagem de agradecimento aos clientes que pagaram a taxa, seja ",
+                   ("boleto pago", "destaque"), " ou ", ("PIX confirmado", "destaque"), ". Mensagem enviada:",
+                   subs=[
+                       [("\"Obrigado, o pagamento da taxa foi realizado Vamos dar continuidade a entrega. "
+                         "O seu pedido vai chegar <Data Entrega> no período da tarde!\"", "destaque")],
+                       [("Para pedidos PIX, rode antes o botão ", "info"), ("Atualizar PIX Pagos", "botao"),
+                        (" para que o sistema marque o PIX como pago.", "info")],
+                   ])
 
-        widget.insert(tk.END, "📄 Guia completo em PDF: ", "descricao")
-        widget.insert(tk.END, "Baixar Guia_Conectar_Mercado_Pago_Access_Token.pdf", "link_mp")
-        widget.insert(tk.END, "\n\n", "descricao")
+        # ==============================================================
+        # 4) FLUXO PIX
+        # ==============================================================
+        self._secao("💠 Fluxo de Cobrança via PIX (passo a passo)")
+        self._texto("A forma de cobrança (", PIX, " ou Boleto) é escolhida uma vez, em ",
+                    ("Taxar e Autorizar BLT", "botao"), ", e fica gravada em cada pedido. Os botões seguintes leem essa escolha.")
 
-        # Seção 2: Automação de Mensagens
-        widget.insert(tk.END, "💬 Automação de Mensagens (WhatsApp e ML)\n", "secao_titulo")
-        widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Primeira Msg e Wpp:", "botao")
-        widget.insert(tk.END, " Envia a primeira mensagem com o prazo de entrega para novas vendas. Captura o número do WhatsApp do cliente; caso ele não envie, o sistema solicita o número mais duas vezes.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Chamar Wpp:", "botao")
-        widget.insert(tk.END, " Dispara a primeira mensagem no WhatsApp percorrendo as linhas da planilha de clientes.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Enviar Rastreio:", "botao")
-        widget.insert(tk.END, " Dispara uma mensagem com o código de rastreio (Correios Brasil ou AliExpress).\n", "descricao")
-        widget.insert(tk.END, "   ↳ Se houver reclamação aberta: Solicita o encerramento da reclamação.\n", "info")
-        widget.insert(tk.END, "   ↳ Se for um caso comum (sem telefone cadastrado): Solicita o número de telefone ao cliente.\n\n", "info")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Agradecimento:", "botao")
-        widget.insert(tk.END, " Envia uma mensagem de agradecimento aos clientes que configuraram o pagamento do boleto.\n\n", "descricao")
-        
-        # Seção 3: Gestão de Boletos e Taxas
-        widget.insert(tk.END, "💳 Gestão de Boletos e Taxas\n", "secao_titulo")
-        widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Enviar Boleto:", "botao")
-        widget.insert(tk.END, " Envia o boleto bancário apenas para os clientes que ainda não receberam a primeira cobrança. Possui o filtro ", "descricao")
-        widget.insert(tk.END, "\"Enviar apenas para os que digitou 1?\"", "destaque")
-        widget.insert(tk.END, ":\n", "descricao")
-        widget.insert(tk.END, "   ↳ Se SIM: Filtra e envia apenas para as vendas onde o cliente digitou \"1\" ou que contenham a frase ", "info")
-        widget.insert(tk.END, "\"A liberação do seu boleto já está sendo processada.\"", "destaque")
-        widget.insert(tk.END, "\n", "info")
-        widget.insert(tk.END, "   ↳ Se NÃO: Envia o boleto para todos que ainda não receberam, independentemente da interação.\n", "info")
-        widget.insert(tk.END, "   ↳ Não pergunta mais a forma de cobrança: usa o que foi escolhido em \"Taxar e Autorizar BLT\" para cada pedido. Se o pedido foi taxado via PIX, envia a chave do campo \"Chave PIX\" da tela principal (se estiver vazia, a execução para com o erro \"Chave PIX tem que ser preenchida\"); o pedido é gravado como cobrado via PIX.\n\n", "info")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Taxar e Autorizar BLT:", "botao")
-        widget.insert(tk.END, " Notifica o cliente que o produto foi taxado e solicita que ele digite \"1\" para autorizar o procedimento. Antes de iniciar, pergunta se a taxa será cobrada via PIX ou Boleto e grava essa escolha em cada pedido.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Erro no Boleto:", "botao")
-        widget.insert(tk.END, " Envia uma mensagem solicitando que o cliente desconsidere o código de barras anterior e encaminha um novo boleto válido.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Cobrar Dobrado:", "botao")
-        widget.insert(tk.END, " Envia dois boletos simultaneamente para efetuar a cobrança de uma nova taxa.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Reenviar Boleto:", "botao")
-        widget.insert(tk.END, " Força o reenvio do boleto com duas opções de abordagem:\n", "descricao")
-        widget.insert(tk.END, "   ↳ Com mensagem de atraso: ", "info")
-        widget.insert(tk.END, "\"Olá! Passando para pedir desculpas pela demora no envio do seu boleto. Tivemos uma pequena instabilidade, mas já foi resolvido!\"", "destaque")
-        widget.insert(tk.END, "\n", "info")
-        widget.insert(tk.END, "   ↳ Com mensagem normal: ", "info")
-        widget.insert(tk.END, "\"Vamos gerar o boleto agora mesmo! Prontinho, boleto gerado!\"", "destaque")
-        widget.insert(tk.END, "\n", "info")
-        widget.insert(tk.END, "   ↳ Frase : ", "info")
-        widget.insert(tk.END, "\"Estamos gerando seu boleto. Aguarde um momento, por favor.\"", "destaque")
-        widget.insert(tk.END, "\n\n", "info")
-        
-        # Seção 4: Inteligência Artificial
-        widget.insert(tk.END, "🤖 Inteligência Artificial (IA)\n", "secao_titulo")
-        widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Rodar IA Reclamação:", "botao")
-        widget.insert(tk.END, " Executa a Inteligência Artificial para analisar e responder de forma automatizada às reclamações abertas.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Rodar IA Comum:", "botao")
-        widget.insert(tk.END, " Executa a Inteligência Artificial para responder às mensagens e dúvidas gerais dos clientes.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Responder Dúvidas ML:", "botao")
-        widget.insert(tk.END, " Utiliza IA para responder automaticamente às perguntas feitas pelos usuários nos anúncios do Mercado Livre.\n\n", "descricao")
-        
-        # Seção 5: Dashboards e Dados
-        widget.insert(tk.END, "📊 Dashboards, Relatórios e Dados\n", "secao_titulo")
-        widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Dashboard:", "botao")
-        widget.insert(tk.END, " Gráfico geral de controle e monitoramento da conta.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Todos Pagos:", "botao")
-        widget.insert(tk.END, " Gráfico analítico de resultados financeiros e vendas concluídas.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Dash Lote:", "botao")
-        widget.insert(tk.END, " Gráfico de desempenho segmentado por lote, baseado na data de envio do código de rastreio.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Exportar Excel:", "botao")
-        widget.insert(tk.END, " Gera uma planilha com os dados e a envia para o e-mail informado, salvando-a na pasta padrão do e-mail.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Atualizar Pagos:", "botao")
-        widget.insert(tk.END, " Analisa o status dos boletos enviados, identifica os que foram pagos e atualiza as informações na planilha.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Vendas Encerradas:", "botao")
-        widget.insert(tk.END, " Atualiza o status de todas as vendas finalizadas, replicando os dados tanto nos gráficos quanto na planilha.\n\n", "descricao")
-        
-        # Seção 6: Filtros de Status
-        widget.insert(tk.END, "⚠️ Pendências\n", "secao_titulo")
-        widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Não Pagos:", "botao")
-        widget.insert(tk.END, " Cobra os clientes que receberam o boleto há mais de 24 horas e ainda não realizaram o pagamento.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Não Autorizados:", "botao")
-        widget.insert(tk.END, " Cobra os clientes que ainda não deram autorização. O sistema envia a mensagem:\n\n", "descricao")
-        widget.insert(tk.END, "   ", "info")
-        widget.insert(tk.END, "\"Olá! Precisamos da sua autorização para dar andamento. Caso não receba a confirmação, o pedido será cancelado automaticamente. Para receber o boleto da taxa, DIGITE 1.\"", "destaque")
-        widget.insert(tk.END, "\n\n", "info")
-        widget.insert(tk.END, "   ↳ Caso a rotina rode novamente e o cliente ainda não tenha digitado \"1\": O sistema envia uma nova mensagem oferecendo brindes para incentivar a resposta.\n\n", "info")
-        
-        # Seção 7: Controle do Sistema
-        widget.insert(tk.END, "⚙️ Controle do Sistema e Rotinas\n", "secao_titulo")
-        widget.insert(tk.END, "━" * 70 + "\n", "linha_sep")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Agendamentos:", "botao")
-        widget.insert(tk.END, " Permite criar e gerenciar tarefas agendadas para que as rotinas do sistema rodem de forma 100% automática.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Stop Urgente:", "botao")
-        widget.insert(tk.END, " Interrompe imediatamente todas as operações e execuções do sistema em caso de emergência.\n\n", "descricao")
-        
-        widget.insert(tk.END, "• ", "info")
-        widget.insert(tk.END, "Limpar Tudo:", "botao")
-        widget.insert(tk.END, " Limpa os logs e as informações visíveis na tela do sistema.\n", "descricao")
+        self._passo(1, ("Taxar e Autorizar BLT", "botao"), " → responda ", ("Sim", "destaque"),
+                    " à pergunta \"A taxa será cobrada via PIX?\". O cliente recebe o aviso da taxa e o pedido para digitar 1.")
+        self._passo(2, "O cliente digita ", ("1", "destaque"), " (ou o atendente envia manualmente a frase de liberação, veja ",
+                    ("Enviar Boleto", "botao"), ").")
+        self._passo(3, ("Enviar Boleto", "botao"), " → envia a chave PIX da tela principal, o nome do recebedor, o banco e o pedido de comprovante.")
+        self._passo(4, "Quando o pagamento cair, o atendente escreve no chat do pedido a frase de confirmação: ",
+                    ("\"Recebemos o pagamento da Taxa.\"", "destaque"))
+        self._passo(5, ("Atualizar PIX Pagos", "botao"), " → lê o chat dos pedidos PIX pendentes e marca como pago os que tiverem a frase.")
+        self._passo(6, ("Agradecimento", "botao"), " → agradece aos clientes com PIX confirmado.")
+        self.text_widget.insert(tk.END, "\n", "descricao")
+        self._escrever([("⚠️ A confirmação do PIX é manual: o sistema não consulta o banco. Ele só procura a frase "
+                         "\"Recebemos o pagamento da Taxa.\" nas mensagens enviadas por você (vendedor); a mesma frase escrita pelo cliente é ignorada. Escreva-a exatamente assim.\n\n", "info")])
+
+        # ==============================================================
+        # 5) BOLETOS E TAXAS
+        # ==============================================================
+        self._secao("💳 Gestão de Boletos e Taxas")
+
+        self._item("Taxar e Autorizar BLT",
+                   "Notifica o cliente que o produto foi taxado e pede que ele digite \"1\" para autorizar. "
+                   "Antes de iniciar, pergunta a forma de cobrança e grava a escolha em cada pedido (Sim = PIX, Não = Boleto, Cancelar = voltar). "
+                   "Depois pede o filtro de lote e a quantidade de clientes.",
+                   subs=[
+                       [("Via PIX: ", "info"),
+                        ("\"O pagamento é feito exclusivamente via PIX, com a chave oficial da nossa empresa... "
+                         "Assim que você autorizar, enviaremos a chave PIX para pagamento.\"", "destaque"),
+                        (" + \"DIGITE 1 ... para que possamos enviar a chave PIX...\"", "destaque")],
+                       [("Via Boleto: ", "info"),
+                        ("\"O pagamento é feito exclusivamente pelo boleto do Mercado Pago que enviamos... "
+                         "Assim que você autorizar, o boleto será gerado.\"", "destaque"),
+                        (" + \"DIGITE 1 ... para que possamos gerar o boleto...\"", "destaque")],
+                   ])
+
+        self._item("Enviar Boleto",
+                   "Envia a cobrança apenas para os clientes que ainda não receberam a primeira. "
+                   "Não pergunta mais a forma de cobrança: usa a que foi escolhida em \"Taxar e Autorizar BLT\" para cada pedido. "
+                   "Possui o filtro ", ("\"Enviar apenas para os que digitou 1?\"", "destaque"), ":",
+                   subs=[
+                       [("Se SIM: filtra e envia apenas para quem digitou \"1\" ou que contenha uma das frases manuais: ", "info"),
+                        ("\"A liberação do seu boleto já está sendo processada.\"", "destaque"), (" (boleto) ou ", "info"),
+                        ("\"A liberação da sua chave PIX já está sendo processada.\"", "destaque"), (" (PIX).", "info")],
+                       "Se NÃO: envia para todos que ainda não receberam, independentemente da interação.",
+                       [("Pedido de boleto: ", "info"), ("envia o código de barras e o pedido de comprovante.", "info")],
+                       [("Pedido de PIX: ", "info"),
+                        ("envia \"Vamos gerar o pagamento agora mesmo! Para pagar a taxa de R$ X via PIX, é só copiar a chave PIX abaixo...\"", "destaque"),
+                        (", depois a chave PIX sozinha (fácil de copiar), depois nome do recebedor + banco e ", "info"),
+                        ("\"Esperamos o comprovante!\"", "destaque"), (". O pedido fica gravado como cobrado via PIX.", "info")],
+                       [("Se houver pedido PIX e o campo \"Chave PIX\" estiver vazio, a execução para com o erro ", "info"),
+                        ("\"Chave PIX tem que ser preenchida\"", "destaque"), (".", "info")],
+                   ])
+
+        self._item("Erro no Boleto",
+                   "Envia uma mensagem pedindo que o cliente desconsidere o código de barras anterior e encaminha um novo boleto válido.",
+                   subs=["⚠️ Use apenas em pedidos de boleto: o botão envia sempre um novo boleto, mesmo que o pedido tenha sido cobrado via PIX."])
+
+        self._item("Cobrar Dobrado",
+                   "Avisa o cliente que faltam mais R$ 100 para completar a taxa (erro de comunicação com a transportadora/receita). "
+                   "Pergunta a forma de cobrança (Sim = ", PIX, ", Não = Boleto) e grava o método no pedido.",
+                   subs=[
+                       "Só considera pedidos com boleto pago e agradecimento já enviado, e que ainda não foram cobrados em dobro.",
+                       "Para receber o restante via boleto, use depois \"Reenviar BLT Dobrado\".",
+                   ])
+
+        self._item("Reenviar BLT Dobrado",
+                   "Envia o boleto do restante da taxa para quem já recebeu a cobrança dobrada e ainda não pagou. Pergunta:",
+                   subs=[
+                       [("Mensagem de atraso: ", "info"),
+                        ("\"Olá! Passando para pedir desculpas pela demora no envio do restante da taxa. Tivemos uma pequena instabilidade, mas já foi resolvido!\"", "destaque")],
+                       [("Filtrar por frase: reenvia apenas para quem recebeu ", "info"),
+                        ("\"Estamos gerando seu Boleto do restante da taxa. Aguarde um momento, por favor.\"", "destaque")],
+                       "⚠️ Envia sempre boleto (pego da planilha de boletos), mesmo que a cobrança dobrada tenha sido marcada como PIX.",
+                   ])
+
+        self._item("Reenviar Boleto",
+                   "Força o reenvio do boleto para pedidos que já receberam boleto e ainda não pagaram. Pergunta:",
+                   subs=[
+                       [("Mensagem de atraso (Sim): ", "info"),
+                        ("\"Olá! Passando para pedir desculpas pela demora no envio do seu boleto. Tivemos uma pequena instabilidade, mas já foi resolvido!\"", "destaque")],
+                       [("Mensagem normal (Não): ", "info"),
+                        ("\"Vamos gerar o boleto agora mesmo! Prontinho, boleto gerado!\"", "destaque")],
+                       [("Filtrar por frase: reenvia apenas para quem recebeu ", "info"),
+                        ("\"Estamos gerando seu boleto. Aguarde um momento, por favor.\"", "destaque")],
+                       "⚠️ Use apenas em pedidos de boleto; pedidos de PIX não têm boleto para reenviar.",
+                   ])
+
+        # ==============================================================
+        # 6) IA
+        # ==============================================================
+        self._secao("🤖 Inteligência Artificial (IA)")
+
+        self._item("Rodar IA",
+                   "Botão único. Pergunta quantas conversas responder e, pedido a pedido, detecta sozinho se há reclamação aberta "
+                   "ou se é chat comum, respondendo com a mesma IA.",
+                   subs=[
+                       "Use um número baixo ao testar para acompanhar as respostas no log.",
+                       [("Pedidos taxados via ", "info"), ("PIX", "destaque"),
+                        (" são ignorados pela IA (o atendimento deles é manual).", "info")],
+                   ])
+        self._item("Responder Dúvidas ML",
+                   "Utiliza IA para responder automaticamente às perguntas feitas pelos usuários nos anúncios do Mercado Livre.")
+
+        # ==============================================================
+        # 7) DASHBOARDS, PAGAMENTOS E DADOS
+        # ==============================================================
+        self._secao("📊 Dashboards, Pagamentos e Dados")
+
+        self._item("Dashboard", "Gráfico geral de controle e monitoramento da conta.")
+        self._item("Todos Pagos", "Gráfico analítico de resultados financeiros e vendas concluídas.")
+        self._item("Dash Lotes", "Gráfico de desempenho segmentado por lote, baseado na data de envio do código de rastreio.")
+        self._item("Exportar Excel",
+                   "Gera a planilha vendas.xlsx com os dados da conta e a salva na pasta da conta selecionada, substituindo a versão anterior. "
+                   "Vendas encerradas ficam destacadas em vermelho.")
+        self._item("Atualizar Pagos",
+                   "Ao clicar, pergunta se os boletos são do ", ("Mercado Pago", "destaque"), " ou do ", ("Asaas", "destaque"),
+                   ". Percorre os ", ("boletos", "destaque"), " enviados e ainda não pagos (inclusive o boleto dobrado) e marca como pago "
+                   "os que foram quitados. Pedidos cobrados via PIX são ignorados aqui.",
+                   subs=[
+                       "Cada execução trata só as vendas do provedor escolhido: o provedor é gravado na venda quando o boleto é enviado (vem da coluna Provedor da planilha de boletos). Vendas antigas sem provedor contam como Mercado Pago.",
+                       "Vendas cuja taxa foi cobrada via PIX (método da taxa = PIX, inclusive cobrança dobrada por PIX) são ignoradas.",
+                       [("Mercado Pago: ", "info"), "consulta a API pelo ID do pagamento. Boleto não encontrado é marcado como vencido."],
+                       [("Asaas: ", "info"), "abre no Chrome a tela da cobrança (asaas.com/payment/show/ID do pagamento) e lê o campo ",
+                        ("Situação", "destaque"), ". Se estiver ", ("Confirmada", "destaque"), " (ou Recebida), marca o boleto como pago e registra a data/hora."],
+                       "Asaas: o Chrome precisa estar logado no Asaas. Se não estiver, o sistema avisa para você logar e continua em seguida.",
+                       "Asaas: o robô usa uma aba própria e a fecha no final; o Chrome não é fechado. Boletos em outra situação (ex.: pendente, vencida) só são registrados no log.",
+                       "Mostra no log o total de boletos consultados e de pagos.",
+                   ])
+        self._item("Atualizar PIX Pagos",
+                   "Confirma os pagamentos ", PIX, ". Percorre os pedidos cobrados via PIX (primeira cobrança ou cobrança dobrada) ainda sem confirmação "
+                   "e procura no chat a frase ", ("\"Recebemos o pagamento da Taxa.\"", "destaque"),
+                   ". Se encontrar, marca o pedido como pago via PIX e registra a data/hora.",
+                   subs=[
+                       "Se a frase ainda não existir no chat, o pedido continua pendente e entra na próxima verificação.",
+                       "Mostra no log o total de confirmados, erros e verificados.",
+                   ])
+        self._item("Vendas Encerradas",
+                   "Atualiza o status de todas as vendas finalizadas/canceladas, replicando os dados tanto nos gráficos quanto na planilha.")
+        self._item("Reembolsar Link",
+                   "Abre a seleção de contas ativas (uma ou várias) e reembolsa pelo Mercado Pago os boletos pagos que ainda não foram reembolsados. "
+                   "Usa os tokens de reembolso cadastrados (compartilhados entre as contas; são testados em ordem).",
+                   subs=["Considera apenas boletos pagos com ID de pagamento. Pagamentos PIX não entram neste fluxo.",
+                         "O reembolso usa a API do Mercado Pago: boletos pagos pelo Asaas não são reembolsados por aqui."])
+
+        # ==============================================================
+        # 8) PENDÊNCIAS
+        # ==============================================================
+        self._secao("⚠️ Pendências")
+
+        self._item("Não Pagos",
+                   "Cobra os clientes que receberam a cobrança (boleto ou ", PIX, ") há mais de 24 horas e ainda não pagaram. "
+                   "Cada pedido é cobrado uma única vez. Pedidos com PIX já confirmado não são cobrados. Mensagem:",
+                   subs=[[("\"Olá! Identificamos que há uma taxa pendente para a liberação do seu pedido... "
+                           "Caso já tenha efetuado o pagamento, por favor, desconsidere esta mensagem.\"", "destaque")]])
+        self._item("Não Autorizados",
+                   "Cobra os clientes que receberam o pedido de DIGITE 1 há mais de 24 horas e ainda não responderam. "
+                   "O texto se adapta à forma de cobrança do pedido:",
+                   subs=[
+                       [("Boleto: ", "info"),
+                        ("\"Olá! Precisamos da sua autorização para dar andamento. Caso não receba a confirmação, o pedido será cancelado automaticamente. "
+                         "Para receber o boleto da taxa, DIGITE 1.\"", "destaque")],
+                       [("PIX: ", "info"),
+                        ("mesma mensagem, terminando em \"Para receber a chave PIX da taxa, DIGITE 1.\"", "destaque")],
+                       "Na mesma execução, o sistema envia também a mensagem de brinde (e as imagens da pasta Brindes, se existirem). "
+                       "Cada pedido recebe essa cobrança uma única vez.",
+                   ])
+
+        # ==============================================================
+        # 9) CONTROLE DO SISTEMA
+        # ==============================================================
+        self._secao("⚙️ Controle do Sistema e Rotinas")
+
+        self._item("Agendamentos",
+                   "Permite criar, editar, ativar/desativar, executar na hora e acompanhar o histórico de tarefas agendadas "
+                   "para que as rotinas do sistema rodem de forma automática.",
+                   subs=["As rotinas agendadas de atualizar pagos consultam sempre o Mercado Pago (não há pergunta de provedor). "
+                         "Para boletos do Asaas, use o botão Atualizar Pagos manualmente."])
+        self._item("Stop Urgente", "Interrompe imediatamente as operações em andamento em caso de emergência. Fica ativo só durante uma execução.")
+        self._item("Limpar Tudo", "Limpa os logs e as informações visíveis na tela do sistema.")
+        self._item("Documentação", "Abre esta janela. Use \"Copiar para Clipboard\" para levar o texto para outro lugar.")
 
     def _localizar_pdf_guia_ml(self, nome_arquivo="Guia_Conectar_API_Mercado_Livre_.pdf"):
         """Procura o PDF na raiz do projeto (ou ao lado do .exe), compatível com PyInstaller."""
@@ -4278,8 +4522,11 @@ class AppColetorPro:
         self.var_nome_loja_main.trace_add(
             "write", lambda *_: salvar_nome_loja(self.var_nome_loja_main.get())
         )
-        tk.Label(input_frame, text="Nome da Loja:").grid(row=1, column=0, sticky="w", padx=5, pady=(8, 0))
-        tk.Entry(input_frame, textvariable=self.var_nome_loja_main, width=28).grid(
+        tk.Label(input_frame, text="Nome da Loja *:").grid(
+            row=1, column=0, sticky="w", padx=5, pady=(8, 0)
+        )
+        self.entry_nome_loja_main = tk.Entry(input_frame, textvariable=self.var_nome_loja_main, width=28)
+        self.entry_nome_loja_main.grid(
             row=1, column=1, columnspan=3, sticky="w", padx=10, pady=(8, 0)
         )
 
@@ -4305,6 +4552,25 @@ class AppColetorPro:
         tk.Label(input_frame, text="Chave PIX:").grid(row=1, column=5, sticky="w", padx=5, pady=(8, 0))
         self.entry_chave_pix_main = tk.Entry(input_frame, textvariable=self.var_chave_pix_main, width=40)
         self.entry_chave_pix_main.grid(row=1, column=6, columnspan=3, sticky="w", padx=5, pady=(8, 0))
+
+        # Nome do recebedor e banco do PIX: aparecem na mensagem junto com a chave PIX. Salvos automaticamente.
+        self.var_nome_recebedor_pix_main = tk.StringVar(value=get_nome_recebedor_pix())
+        self.var_nome_recebedor_pix_main.trace_add(
+            "write", lambda *_: salvar_nome_recebedor_pix(self.var_nome_recebedor_pix_main.get())
+        )
+        tk.Label(input_frame, text="Nome do Recebedor PIX:").grid(row=2, column=0, sticky="w", padx=5, pady=(8, 0))
+        tk.Entry(input_frame, textvariable=self.var_nome_recebedor_pix_main, width=28).grid(
+            row=2, column=1, columnspan=3, sticky="w", padx=10, pady=(8, 0)
+        )
+
+        self.var_banco_pix_main = tk.StringVar(value=get_banco_pix())
+        self.var_banco_pix_main.trace_add(
+            "write", lambda *_: salvar_banco_pix(self.var_banco_pix_main.get())
+        )
+        tk.Label(input_frame, text="Banco do PIX:").grid(row=2, column=5, sticky="w", padx=5, pady=(8, 0))
+        tk.Entry(input_frame, textvariable=self.var_banco_pix_main, width=40).grid(
+            row=2, column=6, columnspan=3, sticky="w", padx=5, pady=(8, 0)
+        )
         
         self.progress = ttk.Progressbar(self.root, orient="horizontal", length=400, mode="determinate")
         self.progress.pack(pady=5, padx=20, fill=tk.X)
@@ -4851,6 +5117,8 @@ class AppColetorPro:
         
     def iniciar_resposta_duvidas(self):
         """Método acionado pelo botão para iniciar o processo em uma Thread separada"""
+        if not self._validar_nome_loja_obrigatorio():
+            return
         # Cria uma thread para não travar a interface do Tkinter
         thread = threading.Thread(target=self.processar_responder_duvidas, daemon=True)
         thread.start()
@@ -5000,7 +5268,7 @@ class AppColetorPro:
             sender_role_text = str(sender_role or "").lower()
             mensagens.append({
                 "origem": f"Reclamação ({claim_id})",
-                "texto": msg.get("message") or msg.get("text"),
+                "texto": msg.get("message") or msg.get("text") or '',
                 "data": msg.get("date_created") or msg.get("message_date"),
                 "sender_id": sender_id,
                 "sender_role": sender_role,
@@ -5030,7 +5298,7 @@ class AppColetorPro:
             )
             mensagens.append({
                 "origem": "Chat Comum",
-                "texto": msg.get("text"),
+                "texto": msg.get("text") or '',
                 "data": msg.get("message_date"),
                 "sender_id": sender_id,
                 "is_seller": str(sender_id) == str(seller_id),
@@ -5047,15 +5315,24 @@ class AppColetorPro:
         def _bool(valor):
             return "true" if bool(valor) else "false"
 
+        def _tipo_rastreio_ia(dados):
+            """'aliexpress' ou 'br' conforme salvo no banco; 'nenhum' se o rastreio
+            ainda não foi enviado; 'nao_informado' para pedidos antigos sem o tipo salvo."""
+            tipo = str(dados.get('tipo_rastreio') or '').strip().lower()
+            if tipo in ('aliexpress', 'br'):
+                return tipo
+            return 'nao_informado' if dados.get('rastreio_enviado') else 'nenhum'
+
         linhas = [
             f"conversa_com_reclamação = {_bool(tem_reclamacao)}.",
             f"solicitado = {_bool(dados_pedido.get('solicitado'))}.",
             f"rastreio_enviado = {_bool(dados_pedido.get('rastreio_enviado'))}.",
+            f"tipo_rastreio = {_tipo_rastreio_ia(dados_pedido)}.",
             f"boleto_autorizado_msg = {_bool(dados_pedido.get('boleto_autorizado_msg'))}.",
             f"cliente_autorizou = {_bool(dados_pedido.get('cliente_autorizou'))}.",
             f"boleto_enviado = {_bool(dados_pedido.get('boleto_enviado'))}.",
             f"boleto_pago = {_bool(dados_pedido.get('boleto_pago'))}.",
-            f"cobrado_via_pix = {_bool(dados_pedido.get('cobrado_via_pix'))}.",
+            f"metodo_taxa = {_bool(dados_pedido.get('metodo_taxa'))}.",
         ]
         return "\n        ".join(linhas)
 
@@ -5107,7 +5384,7 @@ class AppColetorPro:
             self.logger(f"Ordem {order_id}: IA já respondeu essa última sequência de mensagens.", "AVISO")
             return False
         
-        if dados_pedido.get("cobrado_via_pix") is True:
+        if dados_pedido.get("metodo_taxa") == "pix":
             self.logger(f"Ordem {order_id}: cliente já foi cobrado via PIX. IA não será acionada.", "INFO")
             return False
         
@@ -5191,10 +5468,10 @@ class AppColetorPro:
 
         system_text = (
             "Você é um classificador de intenção em um chat de atendimento ao cliente.\n"
-            "O vendedor solicitou que o cliente confirme se deseja pagar a taxa de frete/envio para gerar o boleto.\n\n"
+            "O vendedor solicitou que o cliente confirme se deseja pagar a taxa de frete/envio para gerar o boleto ou receber a chave PIX.\n\n"
             "Análise das mensagens do cliente:\n"
             "Responda 'true' se o cliente demonstrar intenção de pagar ou quiser saber como pagar a taxa/frete "
-            "(ex: 'vou pagar', 'como faço pra pagar', 'manda o boleto', 'quero pagar').\n"
+            "(ex: 'vou pagar', 'como faço pra pagar', 'manda o boleto', 'manda o pix', 'quero pagar').\n"
             "Responda 'false' se o cliente recusar, disser que já pagou, pedir cancelamento ou se o texto for incerto/confuso.\n\n"
             "Responda EXCLUSIVAMENTE com 'true' ou 'false'."
         )
@@ -5444,7 +5721,7 @@ class AppColetorPro:
                     
                     # Procurar por número de telefone na conversa
                     for m in conversaCompleta:
-                        texto = m.get('texto', '')
+                        texto = m.get('texto') or ''
                         # Regex robusto para capturar vários formatos de telefone BR
                         match = re.search(r'(?:\+?55\s?)?\(?(\d{2})\)?\s*(9)?\s*(\d{4,5})[\s.-]?(\d{4})', texto)
                         if match:
@@ -5544,21 +5821,333 @@ class AppColetorPro:
             messagebox.showerror("Erro no WhatsApp", f"Falha ao alterar estado do serviço: {e}")
             self.logger(f"Erro ao alternar WPP: {e}", "ERRO") 
         
-    def atualizar_blt_pagos_thread(self):    
-         # --- DISPARA A THREAD ---
-        thread = threading.Thread(target=self.atualizar_blt_pagos, args=())
+    def _perguntar_provedor_boleto(self):
+        """Pergunta se os boletos a atualizar são do Mercado Pago ou do Asaas.
+        Retorna "MP", "ASAAS" ou None (se a janela for fechada). Deve rodar na thread principal."""
+        resultado = {"valor": None}
+
+        janela = tk.Toplevel(self.root)
+        janela.title("Atualizar Pagos")
+        janela.configure(bg="white")
+        janela.transient(self.root)
+        janela.resizable(False, False)
+
+        tk.Label(janela, text="Atualizar boletos pagos de qual provedor?",
+                 bg="white", font=("Arial", 11, "bold")).pack(padx=30, pady=(20, 10))
+
+        frame = tk.Frame(janela, bg="white")
+        frame.pack(padx=20, pady=(5, 20))
+
+        def escolher(valor):
+            resultado["valor"] = valor
+            janela.destroy()
+
+        tk.Button(frame, text="MERCADO PAGO", bg="#009ee3", fg="white", font=("Arial", 10, "bold"),
+                  relief="flat", width=16, cursor="hand2",
+                  command=lambda: escolher("MP")).pack(side="left", padx=6, ipady=6)
+        tk.Button(frame, text="ASAAS", bg="#0030b9", fg="white", font=("Arial", 10, "bold"),
+                  relief="flat", width=16, cursor="hand2",
+                  command=lambda: escolher("ASAAS")).pack(side="left", padx=6, ipady=6)
+
+        janela.protocol("WM_DELETE_WINDOW", janela.destroy)
+
+        # centraliza sobre a janela principal
+        janela.update_idletasks()
+        x = self.root.winfo_x() + (self.root.winfo_width() - janela.winfo_width()) // 2
+        y = self.root.winfo_y() + (self.root.winfo_height() - janela.winfo_height()) // 2
+        janela.geometry(f"+{max(x, 0)}+{max(y, 0)}")
+
+        janela.grab_set()
+        self.root.wait_window(janela)
+        return resultado["valor"]
+
+    def atualizar_blt_pagos_thread(self):
+        # Botão ATUALIZAR PAGOS (thread principal): primeiro pergunta o provedor
+        provedor = self._perguntar_provedor_boleto()
+        if not provedor:
+            self.logger("Atualização de boletos pagos cancelada.", "AVISO")
+            return
+
+        # --- DISPARA A THREAD ---
+        thread = threading.Thread(target=self.atualizar_blt_pagos, args=(provedor,))
         thread.daemon = True
         thread.start()
-        self.logger("Thread de atualização de boletos pagos iniciada em segundo plano...")
+        nome = "Asaas" if provedor == "ASAAS" else "Mercado Pago"
+        self.logger(f"Thread de atualização de boletos pagos ({nome}) iniciada em segundo plano...")
+
+    # ------------------------------------------------------------------
+    # ASAAS - consulta da situação da cobrança pelo navegador
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _porta_aberta(host, porta, timeout=1):
+        try:
+            with socket.create_connection((host, porta), timeout=timeout):
+                return True
+        except OSError:
+            return False
+
+    @staticmethod
+    def _caminho_chromedriver():
+        """chromedriver fica na raiz do sistema, ao lado do main.py. Retorna None se não achar."""
+        pastas = [BASE_DIR]
+        if getattr(sys, "frozen", False):
+            pastas.insert(0, os.path.dirname(sys.executable))
+        pastas.append(os.getcwd())
+        for pasta in pastas:
+            for nome in ("chromedriver.exe", "chromedriver"):
+                caminho = os.path.join(pasta, nome)
+                if os.path.isfile(caminho):
+                    return caminho
+        return None
+
+    def _asaas_conectar_chrome(self):
+        """Conecta (Selenium) no Chrome em modo debug. Se ele não estiver aberto, abre já na tela de login do Asaas."""
+        if not self._porta_aberta("127.0.0.1", ASAAS_DEBUG_PORT):
+            self.logger("Chrome debug fechado. Abrindo o Chrome na tela de login do Asaas...", "INFO")
+            comando = (
+                r'"C:\Program Files\Google\Chrome\Application\chrome.exe" '
+                f'--remote-debugging-port={ASAAS_DEBUG_PORT} '
+                r'--user-data-dir="C:\selenium\AutomacaoPerfil" '
+                f'"{ASAAS_URL_LOGIN}"'
+            )
+            subprocess.Popen(comando, shell=True)
+            limite = time.time() + 20
+            while time.time() < limite and not self._porta_aberta("127.0.0.1", ASAAS_DEBUG_PORT):
+                time.sleep(0.5)
+            if not self._porta_aberta("127.0.0.1", ASAAS_DEBUG_PORT):
+                raise RuntimeError("Não consegui abrir o Chrome em modo debug (porta 5555).")
+
+        chrome_options = Options()
+        chrome_options.add_experimental_option("debuggerAddress", f"127.0.0.1:{ASAAS_DEBUG_PORT}")
+
+        caminho_driver = self._caminho_chromedriver()
+        if caminho_driver:
+            service = Service(executable_path=caminho_driver)
+        else:
+            self.logger("chromedriver não encontrado ao lado do main.py; usando o gerenciador automático do Selenium.", "AVISO")
+            service = Service()
+        return webdriver.Chrome(service=service, options=chrome_options)
+
+    def _asaas_ler_situacao(self, driver, payment_id):
+        """Abre /payment/show/<payment_id> e devolve o texto do campo 'Situação'.
+        Levanta PermissionError se o Chrome não estiver logado no Asaas."""
+        driver.get(ASAAS_URL_COBRANCA.format(payment_id=payment_id))
+        WebDriverWait(driver, ASAAS_TIMEOUT).until(
+            lambda d: d.execute_script("return document.readyState") == "complete"
+        )
+        if "login" in driver.current_url.lower():
+            raise PermissionError("Chrome não está logado no Asaas.")
+
+        def _procurar(d):
+            if "login" in d.current_url.lower():
+                return "__LOGIN__"
+            for by, seletor in ((By.XPATH, ASAAS_XPATH_SITUACAO), (By.CSS_SELECTOR, ASAAS_CSS_SITUACAO)):
+                try:
+                    texto = (d.find_element(by, seletor).get_attribute("textContent") or "").strip()
+                    if texto:
+                        return texto
+                except NoSuchElementException:
+                    continue
+            return False
+
+        texto = WebDriverWait(driver, ASAAS_TIMEOUT).until(_procurar)
+        if texto == "__LOGIN__":
+            raise PermissionError("Chrome não está logado no Asaas.")
+        return texto
+
+    def _asaas_situacao_paga(self, texto):
+        return (texto or "").strip().lower() in ASAAS_SITUACOES_PAGAS
+
+    # ------------------------------------------------------------------
+    # Provedor do boleto gravado na venda + regra de PIX (usados em ATUALIZAR PAGOS)
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _provedor_venda(d, campo="provedor"):
+        """Normaliza o provedor gravado na venda: "ASAAS", "MP" ou "" (não informado, venda antiga)."""
+        p = str(d.get(campo) or "").strip().lower()
+        if "asaas" in p:
+            return "ASAAS"
+        if "mercado" in p or p == "mp":
+            return "MP"
+        return ""
+
+    def _venda_do_provedor(self, d, provedor, campo="provedor"):
+        """True se a venda é do provedor escolhido. Vendas antigas sem provedor gravado valem como Mercado Pago
+        (antes do Asaas existir, todo boleto era do Mercado Pago)."""
+        p = self._provedor_venda(d, campo)
+        if provedor == "ASAAS":
+            return p == "ASAAS"
+        return p in ("MP", "")
+
+    @staticmethod
+    def _cobranca_pix(d):
+        """Taxa cobrada via PIX (campo metodo_taxa) -> ignorada na atualização de boletos."""
+        return str(d.get('metodo_taxa') or "").strip().lower() == "pix" or bool(d.get('cobrado_via_pix'))
+
+    @staticmethod
+    def _cobranca_pix_dobro(d):
+        """Cobrança dobrada via PIX (campo metodo_cobro_dobro) -> ignorada na atualização de boletos."""
+        return str(d.get('metodo_cobro_dobro') or "").strip().lower() == "pix"
+
+    def _logar_ignorados_outro_provedor(self, db, provedor):
+        outros = sum(
+            1 for d in db.values()
+            if d.get('boleto_enviado') and not d.get('boleto_pago') and not self._cobranca_pix(d)
+            and not self._venda_do_provedor(d, provedor)
+        )
+        if outros:
+            nome = "Asaas" if provedor == "ASAAS" else "Mercado Pago"
+            self.logger(f"{outros} boleto(s) pendente(s) de outro provedor foram ignorados (rodando só {nome}).", "INFO")
+
+    def _atualizar_blt_pagos_asaas(self, db):
+        """Percorre os boletos pendentes (igual ao fluxo do Mercado Pago) e consulta cada um no Asaas.
+        Situação 'Confirmada' = boleto pago."""
+
+        # Só vendas cujo provedor gravado é Asaas; PIX é ignorado
+        def _pendente_normal(d):
+            return (d.get('boleto_enviado') and not d.get('boleto_pago') and not self._cobranca_pix(d)
+                    and self._venda_do_provedor(d, "ASAAS"))
+
+        def _dobro_do_asaas(d):
+            return (d.get('cobrado_dobro') and not d.get('boleto_pago_dobro') and not self._cobranca_pix_dobro(d)
+                    and self._venda_do_provedor(d, "ASAAS", "provedor_dobro"))
+
+        def _pendente_dobro(d):
+            return d.get('boleto_pago') and _dobro_do_asaas(d)
+
+        # Pode virar pendente de dobro no meio do loop (quando o normal for marcado como pago)
+        precisa_consultar = any(
+            _pendente_normal(d) or (d.get('boleto_enviado') and _dobro_do_asaas(d))
+            for d in db.values()
+        )
+        if not precisa_consultar:
+            self.logger("Asaas: nenhum boleto pendente para consultar.", "INFO")
+            return
+
+        driver = None
+        aba_origem = None
+        aba_asaas = None
+        atualizados = 0
+        consultados = 0
+
+        try:
+            driver = self._asaas_conectar_chrome()
+            try:
+                aba_origem = driver.current_window_handle
+            except Exception:
+                aba_origem = None
+
+            # Aba própria para o Asaas, sem mexer na aba atual (ex: WhatsApp Web no mesmo Chrome)
+            try:
+                driver.switch_to.new_window('tab')
+            except Exception:
+                driver.execute_script("window.open('about:blank');")
+                driver.switch_to.window(driver.window_handles[-1])
+            aba_asaas = driver.current_window_handle
+
+            def consultar(payment_id):
+                """Devolve o texto da situação. Se não estiver logado, pede login uma vez e tenta de novo."""
+                try:
+                    return self._asaas_ler_situacao(driver, payment_id)
+                except PermissionError:
+                    self.logger("Asaas: Chrome sem login. Aguardando você logar...", "AVISO")
+                    continuar = messagebox.askokcancel(
+                        "Asaas - login necessário",
+                        "Você não está logado no Asaas.\n\n"
+                        "Faça login na janela do Chrome que abriu (a aba do Asaas) e clique em OK para continuar.\n"
+                        "Cancelar interrompe a atualização."
+                    )
+                    if not continuar:
+                        raise InterruptedError("Atualização Asaas cancelada pelo usuário (sem login).")
+                    return self._asaas_ler_situacao(driver, payment_id)  # se ainda sem login, PermissionError sobe
+
+            for order_id, d in db.items():
+                # --- BOLETO NORMAL ---
+                if _pendente_normal(d):
+                    payment_id = str(d.get('id_payment') or "").strip()
+                    if not payment_id:
+                        self.logger(f"Ordem {order_id}: sem id_payment, não dá para consultar no Asaas.", "AVISO")
+                    else:
+                        try:
+                            situacao = consultar(payment_id)
+                            consultados += 1
+                            if self._asaas_situacao_paga(situacao):
+                                db[order_id]['boleto_pago'] = True
+                                db[order_id]['data_boleto_pago'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                                atualizados += 1
+                                self.logger(f"Ordem {order_id}: Boleto marcado como pago (Asaas: {situacao}).")
+                            else:
+                                self.logger(f"Ordem {order_id}: Asaas {payment_id} - situação '{situacao}'.", "INFO")
+                        except (PermissionError, InterruptedError):
+                            raise
+                        except Exception as e:
+                            self.logger(f"Erro ao verificar ordem {order_id} no Asaas ({payment_id}): {e}", "ERRO")
+                        time.sleep(1)
+
+                # --- BOLETO DOBRO ---
+                if _pendente_dobro(d):
+                    payment_id_dobro = str(d.get('id_payment_dobro') or "").strip()
+                    if not payment_id_dobro:
+                        self.logger(f"Ordem {order_id}: sem id_payment_dobro, não dá para consultar no Asaas.", "AVISO")
+                    else:
+                        try:
+                            situacao = consultar(payment_id_dobro)
+                            consultados += 1
+                            if self._asaas_situacao_paga(situacao):
+                                db[order_id]['boleto_pago_dobro'] = True
+                                db[order_id]['data_boleto_pago_dobro'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                                atualizados += 1
+                                self.logger(f"Ordem {order_id}: Boleto dobro pago (Asaas: {situacao}).")
+                            else:
+                                self.logger(f"Ordem {order_id}: Asaas dobro {payment_id_dobro} - situação '{situacao}'.", "INFO")
+                        except (PermissionError, InterruptedError):
+                            raise
+                        except Exception as e:
+                            self.logger(f"Erro boleto dobro {order_id} no Asaas ({payment_id_dobro}): {e}", "ERRO")
+                        time.sleep(1)
+
+        except PermissionError:
+            self.logger("Asaas: continua sem login. Faça login no Chrome e rode novamente.", "ERRO")
+            messagebox.showerror("Asaas", "Continua sem login no Asaas.\nFaça login no Chrome e clique em ATUALIZAR PAGOS de novo.")
+        except InterruptedError as e:
+            self.logger(str(e), "AVISO")
+        except Exception as e:
+            self.logger(f"Erro na atualização via Asaas: {e}", "ERRO")
+            messagebox.showerror("Erro Asaas", f"Falha ao consultar o Asaas:\n{e}")
+        finally:
+            # fecha só a aba criada aqui e volta para a aba original (não fecha o Chrome)
+            if driver is not None:
+                try:
+                    if aba_asaas and aba_asaas in driver.window_handles:
+                        driver.switch_to.window(aba_asaas)
+                        if len(driver.window_handles) > 1:
+                            driver.close()
+                    if aba_origem and aba_origem in driver.window_handles:
+                        driver.switch_to.window(aba_origem)
+                    elif driver.window_handles:
+                        driver.switch_to.window(driver.window_handles[0])
+                except Exception:
+                    pass
+            # salva o que já foi marcado mesmo se interrompeu no meio
+            self.salvar_db(db)
+            self.logger(f"Atualização Asaas finalizada. Consultados: {consultados} | Pagos: {atualizados}")
         
             
-    def atualizar_blt_pagos(self):
+    def atualizar_blt_pagos(self, provedor="MP"):
+            # provedor: "MP" (Mercado Pago, API - padrão, também usado pelos agendamentos) ou "ASAAS" (navegador)
             folder = self.get_pasta_conta()
             if not folder: return
             
             db = self.carregar_db()
             if not db:
                 messagebox.showinfo("Info", "Nenhum registro encontrado para atualizar.")
+                return
+
+            # Cada execução só trata as vendas do provedor escolhido (campo "provedor" gravado ao enviar o boleto)
+            self._logar_ignorados_outro_provedor(db, provedor)
+
+            if provedor == "ASAAS":
+                self._atualizar_blt_pagos_asaas(db)
                 return
             
             config = self.carregar_config_cliente(folder)
@@ -5574,7 +6163,8 @@ class AppColetorPro:
             
             for order_id, d in db.items():
                 # --- LÓGICA PARA BOLETO NORMAL ---
-                if d.get('boleto_enviado') and not d.get('boleto_pago') and not d.get('cobrado_via_pix'):
+                if (d.get('boleto_enviado') and not d.get('boleto_pago') and not self._cobranca_pix(d)
+                        and self._venda_do_provedor(d, "MP")):
                     payment_id = d.get('id_payment')
                     encontrado_em_algum_token = False
                     ultimo_erro = ""
@@ -5609,7 +6199,8 @@ class AppColetorPro:
                             self.logger(f"Erro ao verificar ordem {order_id}: {ultimo_erro}", "ERRO")
 
                 # --- LÓGICA PARA BOLETO DOBRO ---
-                if d.get('boleto_pago') and d.get('cobrado_dobro') and not d.get('boleto_pago_dobro'):
+                if (d.get('boleto_pago') and d.get('cobrado_dobro') and not d.get('boleto_pago_dobro')
+                        and not self._cobranca_pix_dobro(d) and self._venda_do_provedor(d, "MP", "provedor_dobro")):
                     payment_id_dobro = d.get('id_payment_dobro')
                     encontrado_dobro = False
                     ultimo_erro_dobro = ""
@@ -5698,7 +6289,10 @@ class AppColetorPro:
             try:
                 conversa = self.obter_conversa_completa(order_id, order_id, seller_id, token, claim_id=claim_id)
 
-                encontrado = self.mensagem_existe_no_historico(frase_confirmacao, conversa)
+                # Considera apenas mensagens enviadas pelo VENDEDOR: o cliente digitando a frase
+                # não pode confirmar o pagamento.
+                conversa_vendedor = [m for m in conversa if m.get('is_seller')]
+                encontrado = self.mensagem_existe_no_historico(frase_confirmacao, conversa_vendedor)
 
                 if encontrado:
                     agora_pix = datetime.now().strftime("%d/%m/%Y %H:%M")
@@ -6354,8 +6948,32 @@ class AppColetorPro:
         )
         return chats, len(chats)
 
+    def _validar_nome_loja_obrigatorio(self):
+        """Retorna True se o Nome da Loja (tela principal) estiver preenchido.
+        Caso contrário, avisa o usuário e retorna False."""
+        nome = ""
+        if hasattr(self, "var_nome_loja_main"):
+            nome = self.var_nome_loja_main.get().strip()
+        if not nome:
+            nome = get_nome_loja()
+        if nome:
+            return True
+
+        self.logger("Erro: o Nome da Loja é obrigatório. Preencha o campo antes de executar.", "ERRO")
+        # messagebox/foco só na thread principal (agendamentos rodam sem janela/outra thread)
+        if threading.current_thread() is threading.main_thread() and self.root.winfo_viewable():
+            messagebox.showwarning("Campo obrigatório", "Preencha o Nome da Loja antes de executar esta ação.")
+            try:
+                self.entry_nome_loja_main.focus_set()
+            except Exception:
+                pass
+        return False
+
     def iniciar_thread_processamento(self, acao="solicitar", usar_thread=True):
         """Inicia o processamento baseado no botão clicado."""
+        if not self._validar_nome_loja_obrigatorio():
+            return
+
         folder = self.get_pasta_conta()
         if not folder: return
         
@@ -6549,6 +7167,9 @@ class AppColetorPro:
                 autorizados = 0
                 pedidos_relevantes = []
                 msg_liberacao_boleto = "A liberação do seu boleto já está sendo processada."
+                # Frase manual equivalente para pedidos de PIX
+                msg_liberacao_pix = "A liberação da sua chave PIX já está sendo processada."
+                _frases_liberacao_manual = (msg_liberacao_boleto.lower(), msg_liberacao_pix.lower())
 
                 for pedido in chats:
                     order_id = self._order_id_registro(pedido, executar_reclamacao)
@@ -6597,14 +7218,15 @@ class AppColetorPro:
                         # segurança, mesmo dentro de uma Reclamação.
                         # Mesmo assim, seguimos identificando o prompt pelo texto completo
                         # do template (e não só "DIGITE 1"), pois é mais específico.
+                        # Aceita o prompt de boleto ("...gerar o boleto...") e o de PIX ("...enviar a chave PIX...").
                         PADRAO_PROMPT_DIGITE_1 = re.compile(
-                            r'digite\s*1\b.{0,150}gerar o boleto',
+                            r'digite\s*1\b.{0,150}(?:gerar o boleto|enviar a chave pix)',
                             re.IGNORECASE | re.DOTALL
                         )
 
                         ultima_prompt_index = None
                         for msg_idx, m in enumerate(conversa):
-                            texto = str(m.get('texto', '')).strip()
+                            texto = str(m.get('texto') or '').strip()
                             if PADRAO_PROMPT_DIGITE_1.search(texto):
                                 ultima_prompt_index = msg_idx
 
@@ -6648,10 +7270,10 @@ class AppColetorPro:
                         for m in conversa[ultima_prompt_index + 1:]:
                             # Ignora qualquer mensagem enviada pelo próprio vendedor
                             # (nossas próprias mensagens não contam como resposta do cliente).
-                            if m.get('is_seller') and m.get('texto').strip() != msg_liberacao_boleto:
+                            if m.get('is_seller') and str(m.get('texto') or '').strip().lower() not in _frases_liberacao_manual:
                                 continue
 
-                            texto = str(m.get('texto', '')).strip()
+                            texto = str(m.get('texto') or '').strip()
 
                             if PADRAO_MSG_COMPENSACAO.search(texto):
                                continue
@@ -6663,7 +7285,7 @@ class AppColetorPro:
                                 mensagens_cliente_para_ia.append(texto)
 
                             autorizou_por_numero = _e_resposta_autorizacao_1(texto)
-                            autorizou_por_msg_manual = msg_liberacao_boleto.lower() in texto.lower()
+                            autorizou_por_msg_manual = any(f in texto.lower() for f in _frases_liberacao_manual)
                             if autorizou_por_numero or autorizou_por_msg_manual:
                                 if not db[order_id].get('cliente_autorizou'):
                                     db[order_id]['cliente_autorizou'] = True
@@ -6798,7 +7420,7 @@ class AppColetorPro:
                             if not m.get('is_seller'):
                                continue
                             
-                            texto = str(m.get('texto', '')).strip() 
+                            texto = str(m.get('texto') or '').strip() 
                                 
                             autorizou_por_msg_manual = msg_liberacao_boleto.lower() in texto.lower()
                             if autorizou_por_msg_manual:
@@ -6882,7 +7504,7 @@ class AppColetorPro:
                         for m in conversa:
                             if not m.get('is_seller'):
                                 continue
-                            texto = str(m.get('texto', '')).strip()
+                            texto = str(m.get('texto') or '').strip()
                             if msg_liberacao_boleto_dobro.lower() in texto.lower():
                                 db[order_id]['cliente_autorizou_reenvio_dobro'] = True
                                 autorizados += 1
@@ -7097,6 +7719,7 @@ class AppColetorPro:
                         #self.logger(f"Ordem {order_id} ignorada (não está na lista do banco de dados).")
                         #continue
                        
+                       
                 if(tipo == "by_id"):
                     ordem_ids_input = self.var_ordem_ids.get().strip()
                     if not ordem_ids_input:
@@ -7108,13 +7731,14 @@ class AppColetorPro:
                         continue
                     
                 
-                #if order_id != "2000015387607339":
+                #ALVO_TESTE = "2000015411988331"
+                #if order_id == ALVO_TESTE or str(pedido.get('pack_id')) == ALVO_TESTE:
+                    # segue executando o código normal aqui dentro
+                #   pass
+                #else:
                 #    self.logger(f"Ordem {order_id} ignorada (não está na lista de IDs do teste).")
-                #    continue    
-                
-                # APOS 2 OU 3 DIAS DO ENVIO DO CODIGO DE RASTREIO, ENVIAR MSG E BOLETO PARA PAGAMENTO DE TAXA E SALVAR NO DB QUE O BOLETO FOI ENVIADO
-                #url_msg = f"https://api.mercadolibre.com/messages/packs/{order_id}/sellers/{config['ML_SELLER_ID']}?tag=post_sale"
-                # Se a ordem não existe no DB, inicializamos como dicionário vazio
+                #    continue
+
                 if order_id not in db:
                     #self.logger(f"Ordem {order_id} ignorada (não está na lista do banco de dados).")
                     #continue
@@ -7174,14 +7798,16 @@ class AppColetorPro:
                                 break
                             self.logger(f"Enviando PIX para pagamento de taxa para a ordem {order_id}...")
 
-                            text = (f"Vamos gerar o pagamento agora mesmo!\n\nPara pagar a taxa de R$ {formatar_valor_br(get_valor_boleto())} via PIX, é só copiar a chave PIX abaixo e pagar pelo aplicativo do seu Banco: 👇")
+                            text = (f"Vamos gerar o pagamento agora mesmo!\n\nPara pagar a taxa de R$ {formatar_valor_br(get_valor_taxa_pedido(dados_pedido))} via PIX, é só copiar a chave PIX abaixo e pagar pelo aplicativo do seu Banco: 👇")
                             envioMsgPrePix = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
                             if envioMsgPrePix:
                                 # -- CHAVE PIX
                                 envioChavePix = self.enviarMSG(order_id, buyer_id, f"{chave_pix}", headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
                                 if envioChavePix:
                                     # -- ENVIO COMPROVANTE
-                                    text = f"Esperamos o comprovante! Att, Time {get_nome_loja()}".strip()
+                                    dados_recebedor = montar_texto_recebedor_pix()
+                                    prefixo_recebedor = f"\n{dados_recebedor}\n\n" if dados_recebedor else ""
+                                    text = f"{prefixo_recebedor}Esperamos o comprovante! Att, Time {get_nome_loja()}".strip()
                                     envioPixComprovante = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
                                     if envioPixComprovante:
                                         boletos_contagem += 1
@@ -7214,6 +7840,7 @@ class AppColetorPro:
                                 indice_boleto = boleto_info["indice"]
                                 id_payment = boleto_info["id_payment"]
                                 horario_boleto = boleto_info["horario_boleto"]
+                                provedor_boleto = boleto_info.get("provedor", "")
                             if(not boleto_numero):
                                 self.logger(f"Não foi possível encontrar um boleto disponível para a ordem {order_id}. Verifique o Excel de registros.", "ERRO")
                                 break       
@@ -7240,6 +7867,7 @@ class AppColetorPro:
                                                 db[order_id]['codigo_boleto'] = boleto_numero
                                                 db[order_id]['id_payment'] = id_payment
                                                 db[order_id]['horario_boleto'] = horario_boleto
+                                                db[order_id]['provedor'] = provedor_boleto
                                                 self._salvar_db_periodico(db, i, len(pedidos))
                                                 self.logger(f"Boleto enviado com sucesso para a ordem {order_id}!")
                                                 continue
@@ -7270,6 +7898,7 @@ class AppColetorPro:
                                 indice_boleto = boleto_info["indice"]
                                 id_payment = boleto_info["id_payment"]
                                 horario_boleto = boleto_info["horario_boleto"]
+                                provedor_boleto = boleto_info.get("provedor", "")
                             if(not boleto_numero):
                                 self.logger(f"Não foi possível encontrar um boleto disponível para a ordem {order_id}. Verifique o Excel de registros.", "ERRO")
                                 break       
@@ -7301,6 +7930,7 @@ class AppColetorPro:
                                                     db[order_id]['codigo_boleto'] = boleto_numero
                                                     db[order_id]['id_payment'] = id_payment
                                                     db[order_id]['horario_boleto'] = horario_boleto
+                                                    db[order_id]['provedor'] = provedor_boleto
                                                     self._salvar_db_periodico(db, i, len(pedidos))
                                                     self.logger(f"Boleto enviado com sucesso para a ordem {order_id}!")
                                                     continue
@@ -7330,6 +7960,7 @@ class AppColetorPro:
                                     indice_boleto = boleto_info["indice"]
                                     id_payment = boleto_info["id_payment"]
                                     horario_boleto = boleto_info["horario_boleto"]
+                                    provedor_boleto = boleto_info.get("provedor", "")
                                 if(not boleto_numero):
                                     self.logger(f"Não foi possível encontrar um boleto disponível para a ordem {order_id}. Verifique o Excel de registros.", "ERRO")
                                     break    
@@ -7348,6 +7979,7 @@ class AppColetorPro:
                                                 db[order_id]['codigo_boleto'] = boleto_numero
                                                 db[order_id]['id_payment'] = id_payment
                                                 db[order_id]['horario_boleto'] = horario_boleto
+                                                db[order_id]['provedor'] = provedor_boleto
                                                 self._salvar_db_periodico(db, i, len(pedidos))
                                                 self.logger(f"Boleto reenviado com sucesso para a ordem {order_id}!")
                                                 continue
@@ -7356,14 +7988,15 @@ class AppColetorPro:
                                             break    
                                     else:
                                         self.logger(f"Falha ao enviar mensagem de comprovante para a ordem {order_id}: {envioBoletoComprovante}", "ERRO")
-                        elif dados_pedido.get('boleto_enviado') and dados_pedido.get('boleto_pago') and not dados_pedido.get('boleto_pago_agradecimento') and env_boleto_agradecimento:
-                            # --- ENVIO AGRADECIMENTO BOLETO PAGO
-                            text = (f"Obrigado, o pagamento da taxa foi realizado Vamos dar continuidade a entrega.\nO seu pedido vai chegar {self.var_data_entrega.get().strip()} no período da tarde! 😉")
+                        elif dados_pedido.get('boleto_enviado') and (dados_pedido.get('boleto_pago') or dados_pedido.get('pago_via_pix')) and not dados_pedido.get('boleto_pago_agradecimento') and env_boleto_agradecimento:
+                            # --- ENVIO AGRADECIMENTO (BOLETO PAGO ou PIX confirmado no chat pelo analista)
+                            text = (f"Obrigado, o pagamento da taxa foi realizado. \n\n Vamos dar continuidade a entrega.\n\nO seu pedido vai chegar {self.var_data_entrega.get().strip()} no período da tarde! 😉")
                             envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
                             if envio:
                                 db[order_id]['boleto_pago_agradecimento'] = True
                                 self._salvar_db_periodico(db, i, len(pedidos))
-                                self.logger(f"Mensagem de boleto pago enviada para a ordem {order_id}.")
+                                _tipo_pg = "PIX" if (dados_pedido.get('pago_via_pix') and not dados_pedido.get('boleto_pago')) else "boleto"
+                                self.logger(f"Mensagem de agradecimento ({_tipo_pg} pago) enviada para a ordem {order_id}.")
                                 continue           
                         elif dados_pedido.get('boleto_enviado') and not dados_pedido.get('boleto_pago') and not dados_pedido.get('pago_via_pix') and cobrar_nao_pagos:
                             if dados_pedido.get('cobranca_nao_pago_enviada'):
@@ -7409,15 +8042,16 @@ class AppColetorPro:
                                     self.logger(f"Ordem {order_id} ignorada: solicitacao DIGITE 1 enviada ha menos de 1 dia.", "AVISO")
                                     continue
                                 
+                            _item_taxa = "a chave PIX" if dados_pedido.get('metodo_taxa') == "pix" else "o boleto"
                             text = ("Olá! Precisamos da sua autorização para dar andamento."
                                     "Caso não receba a confirmação, o pedido sera cancelado automaticamente. "
-                                    "\nPara receber o boleto da taxa, DIGITE 1.")
+                                    f"\nPara receber {_item_taxa} da taxa, DIGITE 1.")
                             envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
                             
                             if not dados_pedido.get('avisoBrinde'):
                                 pasta_imagens_brinde = self.encontrar_pasta_imagens_brindes("Brindes")
                                 
-                                textoBrinde = (f"Tivemos uma taxa de importação de R$ {formatar_valor_br(get_valor_boleto())}, um valor abaixo da média aplicada pela Receita Federal para esse tipo de produto.\n\n"
+                                textoBrinde = (f"Tivemos uma taxa de importação de R$ {formatar_valor_br(get_valor_taxa_pedido(dados_pedido))}, um valor abaixo da média aplicada pela Receita Federal para esse tipo de produto.\n\n"
                                                "Para compensar o transtorno, estamos te presenteando com: montagem grátis, " 
                                                "3 vasos de cerâmica, um suporte de TV e 2 puffs para sua sala!")
                                 envioBrinde = self.enviarMSG(order_id, buyer_id, textoBrinde, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
@@ -7448,7 +8082,7 @@ class AppColetorPro:
                                 self.logger(f"Falha ao enviar mensagem de nao autorizado para a ordem {order_id}.", "ERRO")
                         elif dados_pedido.get('boleto_pago') and dados_pedido.get('boleto_pago_agradecimento') and not dados_pedido.get('cobrado_dobro') and cobrar_dobrado:
                             #COBRAR DOBRO
-                            text = (f"Olá, tudo bem?\n\nOcorreu um erro aqui de comunicação com a transportadora e a receita\n\nA taxa era R${formatar_valor_br(get_valor_boleto() + 100)} e passaram R${formatar_valor_br(get_valor_boleto())}, foi um erro da transportadora\n\nFalta mais R$100 pra pagar a taxa, para a transportadora entregar o seu painel que chegará na {self.var_data_entrega.get().strip()}")
+                            text = (f"Olá, tudo bem?\n\nOcorreu um erro aqui de comunicação com a transportadora e a receita\n\nA taxa era R${formatar_valor_br(get_valor_taxa_pedido(dados_pedido) + 100)} e passaram R${formatar_valor_br(get_valor_taxa_pedido(dados_pedido))}, foi um erro da transportadora\n\nFalta mais R$100 pra pagar a taxa, para a transportadora entregar o seu painel que chegará na {self.var_data_entrega.get().strip()}")
                             envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
                             if envio:
                                 if cobrar_dobrado_metodo == "pix":
@@ -7470,10 +8104,11 @@ class AppColetorPro:
                         elif not dados_pedido.get('boleto_enviado') and not dados_pedido.get('boleto_autorizado_msg') and autorizar_boleto and autorizar_contagem < lim_atorizar:
                             # -- AVISO Q TAXOU
                             if env_boleto_metodo == "pix":
-                                trecho_pagamento = "O pagamento é feito exclusivamente via PIX. A transportadora utiliza o sistema do Mercado Pago para garantir a segurança da plataforma. Assim que você autorizar, enviaremos a chave PIX para pagamento."
+                                trecho_pagamento = "O pagamento é feito exclusivamente via PIX, com a chave oficial da nossa empresa, em ambiente bancário seguro. Assim que você autorizar, enviaremos a chave PIX para pagamento."
                             else:
                                 trecho_pagamento = "O pagamento é feito exclusivamente pelo boleto do Mercado Pago que enviamos. A transportadora utiliza o sistema do Mercado Pago para garantir a segurança da plataforma. Assim que você autorizar, o boleto será gerado."
-                            text = (f"Olá, tudo bem?\nO seu painel importado chegou no Brasil. 🥳\nPorém, a Receita Federal taxou o seu produto no valor de R$ {formatar_valor_br(get_valor_boleto())}.\n\nÉ necessário realizar o pagamento desta taxa, para dar continuidade na entrega. Caso seja pago hoje, o seu pedido chegará " + self.var_data_entrega.get().strip() + " 😉\n\n" + trecho_pagamento)
+                            valor_taxa_msg = get_valor_boleto()  # valor informado agora na tela; será gravado na venda
+                            text = (f"Olá, tudo bem?\nO seu painel importado chegou no Brasil. 🥳\nPorém, a Receita Federal taxou o seu produto no valor de R$ {formatar_valor_br(valor_taxa_msg)}.\n\nÉ necessário realizar o pagamento desta taxa, para dar continuidade na entrega. Caso seja pago hoje, o seu pedido chegará " + self.var_data_entrega.get().strip() + " 😉\n\n" + trecho_pagamento)
                             envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
                             if envio:
                                     if env_boleto_metodo == "pix":
@@ -7485,6 +8120,7 @@ class AppColetorPro:
                                         autorizar_contagem += 1
                                         db[order_id]['boleto_autorizado_msg'] = True
                                         db[order_id]['metodo_taxa'] = env_boleto_metodo  # 'pix' ou 'boleto'
+                                        db[order_id]['valor_taxa'] = round(float(valor_taxa_msg), 2)  # valor cobrado nesta venda
                                         db[order_id]['data_enviado_msg_autorizado'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                         self._salvar_db_periodico(db, i, len(pedidos))
                                         self.logger(f"Solicitação de autorização de boleto enviada para a ordem {order_id}.")
@@ -7518,6 +8154,7 @@ class AppColetorPro:
                                     indice_boleto = boleto_info["indice"]
                                     id_payment = boleto_info["id_payment"]
                                     horario_boleto = boleto_info["horario_boleto"]
+                                    provedor_boleto = boleto_info.get("provedor", "")
                                 if not boleto_numero:
                                     self.logger(f"Não foi possível encontrar um boleto disponível para a ordem {order_id}. Verifique o Excel de registros.", "ERRO")
                                     break
@@ -7538,6 +8175,7 @@ class AppColetorPro:
                                                 db[order_id]['codigo_boleto_dobro'] = boleto_numero
                                                 db[order_id]['id_payment_dobro'] = id_payment
                                                 db[order_id]['horario_boleto_dobro'] = horario_boleto
+                                                db[order_id]['provedor_dobro'] = provedor_boleto
                                                 db[order_id]['data_reenvio_dobro'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                                 self._salvar_db_periodico(db, i, len(pedidos))
                                                 self.logger(f"Boleto dobrado reenviado com sucesso para a ordem {order_id}!")
@@ -7611,6 +8249,8 @@ class AppColetorPro:
                                 db[order_id]['rastreio_enviado'] = True
                                 db[order_id]['data_rastreio'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                 db[order_id]['codigo_rastreio'] = cod_rastreio
+                                # Tipo do rastreio escolhido (1 = BR/Correios, 2 = AliExpress) para a IA saber
+                                db[order_id]['tipo_rastreio'] = 'aliexpress' if tipomsgRastreio == 2 else 'br'
                                 rastreios_contagem += 1
                                 self._salvar_db_periodico(db, i, len(pedidos))
                                 if not executar_reclamacao and not dados_pedido.get('numero_extraido'):
@@ -7641,7 +8281,7 @@ class AppColetorPro:
                         conversaCompleta = self.obter_conversa_completa(order_id, pack_id, config['ML_SELLER_ID'], token)
                         if order_id in db and (dados_pedido.get('solicitado') and not dados_pedido.get('numero_extraido')):
                             for m in conversaCompleta:
-                                texto = m.get('texto', '')
+                                texto = m.get('texto') or ''
                                 # Regex robusto para capturar vários formatos de telefone BR
                                 match = re.search(r'(?:\+?55\s?)?0?\(?(\d{2})\)?\s*(9)?\s*(\d{4,5})\s*[\s.-]?\s*(\d{4})', texto)
                                 if match:
@@ -7796,7 +8436,9 @@ class AppColetorPro:
                         "numero": str(row['Código']),
                         "indice": index,
                         "id_payment": str(row['id_payment']),
-                        "horario_boleto": str(row['Horário'])
+                        "horario_boleto": str(row['Horário']),
+                        # coluna "Provedor" da planilha (Mercado Pago / Asaas); vazio em planilhas antigas
+                        "provedor": "" if pd.isna(row.get('Provedor')) else str(row.get('Provedor')).strip()
                     }
             
             return None  # Retorna None se não encontrar nenhum disponível
@@ -7894,6 +8536,33 @@ class AppColetorPro:
                 time.sleep(0.1)
             return self.enviarMsgML(order_id, buyer_id, texto_ml, headers, seller_id, reclamacao, claim_id, pack_id)     
         
+    @staticmethod
+    def _detalhar_erro_ml(resp, limite=600):
+        """
+        Monta uma descrição legível de uma resposta de erro da API do ML:
+        status HTTP + message/error/cause (quando vier JSON) ou o corpo bruto.
+        """
+        try:
+            corpo = resp.json()
+        except Exception:
+            corpo = None
+
+        if isinstance(corpo, dict):
+            partes = []
+            for chave in ("message", "error", "code"):
+                if corpo.get(chave):
+                    partes.append(f"{chave}={corpo[chave]}")
+            causas = corpo.get("cause")
+            if causas:
+                partes.append(f"cause={causas}")
+            detalhe = " | ".join(partes) if partes else str(corpo)
+        else:
+            detalhe = (resp.text or "").strip() or "(corpo vazio)"
+
+        if len(detalhe) > limite:
+            detalhe = detalhe[:limite] + "..."
+        return f"HTTP {resp.status_code} - {detalhe}"
+
     def enviarMsgML(self, order_id, buyer_id, texto, headers, ML_SELLER_ID, reclamacao, claim_id, pack_id):
         self._check_stop()
         if reclamacao:
@@ -7906,9 +8575,18 @@ class AppColetorPro:
                 envio = SESSION.post(url_msg, json=payload, headers=headers, timeout=15)
                 if envio.status_code in [200, 201]:
                     return True
+                self.logger(
+                    f"Falha ao enviar mensagem de RECLAMAÇÃO (ordem {order_id}, claim {claim_id}, "
+                    f"comprador {buyer_id}): {self._detalhar_erro_ml(envio)}",
+                    "ERRO"
+                )
                 return False
             except Exception as e:
-                self.logger(f"Erro ao enviar mensagem de reclamação para {buyer_id}: {str(e)}", "ERRO")
+                self.logger(
+                    f"Erro ao enviar mensagem de reclamação (ordem {order_id}, claim {claim_id}, "
+                    f"comprador {buyer_id}): {type(e).__name__}: {str(e)}",
+                    "ERRO"
+                )
                 return False
         else:
             payload = {
@@ -7931,16 +8609,29 @@ class AppColetorPro:
                     and str(pack_id) != str(order_id)
                 ):
                     self.logger(
-                        f"Envio de mensagem COMUM {order_id} retornou 400. "
+                        f"Envio de mensagem COMUM {order_id} retornou 400 "
+                        f"({self._detalhar_erro_ml(envio)}). "
                         f"Tentando novamente com pack_id {pack_id}",
                         "AVISO"
                     )
                     url_msg = f"https://api.mercadolibre.com/messages/packs/{pack_id}/sellers/{ML_SELLER_ID}?tag=post_sale"
                     envio = SESSION.post(url_msg, json=payload, headers=headers, timeout=15)
 
-                return envio.status_code in [200, 201]
+                if envio.status_code in [200, 201]:
+                    return True
+
+                self.logger(
+                    f"Falha ao enviar mensagem COMUM (ordem {order_id}, pack {pack_id}, "
+                    f"comprador {buyer_id}): {self._detalhar_erro_ml(envio)}",
+                    "ERRO"
+                )
+                return False
             except Exception as e:
-                self.logger(f"Erro ao enviar mensagem COMUM para {buyer_id}: {str(e)}", "ERRO")
+                self.logger(
+                    f"Erro ao enviar mensagem COMUM (ordem {order_id}, pack {pack_id}, "
+                    f"comprador {buyer_id}): {type(e).__name__}: {str(e)}",
+                    "ERRO"
+                )
                 return False
 
     
@@ -8193,7 +8884,7 @@ class AppColetorPro:
                     )
                     conversa_unificada.append({
                         "origem": "Chat Comum",
-                        "texto": m.get('text'),
+                        "texto": m.get('text') or '',
                         "data": m.get('message_date'),
                         "sender_id": sender_id,
                         "is_seller": str(sender_id) == str(seller_id)
@@ -8238,7 +8929,7 @@ class AppColetorPro:
                             sender_role_text = str(sender_role or "").lower()
                             conversa_unificada.append({
                                 "origem": f"Reclamação ({claim_id})",
-                                "texto": mc.get('message') or mc.get('text'),
+                                "texto": mc.get('message') or mc.get('text') or '',
                                 "data": mc.get('date_created') or mc.get('message_date'),
                                 "sender_id": sender_id,
                                 "sender_role": sender_role,
@@ -8454,8 +9145,8 @@ class AppColetorPro:
                     if not dados.get('numero_extraido'):
                         continue  # Sem número, pular
                     
-                    if dados.get('boleto_pago'):
-                        continue  # Já pagou, pular
+                    if dados.get('boleto_pago') or dados.get('pago_via_pix'):
+                        continue  # Já pagou (boleto ou PIX), pular
                     
                     if dados.get('contatado_wa'):
                         skip_count += 1
@@ -8639,8 +9330,25 @@ class AppColetorPro:
                     break
                 
         # Preenche a data da venda original para cada reclamação e ordena
+        # (1 consulta por reclamação na API, então com muitas reclamações demora: loga o progresso)
+        total_claims = len(reclamacoes_completas)
+        self.logger(
+            f"Organizando {total_claims} reclamações por data da venda (1 consulta por reclamação, pode demorar alguns minutos)...",
+            "INFO"
+        )
+        inicio_organizacao = time.time()
+        falhas_data = 0
+        passo_log = 25
         claims_com_data_venda = []
-        for claim in reclamacoes_completas:
+        for idx_claim, claim in enumerate(reclamacoes_completas, start=1):
+            if idx_claim % passo_log == 0 or idx_claim == total_claims:
+                decorrido = int(time.time() - inicio_organizacao)
+                restante = int((decorrido / idx_claim) * (total_claims - idx_claim)) if idx_claim else 0
+                self.logger(
+                    f"Organizando reclamações por data: {idx_claim}/{total_claims} "
+                    f"({int(idx_claim * 100 / total_claims)}%) - tempo restante estimado: {restante // 60}min {restante % 60}s",
+                    "INFO"
+                )
             sale_date = "9999-12-31T23:59:59.000Z"
             if claim.get('resource') == 'order' and claim.get('resource_id'):
                 order_id = claim.get('resource_id')
@@ -8651,13 +9359,21 @@ class AppColetorPro:
                         order_info = response_order.json()
                         sale_date = order_info.get('date_created', sale_date)
                     else:
+                        falhas_data += 1
                         self.logger(f"Falha ao buscar ordem {order_id}: {response_order.status_code}", "AVISO")
                 except Exception as e:
+                    falhas_data += 1
                     self.logger(f"Erro ao buscar data da ordem {order_id}: {e}", "AVISO")
             claim['sale_date'] = sale_date
             claims_com_data_venda.append(claim)
 
         claims_ordenados = sorted(claims_com_data_venda, key=lambda x: x.get('sale_date', "9999-12-31T23:59:59.000Z"))
+        tempo_total = int(time.time() - inicio_organizacao)
+        self.logger(
+            f"Organização por data finalizada: {len(claims_ordenados)} reclamações em {tempo_total // 60}min {tempo_total % 60}s"
+            + (f" ({falhas_data} sem data de venda, ficam no fim da fila)." if falhas_data else "."),
+            "INFO"
+        )
         return claims_ordenados, len(claims_ordenados)
         
     def _texto_para_datetime_db(self, valor):
@@ -8688,6 +9404,9 @@ class AppColetorPro:
         por_dia = {}
         for order_id, dados in db.items():
             if not isinstance(dados, dict) or not dados.get('rastreio_enviado'):
+                continue
+            # Vendas encerradas (marcadas pelo botão VENDAS ENCERRADAS) não entram nos lotes
+            if dados.get('encerrada'):
                 continue
             dia = self._data_rastreio_para_dia(dados.get('data_rastreio'))
             if dia is None:
@@ -8879,7 +9598,7 @@ class AppColetorPro:
             "Solicitado": [], 
             "Rastreio": [], 
             "Boleto": [], 
-            "Boleto Pago": [], 
+            "Boleto/PIX Pago": [], 
             "Boleto Vencido": [], 
             "Cobrança Dobrada": [], 
             "Boleto Pago Dobro": [],
@@ -8894,7 +9613,7 @@ class AppColetorPro:
                 etapas["Vendas Encerradas"].append(oid)
             elif dados.get('boleto_pago_dobro'): etapas["Boleto Pago Dobro"].append(oid)
             elif dados.get('cobrado_dobro'): etapas["Cobrança Dobrada"].append(oid)
-            elif dados.get('boleto_pago'): etapas["Boleto Pago"].append(oid)
+            elif dados.get('boleto_pago') or dados.get('pago_via_pix'): etapas["Boleto/PIX Pago"].append(oid)
             elif dados.get('boleto_vencido'): etapas["Boleto Vencido"].append(oid)
             elif dados.get('boleto_enviado'): etapas["Boleto"].append(oid)
             elif dados.get('rastreio_enviado'): etapas["Rastreio"].append(oid)
@@ -8969,8 +9688,6 @@ class AppColetorPro:
     def abrir_dashboard_boletos_pagos(self):
         """Dashboard de todos os boletos pagos de todas as contas, com filtro por conta
         (email) e por período, usando o campo 'data_solicitacao' como base do filtro."""
-        VALOR_BOLETO = get_valor_boleto()
-
         def _parse_data_solicitacao(valor):
             """Converte a string de data_solicitacao em datetime (aceita com ou sem hora)."""
             if not valor:
@@ -8997,21 +9714,23 @@ class AppColetorPro:
                                 db = json.load(f)
                             registros = []
                             for oid, dados in db.items():
-                                if dados.get('boleto_pago') == True:
+                                if dados.get('boleto_pago') == True or dados.get('pago_via_pix') == True:
                                     data_dt = _parse_data_solicitacao(dados.get('data_solicitacao'))
-                                    registros.append({'order_id': oid, 'data': data_dt})
+                                    # Valor gravado na venda; vendas antigas sem o campo usam 138,98
+                                    valor_pedido = get_valor_taxa_pedido(dados, padrao=VALOR_TAXA_LEGADO)
+                                    registros.append({'order_id': oid, 'data': data_dt, 'valor': valor_pedido})
                             if registros:
                                 contas_raw[pasta_conta] = registros
                         except Exception as e:
                             print(f"Erro ao ler {db_path}: {e}")
 
         if not contas_raw:
-            messagebox.showinfo("Dashboard Boletos", "Nenhum boleto pago encontrado em nenhuma conta.")
+            messagebox.showinfo("Dashboard Boletos", "Nenhum boleto/PIX pago encontrado em nenhuma conta.")
             return
 
         # ---- Janela ----
         dash_win = tk.Toplevel(self.root)
-        dash_win.title("Dashboard - Boletos Pagos por Conta")
+        dash_win.title("Dashboard - Boletos e PIX Pagos por Conta")
         dash_win.geometry("1000x780")
         dash_win.configure(bg="#f8f9fa")
 
@@ -9019,7 +9738,7 @@ class AppColetorPro:
         main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
 
         # --- TÍTULO ---
-        titulo = tk.Label(main_frame, text="BOLETOS PAGOS POR CONTA",
+        titulo = tk.Label(main_frame, text="BOLETOS E PIX PAGOS POR CONTA",
                          font=("Arial", 16, "bold"), bg="#f8f9fa", fg="#28a745")
         titulo.pack(pady=(0, 10))
 
@@ -9200,6 +9919,7 @@ class AppColetorPro:
             for email in emails_selecionados:
                 registros = contas_raw.get(email, [])
                 count_pagos = 0
+                total_conta = 0.0
                 for reg in registros:
                     data_dt = reg['data']
                     if dt_inicio and (data_dt is None or data_dt < dt_inicio):
@@ -9207,16 +9927,17 @@ class AppColetorPro:
                     if dt_fim and (data_dt is None or data_dt > dt_fim):
                         continue
                     count_pagos += 1
+                    total_conta += reg['valor']
                 if count_pagos > 0:
                     nome_curto = email.split('@')[0]
                     contas_dados[nome_curto] = {
                         'pagos': count_pagos,
-                        'total': count_pagos * VALOR_BOLETO
+                        'total': round(total_conta, 2)
                     }
 
             if not contas_dados:
                 tk.Label(content_frame,
-                         text="Nenhum boleto pago encontrado para o filtro selecionado.",
+                         text="Nenhum boleto/PIX pago encontrado para o filtro selecionado.",
                          bg="#f8f9fa", fg="#c00", font=("Arial", 11, "bold")).pack(pady=40)
                 return
 
@@ -9231,7 +9952,7 @@ class AppColetorPro:
             bars = ax.bar(nomes, valores, color=cores, width=0.6)
 
             ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'R$ {x:,.2f}'))
-            ax.set_title(f"Total Recebido por Conta (Boletos Pagos x R$ {formatar_valor_br(VALOR_BOLETO)})",
+            ax.set_title("Total Recebido por Conta (soma do valor de cada boleto/PIX pago)",
                         fontsize=12, fontweight='bold', pad=15)
             ax.set_ylabel("Valor Total (R$)", fontsize=10)
             ax.set_xlabel("Conta", fontsize=10)
@@ -9257,7 +9978,7 @@ class AppColetorPro:
             table_frame = tk.Frame(content_frame, bg="white", bd=1, relief=tk.FLAT)
             table_frame.pack(fill=tk.BOTH, expand=True)
 
-            headers = ["Conta", "Boletos Pagos", "Valor Total"]
+            headers = ["Conta", "Boletos/PIX Pagos", "Valor Total"]
             for i, header in enumerate(headers):
                 tk.Label(table_frame, text=header, bg="#343a40", fg="white",
                         font=("Arial", 10, "bold"), padx=10, pady=5).grid(row=0, column=i, sticky="ew")
@@ -9346,8 +10067,8 @@ class AppColetorPro:
                 "numero": d.get('zap_extraido', 'N/A'),
                 "boleto_enviado": d.get('codigo_boleto', 'N/A'),
                 "id_payment": d.get('id_payment', 'N/A'),
-                "boleto_Pago": "Sim" if d.get('boleto_pago') else "Não",
-                "Data Boleto Pago": d.get('data_boleto_pago', 'N/A'),
+                "boleto_Pago": "Sim" if (d.get('boleto_pago') or d.get('pago_via_pix')) else "Não",
+                "Data Boleto Pago": d.get('data_boleto_pago') or d.get('data_pago_via_pix') or 'N/A',
                 "boleto_vencido": "Sim" if d.get('boleto_vencido') else "Não",
                 "horario_boleto": d.get('horario_boleto', 'N/A'),
                 "Vendas Encerradas": "Sim" if d.get('encerrada') else "Não",

@@ -1069,6 +1069,20 @@ def _criar_session_http():
 SESSION = _criar_session_http()
 
 
+# ==========================================
+# ASAAS - CONSULTA DE BOLETOS PAGOS (botão ATUALIZAR PAGOS)
+# ==========================================
+ASAAS_URL_LOGIN = "https://www.asaas.com/login/auth"
+ASAAS_URL_COBRANCA = "https://www.asaas.com/payment/show/{payment_id}"   # {payment_id} = código do boleto no Asaas
+ASAAS_DEBUG_PORT = 5555          # mesma porta/perfil do Chrome debug usado no resto do sistema
+ASAAS_TIMEOUT = 20               # segundos esperando a tela da cobrança carregar
+ASAAS_XPATH_SITUACAO = "/html/body/atlas-screen/atlas-page/atlas-page-content/div/div[2]/div[2]/div/div[1]/div[2]/form/div[2]/div[1]/div[1]/div[1]/div/span"
+ASAAS_CSS_SITUACAO = "span.icarus-status-info"   # fallback caso o XPath mude
+# Situações do Asaas que significam "boleto pago" (comparação exata, sem diferenciar maiúsculas).
+# "Confirmada" = pagamento confirmado; "Recebida" = a mesma cobrança depois que o saldo é liberado.
+ASAAS_SITUACOES_PAGAS = ("confirmada", "recebida")
+
+
 _TOKEN_LOCKS = {}
 _TOKEN_LOCKS_GUARD = threading.Lock()
 
@@ -3782,6 +3796,19 @@ class JanelaDocumentacao:
         self.text_widget.insert(tk.END, "\n", "descricao")
         self._escrever(["📄 Guia completo em PDF: ", ("Baixar Guia_Conectar_Mercado_Pago_Access_Token.pdf", "link_mp"), "\n\n"])
 
+        # Tópico: Como atualizar boletos pagos do Asaas
+        self._secao("🏦 Como atualizar boletos pagos do Asaas")
+        self._texto("O Asaas não usa token neste fluxo: o sistema abre a cobrança no Chrome e confere a situação. Passo a passo:")
+
+        self._passo(1, "Deixe o ", ("chromedriver.exe", "destaque"), " na raiz do sistema, na mesma pasta do ", ("main.py", "destaque"),
+                    ". Ele precisa ser compatível com a versão do Chrome instalada.")
+        self._passo(2, "Na tela principal, selecione o e-mail da conta cujos boletos serão atualizados.")
+        self._passo(3, "Clique em ", ("Atualizar Pagos", "botao"), " e escolha ", ("ASAAS", "botao"), ".")
+        self._passo(4, "Se o Chrome de automação estiver fechado, o sistema o abre na tela de login do Asaas. Faça login uma vez; o login fica salvo no perfil do Chrome.")
+        self._passo(5, "O sistema percorre os boletos pendentes e abre cada um pelo ID do pagamento. Quando a ",
+                    ("Situação", "destaque"), " for ", ("Confirmada", "destaque"), " (ou Recebida), o boleto é marcado como pago.")
+        self.text_widget.insert(tk.END, "\n", "descricao")
+
         # ==============================================================
         # 3) AUTOMAÇÃO DE MENSAGENS
         # ==============================================================
@@ -3936,9 +3963,19 @@ class JanelaDocumentacao:
                    "Gera a planilha vendas.xlsx com os dados da conta e a salva na pasta da conta selecionada, substituindo a versão anterior. "
                    "Vendas encerradas ficam destacadas em vermelho.")
         self._item("Atualizar Pagos",
-                   "Consulta o Mercado Pago e marca como pagos os ",
-                   ("boletos", "destaque"), " enviados (inclusive o boleto dobrado). Boleto não encontrado é marcado como vencido. ",
-                   "Pedidos cobrados via PIX são ignorados aqui.")
+                   "Ao clicar, pergunta se os boletos são do ", ("Mercado Pago", "destaque"), " ou do ", ("Asaas", "destaque"),
+                   ". Percorre os ", ("boletos", "destaque"), " enviados e ainda não pagos (inclusive o boleto dobrado) e marca como pago "
+                   "os que foram quitados. Pedidos cobrados via PIX são ignorados aqui.",
+                   subs=[
+                       "Cada execução trata só as vendas do provedor escolhido: o provedor é gravado na venda quando o boleto é enviado (vem da coluna Provedor da planilha de boletos). Vendas antigas sem provedor contam como Mercado Pago.",
+                       "Vendas cuja taxa foi cobrada via PIX (método da taxa = PIX, inclusive cobrança dobrada por PIX) são ignoradas.",
+                       [("Mercado Pago: ", "info"), "consulta a API pelo ID do pagamento. Boleto não encontrado é marcado como vencido."],
+                       [("Asaas: ", "info"), "abre no Chrome a tela da cobrança (asaas.com/payment/show/ID do pagamento) e lê o campo ",
+                        ("Situação", "destaque"), ". Se estiver ", ("Confirmada", "destaque"), " (ou Recebida), marca o boleto como pago e registra a data/hora."],
+                       "Asaas: o Chrome precisa estar logado no Asaas. Se não estiver, o sistema avisa para você logar e continua em seguida.",
+                       "Asaas: o robô usa uma aba própria e a fecha no final; o Chrome não é fechado. Boletos em outra situação (ex.: pendente, vencida) só são registrados no log.",
+                       "Mostra no log o total de boletos consultados e de pagos.",
+                   ])
         self._item("Atualizar PIX Pagos",
                    "Confirma os pagamentos ", PIX, ". Percorre os pedidos cobrados via PIX (primeira cobrança ou cobrança dobrada) ainda sem confirmação "
                    "e procura no chat a frase ", ("\"Recebemos o pagamento da Taxa.\"", "destaque"),
@@ -3952,7 +3989,8 @@ class JanelaDocumentacao:
         self._item("Reembolsar Link",
                    "Abre a seleção de contas ativas (uma ou várias) e reembolsa pelo Mercado Pago os boletos pagos que ainda não foram reembolsados. "
                    "Usa os tokens de reembolso cadastrados (compartilhados entre as contas; são testados em ordem).",
-                   subs=["Considera apenas boletos pagos com ID de pagamento. Pagamentos PIX não entram neste fluxo."])
+                   subs=["Considera apenas boletos pagos com ID de pagamento. Pagamentos PIX não entram neste fluxo.",
+                         "O reembolso usa a API do Mercado Pago: boletos pagos pelo Asaas não são reembolsados por aqui."])
 
         # ==============================================================
         # 8) PENDÊNCIAS
@@ -3984,7 +4022,9 @@ class JanelaDocumentacao:
 
         self._item("Agendamentos",
                    "Permite criar, editar, ativar/desativar, executar na hora e acompanhar o histórico de tarefas agendadas "
-                   "para que as rotinas do sistema rodem de forma automática.")
+                   "para que as rotinas do sistema rodem de forma automática.",
+                   subs=["As rotinas agendadas de atualizar pagos consultam sempre o Mercado Pago (não há pergunta de provedor). "
+                         "Para boletos do Asaas, use o botão Atualizar Pagos manualmente."])
         self._item("Stop Urgente", "Interrompe imediatamente as operações em andamento em caso de emergência. Fica ativo só durante uma execução.")
         self._item("Limpar Tudo", "Limpa os logs e as informações visíveis na tela do sistema.")
         self._item("Documentação", "Abre esta janela. Use \"Copiar para Clipboard\" para levar o texto para outro lugar.")
@@ -4482,7 +4522,7 @@ class AppColetorPro:
         self.var_nome_loja_main.trace_add(
             "write", lambda *_: salvar_nome_loja(self.var_nome_loja_main.get())
         )
-        tk.Label(input_frame, text="Nome da Loja *:", fg="#c00000", font=("Arial", 9, "bold")).grid(
+        tk.Label(input_frame, text="Nome da Loja *:").grid(
             row=1, column=0, sticky="w", padx=5, pady=(8, 0)
         )
         self.entry_nome_loja_main = tk.Entry(input_frame, textvariable=self.var_nome_loja_main, width=28)
@@ -5781,21 +5821,333 @@ class AppColetorPro:
             messagebox.showerror("Erro no WhatsApp", f"Falha ao alterar estado do serviço: {e}")
             self.logger(f"Erro ao alternar WPP: {e}", "ERRO") 
         
-    def atualizar_blt_pagos_thread(self):    
-         # --- DISPARA A THREAD ---
-        thread = threading.Thread(target=self.atualizar_blt_pagos, args=())
+    def _perguntar_provedor_boleto(self):
+        """Pergunta se os boletos a atualizar são do Mercado Pago ou do Asaas.
+        Retorna "MP", "ASAAS" ou None (se a janela for fechada). Deve rodar na thread principal."""
+        resultado = {"valor": None}
+
+        janela = tk.Toplevel(self.root)
+        janela.title("Atualizar Pagos")
+        janela.configure(bg="white")
+        janela.transient(self.root)
+        janela.resizable(False, False)
+
+        tk.Label(janela, text="Atualizar boletos pagos de qual provedor?",
+                 bg="white", font=("Arial", 11, "bold")).pack(padx=30, pady=(20, 10))
+
+        frame = tk.Frame(janela, bg="white")
+        frame.pack(padx=20, pady=(5, 20))
+
+        def escolher(valor):
+            resultado["valor"] = valor
+            janela.destroy()
+
+        tk.Button(frame, text="MERCADO PAGO", bg="#009ee3", fg="white", font=("Arial", 10, "bold"),
+                  relief="flat", width=16, cursor="hand2",
+                  command=lambda: escolher("MP")).pack(side="left", padx=6, ipady=6)
+        tk.Button(frame, text="ASAAS", bg="#0030b9", fg="white", font=("Arial", 10, "bold"),
+                  relief="flat", width=16, cursor="hand2",
+                  command=lambda: escolher("ASAAS")).pack(side="left", padx=6, ipady=6)
+
+        janela.protocol("WM_DELETE_WINDOW", janela.destroy)
+
+        # centraliza sobre a janela principal
+        janela.update_idletasks()
+        x = self.root.winfo_x() + (self.root.winfo_width() - janela.winfo_width()) // 2
+        y = self.root.winfo_y() + (self.root.winfo_height() - janela.winfo_height()) // 2
+        janela.geometry(f"+{max(x, 0)}+{max(y, 0)}")
+
+        janela.grab_set()
+        self.root.wait_window(janela)
+        return resultado["valor"]
+
+    def atualizar_blt_pagos_thread(self):
+        # Botão ATUALIZAR PAGOS (thread principal): primeiro pergunta o provedor
+        provedor = self._perguntar_provedor_boleto()
+        if not provedor:
+            self.logger("Atualização de boletos pagos cancelada.", "AVISO")
+            return
+
+        # --- DISPARA A THREAD ---
+        thread = threading.Thread(target=self.atualizar_blt_pagos, args=(provedor,))
         thread.daemon = True
         thread.start()
-        self.logger("Thread de atualização de boletos pagos iniciada em segundo plano...")
+        nome = "Asaas" if provedor == "ASAAS" else "Mercado Pago"
+        self.logger(f"Thread de atualização de boletos pagos ({nome}) iniciada em segundo plano...")
+
+    # ------------------------------------------------------------------
+    # ASAAS - consulta da situação da cobrança pelo navegador
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _porta_aberta(host, porta, timeout=1):
+        try:
+            with socket.create_connection((host, porta), timeout=timeout):
+                return True
+        except OSError:
+            return False
+
+    @staticmethod
+    def _caminho_chromedriver():
+        """chromedriver fica na raiz do sistema, ao lado do main.py. Retorna None se não achar."""
+        pastas = [BASE_DIR]
+        if getattr(sys, "frozen", False):
+            pastas.insert(0, os.path.dirname(sys.executable))
+        pastas.append(os.getcwd())
+        for pasta in pastas:
+            for nome in ("chromedriver.exe", "chromedriver"):
+                caminho = os.path.join(pasta, nome)
+                if os.path.isfile(caminho):
+                    return caminho
+        return None
+
+    def _asaas_conectar_chrome(self):
+        """Conecta (Selenium) no Chrome em modo debug. Se ele não estiver aberto, abre já na tela de login do Asaas."""
+        if not self._porta_aberta("127.0.0.1", ASAAS_DEBUG_PORT):
+            self.logger("Chrome debug fechado. Abrindo o Chrome na tela de login do Asaas...", "INFO")
+            comando = (
+                r'"C:\Program Files\Google\Chrome\Application\chrome.exe" '
+                f'--remote-debugging-port={ASAAS_DEBUG_PORT} '
+                r'--user-data-dir="C:\selenium\AutomacaoPerfil" '
+                f'"{ASAAS_URL_LOGIN}"'
+            )
+            subprocess.Popen(comando, shell=True)
+            limite = time.time() + 20
+            while time.time() < limite and not self._porta_aberta("127.0.0.1", ASAAS_DEBUG_PORT):
+                time.sleep(0.5)
+            if not self._porta_aberta("127.0.0.1", ASAAS_DEBUG_PORT):
+                raise RuntimeError("Não consegui abrir o Chrome em modo debug (porta 5555).")
+
+        chrome_options = Options()
+        chrome_options.add_experimental_option("debuggerAddress", f"127.0.0.1:{ASAAS_DEBUG_PORT}")
+
+        caminho_driver = self._caminho_chromedriver()
+        if caminho_driver:
+            service = Service(executable_path=caminho_driver)
+        else:
+            self.logger("chromedriver não encontrado ao lado do main.py; usando o gerenciador automático do Selenium.", "AVISO")
+            service = Service()
+        return webdriver.Chrome(service=service, options=chrome_options)
+
+    def _asaas_ler_situacao(self, driver, payment_id):
+        """Abre /payment/show/<payment_id> e devolve o texto do campo 'Situação'.
+        Levanta PermissionError se o Chrome não estiver logado no Asaas."""
+        driver.get(ASAAS_URL_COBRANCA.format(payment_id=payment_id))
+        WebDriverWait(driver, ASAAS_TIMEOUT).until(
+            lambda d: d.execute_script("return document.readyState") == "complete"
+        )
+        if "login" in driver.current_url.lower():
+            raise PermissionError("Chrome não está logado no Asaas.")
+
+        def _procurar(d):
+            if "login" in d.current_url.lower():
+                return "__LOGIN__"
+            for by, seletor in ((By.XPATH, ASAAS_XPATH_SITUACAO), (By.CSS_SELECTOR, ASAAS_CSS_SITUACAO)):
+                try:
+                    texto = (d.find_element(by, seletor).get_attribute("textContent") or "").strip()
+                    if texto:
+                        return texto
+                except NoSuchElementException:
+                    continue
+            return False
+
+        texto = WebDriverWait(driver, ASAAS_TIMEOUT).until(_procurar)
+        if texto == "__LOGIN__":
+            raise PermissionError("Chrome não está logado no Asaas.")
+        return texto
+
+    def _asaas_situacao_paga(self, texto):
+        return (texto or "").strip().lower() in ASAAS_SITUACOES_PAGAS
+
+    # ------------------------------------------------------------------
+    # Provedor do boleto gravado na venda + regra de PIX (usados em ATUALIZAR PAGOS)
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _provedor_venda(d, campo="provedor"):
+        """Normaliza o provedor gravado na venda: "ASAAS", "MP" ou "" (não informado, venda antiga)."""
+        p = str(d.get(campo) or "").strip().lower()
+        if "asaas" in p:
+            return "ASAAS"
+        if "mercado" in p or p == "mp":
+            return "MP"
+        return ""
+
+    def _venda_do_provedor(self, d, provedor, campo="provedor"):
+        """True se a venda é do provedor escolhido. Vendas antigas sem provedor gravado valem como Mercado Pago
+        (antes do Asaas existir, todo boleto era do Mercado Pago)."""
+        p = self._provedor_venda(d, campo)
+        if provedor == "ASAAS":
+            return p == "ASAAS"
+        return p in ("MP", "")
+
+    @staticmethod
+    def _cobranca_pix(d):
+        """Taxa cobrada via PIX (campo metodo_taxa) -> ignorada na atualização de boletos."""
+        return str(d.get('metodo_taxa') or "").strip().lower() == "pix" or bool(d.get('cobrado_via_pix'))
+
+    @staticmethod
+    def _cobranca_pix_dobro(d):
+        """Cobrança dobrada via PIX (campo metodo_cobro_dobro) -> ignorada na atualização de boletos."""
+        return str(d.get('metodo_cobro_dobro') or "").strip().lower() == "pix"
+
+    def _logar_ignorados_outro_provedor(self, db, provedor):
+        outros = sum(
+            1 for d in db.values()
+            if d.get('boleto_enviado') and not d.get('boleto_pago') and not self._cobranca_pix(d)
+            and not self._venda_do_provedor(d, provedor)
+        )
+        if outros:
+            nome = "Asaas" if provedor == "ASAAS" else "Mercado Pago"
+            self.logger(f"{outros} boleto(s) pendente(s) de outro provedor foram ignorados (rodando só {nome}).", "INFO")
+
+    def _atualizar_blt_pagos_asaas(self, db):
+        """Percorre os boletos pendentes (igual ao fluxo do Mercado Pago) e consulta cada um no Asaas.
+        Situação 'Confirmada' = boleto pago."""
+
+        # Só vendas cujo provedor gravado é Asaas; PIX é ignorado
+        def _pendente_normal(d):
+            return (d.get('boleto_enviado') and not d.get('boleto_pago') and not self._cobranca_pix(d)
+                    and self._venda_do_provedor(d, "ASAAS"))
+
+        def _dobro_do_asaas(d):
+            return (d.get('cobrado_dobro') and not d.get('boleto_pago_dobro') and not self._cobranca_pix_dobro(d)
+                    and self._venda_do_provedor(d, "ASAAS", "provedor_dobro"))
+
+        def _pendente_dobro(d):
+            return d.get('boleto_pago') and _dobro_do_asaas(d)
+
+        # Pode virar pendente de dobro no meio do loop (quando o normal for marcado como pago)
+        precisa_consultar = any(
+            _pendente_normal(d) or (d.get('boleto_enviado') and _dobro_do_asaas(d))
+            for d in db.values()
+        )
+        if not precisa_consultar:
+            self.logger("Asaas: nenhum boleto pendente para consultar.", "INFO")
+            return
+
+        driver = None
+        aba_origem = None
+        aba_asaas = None
+        atualizados = 0
+        consultados = 0
+
+        try:
+            driver = self._asaas_conectar_chrome()
+            try:
+                aba_origem = driver.current_window_handle
+            except Exception:
+                aba_origem = None
+
+            # Aba própria para o Asaas, sem mexer na aba atual (ex: WhatsApp Web no mesmo Chrome)
+            try:
+                driver.switch_to.new_window('tab')
+            except Exception:
+                driver.execute_script("window.open('about:blank');")
+                driver.switch_to.window(driver.window_handles[-1])
+            aba_asaas = driver.current_window_handle
+
+            def consultar(payment_id):
+                """Devolve o texto da situação. Se não estiver logado, pede login uma vez e tenta de novo."""
+                try:
+                    return self._asaas_ler_situacao(driver, payment_id)
+                except PermissionError:
+                    self.logger("Asaas: Chrome sem login. Aguardando você logar...", "AVISO")
+                    continuar = messagebox.askokcancel(
+                        "Asaas - login necessário",
+                        "Você não está logado no Asaas.\n\n"
+                        "Faça login na janela do Chrome que abriu (a aba do Asaas) e clique em OK para continuar.\n"
+                        "Cancelar interrompe a atualização."
+                    )
+                    if not continuar:
+                        raise InterruptedError("Atualização Asaas cancelada pelo usuário (sem login).")
+                    return self._asaas_ler_situacao(driver, payment_id)  # se ainda sem login, PermissionError sobe
+
+            for order_id, d in db.items():
+                # --- BOLETO NORMAL ---
+                if _pendente_normal(d):
+                    payment_id = str(d.get('id_payment') or "").strip()
+                    if not payment_id:
+                        self.logger(f"Ordem {order_id}: sem id_payment, não dá para consultar no Asaas.", "AVISO")
+                    else:
+                        try:
+                            situacao = consultar(payment_id)
+                            consultados += 1
+                            if self._asaas_situacao_paga(situacao):
+                                db[order_id]['boleto_pago'] = True
+                                db[order_id]['data_boleto_pago'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                                atualizados += 1
+                                self.logger(f"Ordem {order_id}: Boleto marcado como pago (Asaas: {situacao}).")
+                            else:
+                                self.logger(f"Ordem {order_id}: Asaas {payment_id} - situação '{situacao}'.", "INFO")
+                        except (PermissionError, InterruptedError):
+                            raise
+                        except Exception as e:
+                            self.logger(f"Erro ao verificar ordem {order_id} no Asaas ({payment_id}): {e}", "ERRO")
+                        time.sleep(1)
+
+                # --- BOLETO DOBRO ---
+                if _pendente_dobro(d):
+                    payment_id_dobro = str(d.get('id_payment_dobro') or "").strip()
+                    if not payment_id_dobro:
+                        self.logger(f"Ordem {order_id}: sem id_payment_dobro, não dá para consultar no Asaas.", "AVISO")
+                    else:
+                        try:
+                            situacao = consultar(payment_id_dobro)
+                            consultados += 1
+                            if self._asaas_situacao_paga(situacao):
+                                db[order_id]['boleto_pago_dobro'] = True
+                                db[order_id]['data_boleto_pago_dobro'] = datetime.now().strftime("%d/%m/%Y %H:%M")
+                                atualizados += 1
+                                self.logger(f"Ordem {order_id}: Boleto dobro pago (Asaas: {situacao}).")
+                            else:
+                                self.logger(f"Ordem {order_id}: Asaas dobro {payment_id_dobro} - situação '{situacao}'.", "INFO")
+                        except (PermissionError, InterruptedError):
+                            raise
+                        except Exception as e:
+                            self.logger(f"Erro boleto dobro {order_id} no Asaas ({payment_id_dobro}): {e}", "ERRO")
+                        time.sleep(1)
+
+        except PermissionError:
+            self.logger("Asaas: continua sem login. Faça login no Chrome e rode novamente.", "ERRO")
+            messagebox.showerror("Asaas", "Continua sem login no Asaas.\nFaça login no Chrome e clique em ATUALIZAR PAGOS de novo.")
+        except InterruptedError as e:
+            self.logger(str(e), "AVISO")
+        except Exception as e:
+            self.logger(f"Erro na atualização via Asaas: {e}", "ERRO")
+            messagebox.showerror("Erro Asaas", f"Falha ao consultar o Asaas:\n{e}")
+        finally:
+            # fecha só a aba criada aqui e volta para a aba original (não fecha o Chrome)
+            if driver is not None:
+                try:
+                    if aba_asaas and aba_asaas in driver.window_handles:
+                        driver.switch_to.window(aba_asaas)
+                        if len(driver.window_handles) > 1:
+                            driver.close()
+                    if aba_origem and aba_origem in driver.window_handles:
+                        driver.switch_to.window(aba_origem)
+                    elif driver.window_handles:
+                        driver.switch_to.window(driver.window_handles[0])
+                except Exception:
+                    pass
+            # salva o que já foi marcado mesmo se interrompeu no meio
+            self.salvar_db(db)
+            self.logger(f"Atualização Asaas finalizada. Consultados: {consultados} | Pagos: {atualizados}")
         
             
-    def atualizar_blt_pagos(self):
+    def atualizar_blt_pagos(self, provedor="MP"):
+            # provedor: "MP" (Mercado Pago, API - padrão, também usado pelos agendamentos) ou "ASAAS" (navegador)
             folder = self.get_pasta_conta()
             if not folder: return
             
             db = self.carregar_db()
             if not db:
                 messagebox.showinfo("Info", "Nenhum registro encontrado para atualizar.")
+                return
+
+            # Cada execução só trata as vendas do provedor escolhido (campo "provedor" gravado ao enviar o boleto)
+            self._logar_ignorados_outro_provedor(db, provedor)
+
+            if provedor == "ASAAS":
+                self._atualizar_blt_pagos_asaas(db)
                 return
             
             config = self.carregar_config_cliente(folder)
@@ -5811,7 +6163,8 @@ class AppColetorPro:
             
             for order_id, d in db.items():
                 # --- LÓGICA PARA BOLETO NORMAL ---
-                if d.get('boleto_enviado') and not d.get('boleto_pago') and not d.get('cobrado_via_pix'):
+                if (d.get('boleto_enviado') and not d.get('boleto_pago') and not self._cobranca_pix(d)
+                        and self._venda_do_provedor(d, "MP")):
                     payment_id = d.get('id_payment')
                     encontrado_em_algum_token = False
                     ultimo_erro = ""
@@ -5846,7 +6199,8 @@ class AppColetorPro:
                             self.logger(f"Erro ao verificar ordem {order_id}: {ultimo_erro}", "ERRO")
 
                 # --- LÓGICA PARA BOLETO DOBRO ---
-                if d.get('boleto_pago') and d.get('cobrado_dobro') and not d.get('boleto_pago_dobro'):
+                if (d.get('boleto_pago') and d.get('cobrado_dobro') and not d.get('boleto_pago_dobro')
+                        and not self._cobranca_pix_dobro(d) and self._venda_do_provedor(d, "MP", "provedor_dobro")):
                     payment_id_dobro = d.get('id_payment_dobro')
                     encontrado_dobro = False
                     ultimo_erro_dobro = ""
@@ -7486,6 +7840,7 @@ class AppColetorPro:
                                 indice_boleto = boleto_info["indice"]
                                 id_payment = boleto_info["id_payment"]
                                 horario_boleto = boleto_info["horario_boleto"]
+                                provedor_boleto = boleto_info.get("provedor", "")
                             if(not boleto_numero):
                                 self.logger(f"Não foi possível encontrar um boleto disponível para a ordem {order_id}. Verifique o Excel de registros.", "ERRO")
                                 break       
@@ -7512,6 +7867,7 @@ class AppColetorPro:
                                                 db[order_id]['codigo_boleto'] = boleto_numero
                                                 db[order_id]['id_payment'] = id_payment
                                                 db[order_id]['horario_boleto'] = horario_boleto
+                                                db[order_id]['provedor'] = provedor_boleto
                                                 self._salvar_db_periodico(db, i, len(pedidos))
                                                 self.logger(f"Boleto enviado com sucesso para a ordem {order_id}!")
                                                 continue
@@ -7542,6 +7898,7 @@ class AppColetorPro:
                                 indice_boleto = boleto_info["indice"]
                                 id_payment = boleto_info["id_payment"]
                                 horario_boleto = boleto_info["horario_boleto"]
+                                provedor_boleto = boleto_info.get("provedor", "")
                             if(not boleto_numero):
                                 self.logger(f"Não foi possível encontrar um boleto disponível para a ordem {order_id}. Verifique o Excel de registros.", "ERRO")
                                 break       
@@ -7573,6 +7930,7 @@ class AppColetorPro:
                                                     db[order_id]['codigo_boleto'] = boleto_numero
                                                     db[order_id]['id_payment'] = id_payment
                                                     db[order_id]['horario_boleto'] = horario_boleto
+                                                    db[order_id]['provedor'] = provedor_boleto
                                                     self._salvar_db_periodico(db, i, len(pedidos))
                                                     self.logger(f"Boleto enviado com sucesso para a ordem {order_id}!")
                                                     continue
@@ -7602,6 +7960,7 @@ class AppColetorPro:
                                     indice_boleto = boleto_info["indice"]
                                     id_payment = boleto_info["id_payment"]
                                     horario_boleto = boleto_info["horario_boleto"]
+                                    provedor_boleto = boleto_info.get("provedor", "")
                                 if(not boleto_numero):
                                     self.logger(f"Não foi possível encontrar um boleto disponível para a ordem {order_id}. Verifique o Excel de registros.", "ERRO")
                                     break    
@@ -7620,6 +7979,7 @@ class AppColetorPro:
                                                 db[order_id]['codigo_boleto'] = boleto_numero
                                                 db[order_id]['id_payment'] = id_payment
                                                 db[order_id]['horario_boleto'] = horario_boleto
+                                                db[order_id]['provedor'] = provedor_boleto
                                                 self._salvar_db_periodico(db, i, len(pedidos))
                                                 self.logger(f"Boleto reenviado com sucesso para a ordem {order_id}!")
                                                 continue
@@ -7794,6 +8154,7 @@ class AppColetorPro:
                                     indice_boleto = boleto_info["indice"]
                                     id_payment = boleto_info["id_payment"]
                                     horario_boleto = boleto_info["horario_boleto"]
+                                    provedor_boleto = boleto_info.get("provedor", "")
                                 if not boleto_numero:
                                     self.logger(f"Não foi possível encontrar um boleto disponível para a ordem {order_id}. Verifique o Excel de registros.", "ERRO")
                                     break
@@ -7814,6 +8175,7 @@ class AppColetorPro:
                                                 db[order_id]['codigo_boleto_dobro'] = boleto_numero
                                                 db[order_id]['id_payment_dobro'] = id_payment
                                                 db[order_id]['horario_boleto_dobro'] = horario_boleto
+                                                db[order_id]['provedor_dobro'] = provedor_boleto
                                                 db[order_id]['data_reenvio_dobro'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                                 self._salvar_db_periodico(db, i, len(pedidos))
                                                 self.logger(f"Boleto dobrado reenviado com sucesso para a ordem {order_id}!")
@@ -8074,7 +8436,9 @@ class AppColetorPro:
                         "numero": str(row['Código']),
                         "indice": index,
                         "id_payment": str(row['id_payment']),
-                        "horario_boleto": str(row['Horário'])
+                        "horario_boleto": str(row['Horário']),
+                        # coluna "Provedor" da planilha (Mercado Pago / Asaas); vazio em planilhas antigas
+                        "provedor": "" if pd.isna(row.get('Provedor')) else str(row.get('Provedor')).strip()
                     }
             
             return None  # Retorna None se não encontrar nenhum disponível
