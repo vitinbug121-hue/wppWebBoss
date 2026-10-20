@@ -3,6 +3,113 @@ import textwrap
 import tkinter as tk
 from tkinter import scrolledtext, messagebox, simpledialog, filedialog
 from tkinter import ttk
+
+# ----------------------------------------------------------------------
+# DIÁLOGOS ESTILIZADOS: todas as caixas de aviso/pergunta do sistema usam
+# estes botões coloridos (no lugar do messagebox padrão do Windows).
+# ----------------------------------------------------------------------
+_COR_SUCESSO = "#28a745"
+_COR_INFO = "#17a2b8"
+_COR_AVISO = "#ffc107"
+_COR_ERRO = "#dc3545"
+_COR_NEUTRO = "#6c757d"
+_COR_PIX = "#00a86b"
+_COR_MP = "#009ee3"
+_COR_ASAAS = "#0030b9"
+
+def _centralizar_janela_dialogo(janela, parent):
+    janela.update_idletasks()
+    try:
+        px, py = parent.winfo_rootx(), parent.winfo_rooty()
+        pw, ph = parent.winfo_width(), parent.winfo_height()
+    except Exception:
+        px, py = 0, 0
+        pw, ph = janela.winfo_screenwidth(), janela.winfo_screenheight()
+    x = px + (pw - janela.winfo_width()) // 2
+    y = py + (ph - janela.winfo_height()) // 2
+    janela.geometry(f"+{max(x, 0)}+{max(y, 0)}")
+
+def _dialogo_botoes(parent, titulo, mensagem, opcoes):
+    """Caixa com mensagem e botões coloridos.
+    opcoes: lista de tuplas (texto_do_botao, valor, cor_de_fundo, cor_do_texto).
+    Retorna o valor do botão escolhido, ou None se a janela for fechada pelo X."""
+    if parent is None:
+        parent = tk._default_root
+    resultado = {"valor": None}
+
+    janela = tk.Toplevel(parent)
+    janela.title(titulo)
+    janela.configure(bg="white")
+    janela.transient(parent)
+    janela.resizable(False, False)
+
+    tk.Label(janela, text=mensagem, bg="white", justify="center", wraplength=480,
+             font=("Arial", 11, "bold")).pack(padx=30, pady=(22, 14))
+
+    frame = tk.Frame(janela, bg="white")
+    frame.pack(padx=20, pady=(0, 20))
+
+    def escolher(valor):
+        resultado["valor"] = valor
+        janela.destroy()
+
+    for texto, valor, cor, cor_texto in opcoes:
+        tk.Button(frame, text=texto, bg=cor, fg=cor_texto,
+                  activebackground=cor, activeforeground=cor_texto,
+                  font=("Arial", 10, "bold"), relief="flat",
+                  width=max(12, len(texto) + 4), cursor="hand2",
+                  command=lambda v=valor: escolher(v)).pack(side="left", padx=6, ipady=8)
+
+    janela.protocol("WM_DELETE_WINDOW", janela.destroy)
+    _centralizar_janela_dialogo(janela, parent)
+    janela.grab_set()
+    janela.focus_set()
+    janela.wait_window()
+    return resultado["valor"]
+
+class _MensagemEstilizada:
+    """Substituto do messagebox com os mesmos métodos, porém com botões coloridos."""
+
+    @staticmethod
+    def showinfo(title=None, message=None, parent=None, **kwargs):
+        _dialogo_botoes(parent, title or "Informação", message,
+                        [("OK", True, _COR_INFO, "white")])
+
+    @staticmethod
+    def showwarning(title=None, message=None, parent=None, **kwargs):
+        _dialogo_botoes(parent, title or "Aviso", message,
+                        [("OK", True, _COR_AVISO, "black")])
+
+    @staticmethod
+    def showerror(title=None, message=None, parent=None, **kwargs):
+        _dialogo_botoes(parent, title or "Erro", message,
+                        [("OK", True, _COR_ERRO, "white")])
+
+    @staticmethod
+    def askyesno(title=None, message=None, parent=None, **kwargs):
+        r = _dialogo_botoes(parent, title or "Confirmar", message, [
+            ("SIM", True, _COR_SUCESSO, "white"),
+            ("NÃO", False, _COR_ERRO, "white"),
+        ])
+        return bool(r)
+
+    @staticmethod
+    def askokcancel(title=None, message=None, parent=None, **kwargs):
+        r = _dialogo_botoes(parent, title or "Confirmar", message, [
+            ("OK", True, _COR_SUCESSO, "white"),
+            ("CANCELAR", False, _COR_NEUTRO, "white"),
+        ])
+        return bool(r)
+
+    @staticmethod
+    def askyesnocancel(title=None, message=None, parent=None, **kwargs):
+        return _dialogo_botoes(parent, title or "Confirmar", message, [
+            ("SIM", True, _COR_SUCESSO, "white"),
+            ("NÃO", False, _COR_ERRO, "white"),
+            ("CANCELAR", None, _COR_NEUTRO, "white"),
+        ])
+
+messagebox = _MensagemEstilizada()
 #from turtle import tur
 import requests
 import json
@@ -5835,84 +5942,19 @@ class AppColetorPro:
     def _perguntar_forma_taxa(self):
         """Pergunta como a taxa será cobrada: PIX, boleto do Mercado Pago ou boleto do Asaas.
         Retorna "pix", "MP", "ASAAS" ou None (se cancelar/fechar). Deve rodar na thread principal."""
-        resultado = {"valor": None}
-
-        janela = tk.Toplevel(self.root)
-        janela.title("Forma de Cobrança da Taxa")
-        janela.configure(bg="white")
-        janela.transient(self.root)
-        janela.resizable(False, False)
-
-        tk.Label(janela, text="Como a taxa será cobrada?",
-                 bg="white", font=("Arial", 11, "bold")).pack(padx=30, pady=(20, 10))
-
-        frame = tk.Frame(janela, bg="white")
-        frame.pack(padx=20, pady=(5, 20))
-
-        def escolher(valor):
-            resultado["valor"] = valor
-            janela.destroy()
-
-        tk.Button(frame, text="PIX", bg="#00a86b", fg="white", font=("Arial", 10, "bold"),
-                  relief="flat", width=18, cursor="hand2",
-                  command=lambda: escolher("pix")).pack(side="left", padx=6, ipady=6)
-        tk.Button(frame, text="BOLETO MERCADO PAGO", bg="#009ee3", fg="white", font=("Arial", 10, "bold"),
-                  relief="flat", width=18, cursor="hand2",
-                  command=lambda: escolher("MP")).pack(side="left", padx=6, ipady=6)
-        tk.Button(frame, text="BOLETO ASAAS", bg="#0030b9", fg="white", font=("Arial", 10, "bold"),
-                  relief="flat", width=18, cursor="hand2",
-                  command=lambda: escolher("ASAAS")).pack(side="left", padx=6, ipady=6)
-
-        janela.protocol("WM_DELETE_WINDOW", janela.destroy)
-
-        janela.update_idletasks()
-        x = self.root.winfo_x() + (self.root.winfo_width() - janela.winfo_width()) // 2
-        y = self.root.winfo_y() + (self.root.winfo_height() - janela.winfo_height()) // 2
-        janela.geometry(f"+{max(x, 0)}+{max(y, 0)}")
-
-        janela.grab_set()
-        self.root.wait_window(janela)
-        return resultado["valor"]
+        return _dialogo_botoes(
+            self.root, "Forma de Cobrança da Taxa", "Como a taxa será cobrada?",
+            [("PIX", "pix", _COR_PIX, "white"),
+             ("BOLETO MERCADO PAGO", "MP", _COR_MP, "white"),
+             ("BOLETO ASAAS", "ASAAS", _COR_ASAAS, "white")])
 
     def _perguntar_provedor_boleto(self):
         """Pergunta se os boletos a atualizar são do Mercado Pago ou do Asaas.
         Retorna "MP", "ASAAS" ou None (se a janela for fechada). Deve rodar na thread principal."""
-        resultado = {"valor": None}
-
-        janela = tk.Toplevel(self.root)
-        janela.title("Atualizar Pagos")
-        janela.configure(bg="white")
-        janela.transient(self.root)
-        janela.resizable(False, False)
-
-        tk.Label(janela, text="Atualizar boletos pagos de qual provedor?",
-                 bg="white", font=("Arial", 11, "bold")).pack(padx=30, pady=(20, 10))
-
-        frame = tk.Frame(janela, bg="white")
-        frame.pack(padx=20, pady=(5, 20))
-
-        def escolher(valor):
-            resultado["valor"] = valor
-            janela.destroy()
-
-        tk.Button(frame, text="MERCADO PAGO", bg="#009ee3", fg="white", font=("Arial", 10, "bold"),
-                  relief="flat", width=16, cursor="hand2",
-                  command=lambda: escolher("MP")).pack(side="left", padx=6, ipady=6)
-        tk.Button(frame, text="ASAAS", bg="#0030b9", fg="white", font=("Arial", 10, "bold"),
-                  relief="flat", width=16, cursor="hand2",
-                  command=lambda: escolher("ASAAS")).pack(side="left", padx=6, ipady=6)
-
-        janela.protocol("WM_DELETE_WINDOW", janela.destroy)
-
-        # centraliza sobre a janela principal
-        janela.update_idletasks()
-        x = self.root.winfo_x() + (self.root.winfo_width() - janela.winfo_width()) // 2
-        y = self.root.winfo_y() + (self.root.winfo_height() - janela.winfo_height()) // 2
-        janela.geometry(f"+{max(x, 0)}+{max(y, 0)}")
-
-        janela.grab_set()
-        self.root.wait_window(janela)
-        return resultado["valor"]
+        return _dialogo_botoes(
+            self.root, "Atualizar Pagos", "Atualizar boletos pagos de qual provedor?",
+            [("MERCADO PAGO", "MP", _COR_MP, "white"),
+             ("ASAAS", "ASAAS", _COR_ASAAS, "white")])
 
     def atualizar_blt_pagos_thread(self):
         # Botão ATUALIZAR PAGOS (thread principal): primeiro pergunta o provedor
@@ -7600,14 +7642,15 @@ class AppColetorPro:
         elif acao == "cobrar_dobrado":
             self.root.lift()
             self.root.focus_force()
-            usar_pix = messagebox.askyesno(
-                "Forma de Cobrança",
-                "Cobrar via PIX?\n\nSim = PIX\nNão = Boleto"
-            )
-            if usar_pix:
-                cobrar_dobrado_metodo = "pix"
-            else:
-                cobrar_dobrado_metodo = "boleto"
+            escolha_dobro = _dialogo_botoes(
+                self.root, "Forma de Cobrança",
+                "Como a cobrança dobrada será feita?",
+                [("PIX", "pix", _COR_PIX, "white"),
+                 ("BOLETO", "boleto", _COR_MP, "white")])
+            if escolha_dobro is None:
+                self.logger("Cobrança dobrada cancelada.", "AVISO")
+                return
+            cobrar_dobrado_metodo = escolha_dobro
             cobrar_dobrado = True
         elif acao == "nao_pagos":
             cobrar_nao_pagos = True
