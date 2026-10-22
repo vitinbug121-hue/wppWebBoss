@@ -6885,6 +6885,7 @@ class AppColetorPro:
         ids_solicitados = []
         ids_nao_encontrados = []
 
+        ids_ja_adicionados = set()
         for order_id in order_ids:
             self._check_stop()
             order_id = str(order_id).strip()
@@ -6892,42 +6893,54 @@ class AppColetorPro:
                 continue
 
             ids_solicitados.append(order_id)
-            url = f"https://api.mercadolibre.com/orders/{order_id}"
             try:
                 self.logger(f"Buscando ordem por ID: {order_id}...")
-                res = SESSION.get(url, headers=headers, timeout=15)
-                if res.status_code == 200:
-                    pedido = res.json()
-                    pedido["executar_reclamacao"] = False
+                info = self.resolver_venda_ml(order_id, headers)
 
-                    mediations = pedido.get("mediations") or []
-                    for mediacao in mediations:
-                        self._check_stop()
-                        mediation_id = mediacao.get("id")
-                        if not mediation_id:
-                            continue
-
-                        if self._mediacao_esta_aberta(access_token, mediation_id):
-                            pedido["executar_reclamacao"] = True
-                            pedido["order_id_resolvido"] = order_id
-                            pedido["claim_id"] = mediation_id
-                            self.logger(
-                                f"Mediação {mediation_id} aberta para o pedido {order_id}. Marcando executar_reclamacao=True.",
-                                "SUCESSO"
-                            )
-                            break  # já achou uma aberta, não precisa checar as outras
-
-                        time.sleep(0.3)
-
-                    pedidos.append(pedido)
-                elif res.status_code == 404:
+                if info["tipo"] is None:
                     ids_nao_encontrados.append(order_id)
                     self.logger(
-                        f"Ordem {order_id} não encontrada na API de pedidos (404). Tentando localizar como reclamação...",
+                        f"Ordem {order_id} não identificada como pedido nem pacote ({info['motivo']}). "
+                        f"Tentando localizar como reclamação...",
                         "AVISO"
                     )
                 else:
-                    self.logger(f"Erro ao buscar ordem {order_id}: {res.status_code} {res.text}", "ERRO")
+                    ids_para_buscar = info["order_ids"] if info["tipo"] == "pack" else [info["order_id"]]
+                    if info["tipo"] == "pack":
+                        self.logger(f"{order_id} é pacote {info['pack_id']} com {len(ids_para_buscar)} pedido(s).")
+
+                    for oid in ids_para_buscar:
+                        if oid in ids_ja_adicionados:
+                            continue
+                        rp = SESSION.get(f"https://api.mercadolibre.com/orders/{oid}", headers=headers, timeout=15)
+                        if rp.status_code != 200:
+                            self.logger(f"Erro ao buscar pedido {oid} do pacote: {rp.status_code}", "ERRO")
+                            continue
+
+                        pedido = rp.json()
+                        pedido["executar_reclamacao"] = False
+                        if info["tipo"] == "pack":
+                            pedido["pack_id_resolvido"] = info["pack_id"]
+
+                        for mediacao in (pedido.get("mediations") or []):
+                            self._check_stop()
+                            mediation_id = mediacao.get("id")
+                            if not mediation_id:
+                                continue
+                            if self._mediacao_esta_aberta(access_token, mediation_id):
+                                pedido["executar_reclamacao"] = True
+                                pedido["order_id_resolvido"] = oid
+                                pedido["claim_id"] = mediation_id
+                                self.logger(
+                                    f"Mediação {mediation_id} aberta para o pedido {oid}. Marcando executar_reclamacao=True.",
+                                    "SUCESSO"
+                                )
+                                break
+                            time.sleep(0.3)
+
+                        pedidos.append(pedido)
+                        ids_ja_adicionados.add(oid)
+
             except requests.exceptions.RequestException as e:
                 self.logger(f"Erro ao buscar ordem {order_id}: {e}", "ERRO")
             time.sleep(0.5)
@@ -7009,7 +7022,8 @@ class AppColetorPro:
     def _order_id_registro(self, registro, padrao_reclamacao=False):
         if self._registro_eh_reclamacao(registro, padrao_reclamacao):
             return str(registro.get("order_id_resolvido") or registro.get("resource_id", ""))
-        return str(registro.get("id", ""))
+        pack_id = registro.get("pack_id")
+        return str(pack_id) if pack_id else str(registro.get("id", ""))
 
     def buscar_vendas_e_reclamacoes(self, seller_id, access_token, offset_inicial=0):
         pedidos_comuns, total_comuns = self.buscar_vendas_paginadas(
@@ -7526,8 +7540,8 @@ class AppColetorPro:
                         continue
                     pedido_db = db.get(order_id, {})
                     # Incluir apenas pedidos autorizados que ainda não tiveram boleto enviado
-                    if order_id != "2000015441237387":
-                       continue
+                    #if order_id != "2000015441237387":
+                    #   continue
                     if pedido_db.get('boleto_enviado') and not pedido_db.get('reenvio_confirmado') and not pedido_db.get('boleto_pago'):
                         pedidos_relevantes.append((order_id, pedido))
 
@@ -7545,8 +7559,8 @@ class AppColetorPro:
                         self.logger("Processamento interrompido pelo usuário.", "ERRO")
                         self.progress["maximum"] = progress_max_before
                         return
-                    if order_id != "2000015441237387":
-                        continue
+                    #if order_id != "2000015441237387":
+                    #    continue
                     self.progress["value"] = idx
                     if idx % 5 == 0 or idx == total_relevantes:
                         self.progress.update()
@@ -7556,7 +7570,7 @@ class AppColetorPro:
 
                     try:
                         self._check_stop()
-                        conversa = self.obter_conversa_completa(order_id, order_id, config['ML_SELLER_ID'], token)
+                        conversa = self.obter_conversa_completa(order_id, pedido['pack_id'], config['ML_SELLER_ID'], token)
 
                         # obter_conversa_completa já retorna ordenado por data,
                         # mas mantemos aqui como garantia extra.
@@ -8996,7 +9010,12 @@ class AppColetorPro:
                 "text": texto
             }
             try:
-                url_msg = f"https://api.mercadolibre.com/messages/packs/{order_id}/sellers/{ML_SELLER_ID}?tag=post_sale"
+                info_venda = self.resolver_venda_ml(order_id, headers)
+                if info_venda["tipo"] is None:
+                    self.logger(f"Venda {order_id} não identificada ({info_venda['motivo']}). Mensagem NÃO enviada.", "ERRO")
+                    return False
+                chave_msg = self.chave_mensagem_ml(info_venda)
+                url_msg = f"https://api.mercadolibre.com/messages/packs/{chave_msg}/sellers/{ML_SELLER_ID}?tag=post_sale"
                 envio = SESSION.post(url_msg, json=payload, headers=headers, timeout=15)
 
                 # Fallback: se retornar 400, tenta novamente usando o pack_id
@@ -9603,19 +9622,76 @@ class AppColetorPro:
             self.logger(f"Erro fatal em processar_chamada_wpp_inicial: {str(e)}", "ERRO")    
 
     # --- AUXILIARES ML ---
-    def obter_produto_ml(self, order_id, token, all = False):
-        try:
-            res = SESSION.get(f"https://api.mercadolibre.com/orders/{order_id}", headers={'Authorization': f'Bearer {token}'}, timeout=20)
-            if all:
-                return res.json()
-            return res.json()['order_items'][0]['item']['title']
-        except: return "Produto ML"
+    def resolver_venda_ml(self, id_informado, headers):
+        """Descobre se o ID é pedido simples ou pacote. Chamar ANTES de qualquer ação."""
+        id_informado = str(id_informado).strip()
+        if not hasattr(self, "_cache_resolucao"):
+            self._cache_resolucao = {}
+        if id_informado in self._cache_resolucao:
+            return self._cache_resolucao[id_informado]
+
+        base = "https://api.mercadolibre.com"
+        info = {"tipo": None, "order_id": None, "pack_id": None,
+                "order_ids": [], "pedido": None, "motivo": ""}
+
+        res = SESSION.get(f"{base}/orders/{id_informado}", headers=headers, timeout=15)
+        if res.status_code == 200:
+            pedido = res.json()
+            info["pedido"] = pedido
+            info["order_id"] = str(pedido["id"])
+            if pedido.get("pack_id"):
+                info["tipo"] = "pack"
+                info["pack_id"] = str(pedido["pack_id"])
+                rp = SESSION.get(f"{base}/packs/{info['pack_id']}", headers=headers, timeout=15)
+                if rp.status_code == 200:
+                    info["order_ids"] = [str(o["id"]) for o in rp.json().get("orders", [])]
+                info["order_ids"] = info["order_ids"] or [info["order_id"]]
+                info["motivo"] = "orders 200 com pack_id"
+            else:
+                info["tipo"] = "single"
+                info["order_ids"] = [info["order_id"]]
+                info["motivo"] = "orders 200 sem pack_id"
+        else:
+            rp = SESSION.get(f"{base}/packs/{id_informado}", headers=headers, timeout=15)
+            if rp.status_code == 200:
+                ids = [str(o["id"]) for o in rp.json().get("orders", [])]
+                info["tipo"] = "pack"
+                info["pack_id"] = id_informado
+                info["order_ids"] = ids
+                info["order_id"] = ids[0] if ids else None
+                if ids:
+                    r1 = SESSION.get(f"{base}/orders/{ids[0]}", headers=headers, timeout=15)
+                    if r1.status_code == 200:
+                        info["pedido"] = r1.json()
+                info["motivo"] = "packs 200"
+            else:
+                info["motivo"] = f"orders {res.status_code} / packs {rp.status_code}"
+
+        self._cache_resolucao[id_informado] = info
+        return info
+
+    @staticmethod
+    def chave_mensagem_ml(info):
+        """Pack_id se for pacote, senão order_id."""
+        return info["pack_id"] if info["tipo"] == "pack" else info["order_id"]
+
+    def obter_produto_ml(self, order_id, token, all=False):
+        info = self.resolver_venda_ml(order_id, {'Authorization': f'Bearer {token}'})
+        pedido = info.get("pedido")
+        if not pedido:
+            self.logger(f"Produto não obtido para {order_id}: {info['motivo']}", "AVISO")
+            return "Produto ML"
+        if all:
+            return pedido
+        return pedido["order_items"][0]["item"]["title"]
 
     def obter_nome_cliente(self, order_id, token):
-        try:
-            res = SESSION.get(f"https://api.mercadolibre.com/orders/{order_id}", headers={'Authorization': f'Bearer {token}'}, timeout=20)
-            return res.json()['buyer']['first_name']
-        except: return "Cliente"
+        info = self.resolver_venda_ml(order_id, {'Authorization': f'Bearer {token}'})
+        pedido = info.get("pedido")
+        if not pedido:
+            self.logger(f"Cliente não obtido para {order_id}: {info['motivo']}", "AVISO")
+            return "Cliente"
+        return pedido["buyer"]["first_name"]
 
     # # ALTERAÇÃO: Ajustado para usar a pasta do e-mail
     def carregar_db(self):
