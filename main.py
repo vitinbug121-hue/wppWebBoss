@@ -1187,7 +1187,7 @@ ASAAS_XPATH_SITUACAO = "/html/body/atlas-screen/atlas-page/atlas-page-content/di
 ASAAS_CSS_SITUACAO = "span.icarus-status-info"   # fallback caso o XPath mude
 # Situações do Asaas que significam "boleto pago" (comparação exata, sem diferenciar maiúsculas).
 # "Confirmada" = pagamento confirmado; "Recebida" = a mesma cobrança depois que o saldo é liberado.
-ASAAS_SITUACOES_PAGAS = ("confirmada", "recebida")
+ASAAS_SITUACOES_PAGAS = ("recebida")
 
 
 _TOKEN_LOCKS = {}
@@ -4699,6 +4699,7 @@ class AppColetorPro:
         tk.Button(btn_frame, text="EXPORTAR EXCEL", command=self.exportar_para_excel, bg="#002357", fg="white", **estilo).grid(row=0, column=4, padx=5, pady=5)
         tk.Button(btn_frame, text="ATUALIZAR PAGOS", command=self.atualizar_blt_pagos_thread, bg="#002357", fg="white", **estilo).grid(row=0, column=5, padx=5, pady=5)
         tk.Button(btn_frame, text="ATUALIZAR PIX PAGOS", command=self.atualizar_pix_pagos_thread, bg="#002357", fg="white", **estilo).grid(row=2, column=8, padx=5, pady=5)
+        tk.Button(btn_frame, text="AVISO PIX → BOLETO", command=lambda: self.iniciar_thread_processamento(acao="aviso_pix_boleto"), bg="#00a86b", fg="white", **estilo).grid(row=2, column=9, padx=5, pady=5)
         tk.Button(btn_frame, text="VENDAS ENCERRADAS", command=self.atualizar_vendas_encerradas_thread, bg="#002357", fg="white", **estilo).grid(row=0, column=6, padx=5, pady=5)
         tk.Button(btn_frame, text="CHAMAR WPP", command=self.abrir_janela_chamar_wpp, bg="#002357", fg="white", **estilo).grid(row=0, column=7, padx=5, pady=5)
         tk.Button(btn_frame, text="REENVIAR BLT DOBRADO", command=lambda: self.iniciar_thread_processamento(acao="reenviar_boleto_dobrado"), bg="#002357", fg="white", **estilo).grid(row=1, column=9, padx=5, pady=5)
@@ -7230,6 +7231,49 @@ class AppColetorPro:
         if hasattr(self, 'btn_stop'):
             self.btn_stop.config(state=tk.NORMAL, text="STOP URGENTE", bg="#FF0000")
 
+        # AVISO PIX → BOLETO: ação própria, fora da cadeia de ENVIAR BOLETO.
+        # Fica antes do bloco do WhatsApp para não ser pulada com "Rodar via WhatsApp" marcado.
+        if acao == "aviso_pix_boleto":
+            if self.rodar_wa_var.get() and not self.wpp_ativo:
+                self.logger("Erro: Para enviar mensagens via WhatsApp, o serviço deve estar ativo. Por favor, ative o WhatsApp antes de iniciar esta ação.", "ERRO")
+                return
+            ok_lote, lote_filtro_numero, lote_filtro_ids = self.selecionar_filtro_lote("enviar aviso PIX → boleto")
+            if not ok_lote:
+                return
+            if lote_filtro_ids is not None:
+                chats = [
+                    pedido for pedido in chats
+                    if self._order_id_registro(pedido, False) in lote_filtro_ids
+                ]
+                total_chats = len(chats)
+                if total_chats == 0:
+                    self.logger(f"Nenhuma ordem encontrada para o lote {lote_filtro_numero}.", "ERRO")
+                    return
+            self.root.lift()
+            self.root.focus_force()
+            confirmar = messagebox.askyesno(
+                "Confirmar AVISO PIX → BOLETO",
+                f"Enviar o aviso de troca PIX → boleto para quem pediu a chave PIX?\n\n"
+                f"Registros no filtro: {len(chats)}\n"
+                "Quem não pediu a chave PIX não será contatado.\n"
+                "Cada venda enviada será gravada como boleto ASAAS."
+            )
+            if not confirmar:
+                return
+            self.stop_event.clear()
+            if hasattr(self, 'btn_stop'):
+                self.btn_stop.config(state=tk.NORMAL, text="STOP URGENTE", bg="#FF0000")
+            self.progress["maximum"] = max(len(chats), 1)
+            self.progress["value"] = 0
+            args_aviso = (token, config, chats, tipo_proc, lote_filtro_ids, lote_filtro_numero)
+            if usar_thread:
+                thread = threading.Thread(target=self.executar_aviso_pix_boleto, args=args_aviso, daemon=True)
+                thread.start()
+                self.logger("Thread de AVISO PIX → BOLETO iniciada...")
+                return thread
+            self.executar_aviso_pix_boleto(*args_aviso)
+            return None
+
         if self.rodar_wa_var.get():
             if self.wpp_ativo:
                rodar_wpp = True
@@ -7482,8 +7526,8 @@ class AppColetorPro:
                         continue
                     pedido_db = db.get(order_id, {})
                     # Incluir apenas pedidos autorizados que ainda não tiveram boleto enviado
-                    #if order_id == "2000017141149126":
-                    #    dasdasd = "dasda"
+                    if order_id != "2000015441237387":
+                       continue
                     if pedido_db.get('boleto_enviado') and not pedido_db.get('reenvio_confirmado') and not pedido_db.get('boleto_pago'):
                         pedidos_relevantes.append((order_id, pedido))
 
@@ -7501,7 +7545,8 @@ class AppColetorPro:
                         self.logger("Processamento interrompido pelo usuário.", "ERRO")
                         self.progress["maximum"] = progress_max_before
                         return
-
+                    if order_id != "2000015441237387":
+                        continue
                     self.progress["value"] = idx
                     if idx % 5 == 0 or idx == total_relevantes:
                         self.progress.update()
@@ -8526,6 +8571,247 @@ class AppColetorPro:
                 self.btn_stop.config(state=tk.DISABLED, text="STOP URGENTE", bg="#FF0000")
             self.stop_event.clear()
             
+    # ------------------------------------------------------------------
+    # AVISO PIX -> BOLETO (botão "AVISO PIX → BOLETO")
+    # Para quem pediu a chave PIX e ainda tem cobrança Pix pendente, troca a
+    # cobrança por um boleto ASAAS e avisa o cliente. Não altera o fluxo do
+    # ENVIAR BOLETO nem o ramo Pix dele.
+    # ------------------------------------------------------------------
+    _PADRAO_PROMPT_CHAVE_PIX = re.compile(
+        r'digite\s*1\b.{0,150}enviar a chave pix',
+        re.IGNORECASE | re.DOTALL
+    )
+    _PADRAO_MSG_COMPENSACAO_AVISO = re.compile(
+        r'taxa de importa[çc][ãa]o'
+        r'|montagem gr[áa]tis'
+        r'|est[áa]mos te presenteando'
+        r'|precisamos da sua autoriza[çc][ãa]o para dar andamento'
+        r'|caso n[ãa]o receba a confirma[çc][ãa]o.{0,40}cancelado automaticamente',
+        re.IGNORECASE
+    )
+
+    @staticmethod
+    def _texto_eh_linha_digitavel(texto):
+        """Código de barras do boleto (muitos dígitos, sem palavras) não é resposta do cliente."""
+        apenas_digitos = re.sub(r'\D', '', texto)
+        return len(apenas_digitos) >= 20 and bool(re.fullmatch(r'[\d\s.\-]+', texto))
+
+    @staticmethod
+    def _cobranca_pix_pendente(d):
+        """Taxa cobrada via PIX (boleto_autorizado_msg = true) que ainda NÃO recebeu boleto
+        e ainda não foi paga nem convertida em boleto pelo AVISO PIX → BOLETO."""
+        # Já tem boleto enviado: nunca reenviar
+        if d.get('boleto_enviado'):
+            return False
+        # Só quem foi efetivamente taxado (autorizado) entra no fluxo
+        if not d.get('boleto_autorizado_msg'):
+            return False
+        eh_pix = str(d.get('metodo_taxa') or '').strip().lower() == 'pix' or bool(d.get('cobrado_via_pix'))
+        if not eh_pix:
+            return False
+        if d.get('pago_via_pix') or d.get('boleto_pago') or d.get('aviso_pix_boleto'):
+            return False
+        return True
+
+    def _cliente_pediu_chave_pix(self, order_id, conversa):
+        """True se o cliente pediu a chave PIX: respondeu '1' ao prompt 'DIGITE 1 ... enviar a chave PIX'.
+        Se a resposta não for só o '1', a IA analisa as mensagens do cliente depois desse prompt."""
+        indice_prompt = None
+        for idx, m in enumerate(conversa):
+            if self._PADRAO_PROMPT_CHAVE_PIX.search(str(m.get('texto') or '').strip()):
+                indice_prompt = idx
+        if indice_prompt is None:
+            # Nunca recebeu o pedido da chave PIX
+            return False
+
+        mensagens_cliente = []
+        for m in conversa[indice_prompt + 1:]:
+            if m.get('is_seller'):
+                continue
+            texto = str(m.get('texto') or '').strip()
+            if not texto:
+                continue
+            if self._PADRAO_MSG_COMPENSACAO_AVISO.search(texto) or self._texto_eh_linha_digitavel(texto):
+                continue
+            if re.fullmatch(r'\s*1\s*[.!]?\s*', texto):
+                return True
+            mensagens_cliente.append(texto)
+
+        return self._verificar_autorizacao_via_ia(order_id, mensagens_cliente)
+
+    def _enviar_aviso_pix_para_boleto(self, order_id, buyer_id, headers, seller_id, reclamacao, claim_id, codigo_boleto):
+        """Envia ao cliente: aviso do problema com a chave PIX, código do boleto ASAAS e pedido de comprovante.
+        Textos são sugestões e podem ser editados aqui. Retorna True só se as quatro mensagens forem enviadas."""
+        mensagens = [
+            "Olá! Infelizmente tivemos um problema com a chave PIX. Por isso, a cobrança da taxa será feita pelo boleto da empresa com mais segurança. Desculpe pelo transtorno! 🙏",
+            "Vamos gerar o boleto agora mesmo!\n\nProntinho, boleto gerado! Só copiar todo o código de barras abaixo e pagar pelo aplicativo do seu Banco: 👇",
+            str(codigo_boleto),
+            f"Esperamos o comprovante! Att, Time {get_nome_loja()}",
+        ]
+        for texto in mensagens:
+            ok = self.enviarMSG(order_id, buyer_id, texto, headers, seller_id, reclamacao, claim_id)
+            if not ok:
+                self.logger(f"Falha ao enviar mensagem do aviso PIX → boleto para a ordem {order_id}.", "ERRO")
+                return False
+        return True
+
+    def _processar_aviso_pix_boleto_ordem(self, db, pedido, tipo_proc, token, seller_id,
+                                          lote_filtro_ids, lote_filtro_numero, indice, total):
+        """Processa uma venda/reclamação. Retorna: 'enviado', 'nao_pediu_pix', 'sem_boleto',
+        'falha', 'ignorado' ou 'parar'."""
+        eh_reclamacao = self._registro_eh_reclamacao(pedido, False)
+        claim_id = None
+        if eh_reclamacao:
+            tratado = self.executar_reclamacao_shipping(pedido, tipo_proc, token)
+            if not tratado or not tratado[0]:
+                self.logger(f"Reclamação {pedido.get('id')} sem ordem resolvida. Ignorada.", "AVISO")
+                return "ignorado"
+            order_id, claim_id = str(tratado[0]), str(tratado[1])
+        else:
+            order_id = str(pedido.get('pack_id') or pedido.get('id'))
+
+        # Filtro de lote aplicado de novo, agora sobre a ordem já resolvida
+        if lote_filtro_ids is not None and order_id not in lote_filtro_ids:
+            self.logger(f"Ordem {order_id} ignorada: fora do lote {lote_filtro_numero}.", "AVISO")
+            return "ignorado"
+
+        dados = db.get(order_id, {})
+        if not self._cobranca_pix_pendente(dados):
+            return "ignorado"
+
+        buyer_id = str((pedido.get('buyer') or {}).get('id') or dados.get('buyer_id') or '')
+
+        conversa = self.obter_conversa_completa(order_id, order_id, seller_id, token, claim_id)
+        conversa = sorted(conversa, key=self._chave_ordenacao_data)
+        if not self._cliente_pediu_chave_pix(order_id, conversa):
+            self.logger(f"Ordem {order_id}: cliente não pediu a chave PIX. Não será contatado.", "INFO")
+            return "nao_pediu_pix"
+
+        if not self._garantir_planilha_disponivel(order_id):
+            return "parar"
+
+        boleto_info = self.buscar_proximo_boleto("ASAAS")
+        if not boleto_info:
+            self.logger(
+                f"Ordem {order_id}: não há boleto ASAAS disponível na planilha. Venda pulada. "
+                "Verifique o Excel de registros.", "ERRO")
+            return "sem_boleto"
+
+        self.logger(f"Enviando aviso PIX → boleto ASAAS para a ordem {order_id}...")
+        headers = {"Authorization": f"Bearer {token}"}
+        enviado = self._enviar_aviso_pix_para_boleto(
+            order_id, buyer_id, headers, seller_id, eh_reclamacao, claim_id, boleto_info["numero"])
+        if not enviado:
+            return "falha"
+
+        # Grava como boleto ASAAS. cobrado_via_pix sai, senão a atualização de boletos ASAAS ignoraria esta venda.
+        agora = datetime.now().strftime("%d/%m/%Y %H:%M")
+        dados = db[order_id]
+        dados.update({
+            'boleto_enviado': True,
+            'data_boleto': agora,
+            'codigo_boleto': boleto_info["numero"],
+            'id_payment': boleto_info["id_payment"],
+            'horario_boleto': boleto_info["horario_boleto"],
+            'provedor': boleto_info.get("provedor") or "ASAAS",
+            'metodo_taxa': 'boleto',
+            'provedor_taxa': 'ASAAS',
+            'aviso_pix_boleto': True,
+            'data_aviso_pix_boleto': agora,
+            'cobrado_via_pix_anterior': bool(dados.get('cobrado_via_pix')),
+            'cobrado_via_pix': False,
+        })
+        if buyer_id and not dados.get('buyer_id'):
+            dados['buyer_id'] = buyer_id
+        self._salvar_db_periodico(db, indice, total)
+
+        if not self.atualizar_status_boleto(boleto_info["indice"]):
+            self.logger(
+                f"Erro ao atualizar status do boleto na planilha para a ordem {order_id}. "
+                "Verifique o Excel de registros. Processamento interrompido para evitar boletos repetidos.", "ERRO")
+            return "parar"
+
+        self.logger(f"AVISO PIX → boleto enviado com sucesso para a ordem {order_id}!", "SUCESSO")
+        return "enviado"
+
+    def executar_aviso_pix_boleto(self, token, config, chats, tipo_proc, lote_filtro_ids=None, lote_filtro_numero=None):
+        folder = self.get_pasta_conta()
+        if not folder:
+            return
+        quem = "agendamento" if not threading.current_thread().daemon else "manual"
+        if not adquirir_lock_conta(folder, quem=quem):
+            info = ler_info_lock(folder)
+            self.logger(
+                f"Conta já está sendo processada por outra execução ({info}). "
+                "Aguarde terminar antes de rodar outra ação.", "ERRO")
+            return
+
+        seller_id = config['ML_SELLER_ID']
+        total = len(chats)
+        enviados = 0
+        nao_pediram_pix = 0
+        sem_boleto_asaas = 0
+        falhas = 0
+        db = None
+
+        self.logger(
+            f"AVISO PIX → BOLETO iniciado: {total} registro(s) no filtro"
+            + (f" (lote {lote_filtro_numero})" if lote_filtro_ids is not None else "") + ".",
+            "INFO")
+
+        try:
+            db = self.carregar_db()
+            for i, pedido in enumerate(chats):
+                self._check_stop()
+                self.root.after(0, lambda v=i + 1: self.progress.configure(value=v))
+
+                try:
+                    status = self._processar_aviso_pix_boleto_ordem(
+                        db, pedido, tipo_proc, token, seller_id,
+                        lote_filtro_ids, lote_filtro_numero, i, total)
+                except ProcessamentoInterrompido:
+                    raise
+                except Exception as e:
+                    status = "falha"
+                    self.logger(f"Erro no AVISO PIX → BOLETO (registro {pedido.get('id')}): {e}", "ERRO")
+
+                if status == "enviado":
+                    enviados += 1
+                elif status == "nao_pediu_pix":
+                    nao_pediram_pix += 1
+                elif status == "sem_boleto":
+                    sem_boleto_asaas += 1
+                elif status == "falha":
+                    falhas += 1
+                elif status == "parar":
+                    break
+
+            self.logger("Fim do AVISO PIX → BOLETO.", "INFO")
+        except ProcessamentoInterrompido:
+            self.logger("Processamento interrompido com força pelo usuário.", "ERRO")
+        except Exception as e:
+            self.logger(f"Erro no AVISO PIX → BOLETO: {e}", "ERRO")
+        finally:
+            try:
+                if db is not None:
+                    self.salvar_db(db)
+            except Exception as e_save:
+                self.logger(f"Erro ao salvar banco de dados no encerramento: {e_save}", "ERRO")
+            liberar_lock_conta(folder)
+            self.root.after(0, lambda: self.progress.configure(value=0))
+            if hasattr(self, 'btn_stop'):
+                self.root.after(0, lambda: self.btn_stop.config(state=tk.DISABLED))
+
+        resumo = (
+            "Aviso PIX → boleto concluído.\n\n"
+            f"Enviados: {enviados}\n"
+            f"Não pediram a chave PIX: {nao_pediram_pix}\n"
+            f"Sem boleto ASAAS disponível: {sem_boleto_asaas}\n"
+            f"Falhas no envio: {falhas}"
+        )
+        self.logger(resumo.replace("\n\n", " | ").replace("\n", " | "), "SUCESSO")
+        self.root.after(0, lambda: messagebox.showinfo("AVISO PIX → BOLETO", resumo, parent=self.root))
+
     def buscar_proximo_boleto(self, provedor=None):
         # provedor: "MP" ou "ASAAS" para pegar só boletos desse provedor (None = qualquer)
         folder = self.get_pasta_conta()
@@ -10247,11 +10533,6 @@ class AppColetorPro:
             messagebox.showerror("Erro", f"Erro ao exportar Excel: {e}")
    
             
-         
-
-
-
-
 def executar_agendamento_direto(tarefa_id, machine_key=None):
     _registrar_log_agendamento(f"Iniciando modo direto: tarefa_id={tarefa_id}, machine={machine_key or 'preferencia'}")
     if machine_key:
