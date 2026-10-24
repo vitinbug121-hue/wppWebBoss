@@ -7894,13 +7894,13 @@ class AppColetorPro:
                         continue
                     
                 
-                #ALVO_TESTE = "2000015411988331"
-                #if order_id == ALVO_TESTE or str(pedido.get('pack_id')) == ALVO_TESTE:
+                ALVO_TESTE = "2000015420001643"
+                if order_id == ALVO_TESTE or str(pedido.get('pack_id')) == ALVO_TESTE:
                     # segue executando o código normal aqui dentro
-                #   pass
-                #else:
-                #    self.logger(f"Ordem {order_id} ignorada (não está na lista de IDs do teste).")
-                #    continue
+                   pass
+                else:
+                   self.logger(f"Ordem {order_id} ignorada (não está na lista de IDs do teste).")
+                   continue
 
                 if order_id not in db:
                     #self.logger(f"Ordem {order_id} ignorada (não está na lista do banco de dados).")
