@@ -244,3 +244,217 @@
 03:58:43 [INFO] Ordem 2000018867230572 ignorada (não está na lista de IDs do teste).
 03:58:43 [INFO] Ordem 2000018867389248 ignorada (não está na lista de IDs do teste).
 03:58:43 [INFO] Ordem 2000018867377918 ignorada (não está na lista de IDs do teste).
+04:14:45 [INFO] Modo COMUM + RECLAMAÇÕES ativado: buscando em segundo plano (isso pode levar alguns segundos, a tela não vai travar)...
+04:14:45 [INFO] Buscando offset 0...
+04:14:46 [INFO] Buscando offset 50...
+04:14:47 [INFO] Buscando offset 100...
+04:14:48 [INFO] Buscando offset 150...
+04:14:50 [INFO] Buscando offset 200...
+04:14:51 [INFO] Buscando offset 250...
+04:14:54 [INFO] Buscando offset 300...
+04:14:55 [INFO] Buscando offset 350...
+04:14:56 [INFO] Buscando offset 400...
+04:14:58 [INFO] Buscando offset 450...
+04:14:59 [INFO] Buscando offset 500...
+04:15:00 [INFO] Buscando offset 550...
+04:15:02 [INFO] Buscando offset 600...
+04:15:03 [INFO] Buscando offset 650...
+04:15:04 [INFO] Buscando offset 700...
+04:15:06 [INFO] Buscando offset 750...
+04:15:07 [INFO] Buscando offset 800...
+04:15:08 [INFO] Buscando offset 850...
+04:15:09 [INFO] Buscando offset 900...
+04:15:11 [INFO] Buscando offset 950...
+04:15:12 [INFO] Buscando offset 1000...
+04:15:13 [INFO] Buscando offset 1050...
+04:15:15 [INFO] Buscando offset 1100...
+04:15:15 [INFO] Busca finalizada. Total capturado: 1117
+04:15:15 [INFO] Buscando offset 0...
+04:15:16 [INFO] Buscando offset 50...
+04:15:18 [INFO] Buscando offset 100...
+04:15:19 [INFO] Buscando offset 150...
+04:15:20 [INFO] Busca finalizada. Total capturado: 173
+04:15:20 [INFO] Organizando 173 reclamações por data da venda (1 consulta por reclamação, pode demorar alguns minutos)...
+04:15:24 [INFO] Organizando reclamações por data: 25/173 (14%) - tempo restante estimado: 0min 17s
+04:15:29 [INFO] Organizando reclamações por data: 50/173 (28%) - tempo restante estimado: 0min 22s
+04:15:33 [INFO] Organizando reclamações por data: 75/173 (43%) - tempo restante estimado: 0min 15s
+04:15:37 [INFO] Organizando reclamações por data: 100/173 (57%) - tempo restante estimado: 0min 11s
+04:15:40 [INFO] Organizando reclamações por data: 125/173 (72%) - tempo restante estimado: 0min 7s
+04:15:44 [INFO] Organizando reclamações por data: 150/173 (86%) - tempo restante estimado: 0min 3s
+04:15:48 [INFO] Organizando reclamações por data: 173/173 (100%) - tempo restante estimado: 0min 0s
+04:15:48 [INFO] Organização por data finalizada: 173 reclamações em 0min 27s.
+04:15:52 [INFO] Busca mista finalizada. Comuns: 1117; reclamações: 173; total: 1120
+04:15:52 [INFO] Busca concluída. Iniciando ação: RASTREIO...
+04:18:00 [INFO] Thread de rastreio iniciada...
+04:18:11 [INFO] Ordem 2000018642494996 ignorada (não está na lista de IDs do teste).
+04:18:26 [INFO] Ordem 2000018704605564 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018727511106 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018739634272 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018741221676 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018759638784 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018760666944 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018764797850 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018768225310 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018773623982 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018778785138 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018780884306 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018784878372 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018792457290 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018792692374 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018794006294 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018795008092 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018795192028 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018795362166 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018796126620 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018802766864 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018805521336 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018805622278 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018806069184 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018806308290 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018809490724 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018811227766 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018812340794 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018813595274 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018814477330 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018814549682 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018817759180 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018822441810 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018822533552 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018823794948 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018825827498 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018826201354 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018826434208 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018826571412 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018827337068 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018827831154 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018828365592 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018828426378 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018828836610 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018829317740 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018830528762 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Venda 2000018832987708 unificada ao pack 2000015387683301 (sem duplicar).
+04:18:30 [INFO] Ordem 2000015387683301 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018833654210 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018833744332 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018834445754 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018834713680 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018835837938 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018835889472 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018836350876 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018836524242 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018836805928 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018836939442 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018837491178 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Venda 2000018838053708 unificada ao pack 2000015392385857 (sem duplicar).
+04:18:30 [INFO] Ordem 2000015392385857 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018838459216 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018838808276 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018838886184 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018838865546 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018839020488 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018839106350 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018839515728 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018840287126 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018840447026 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018841029306 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018841569768 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018841932030 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018842187612 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018842276252 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018842389276 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Venda 2000018842657600 unificada ao pack 2000015396817707 (sem duplicar).
+04:18:30 [INFO] Ordem 2000015396817707 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018842686978 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018843654610 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018843688466 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018843689398 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018843739914 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018844714302 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018845032594 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018845435702 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018845468868 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018845826854 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018846284008 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018846360390 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018846810748 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Venda 2000018847126084 unificada ao pack 2000015400859559 (sem duplicar).
+04:18:30 [INFO] Ordem 2000015400859559 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018847573148 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018847708822 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018847787422 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018847841654 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018848048726 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018848061068 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018848390936 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018848506454 ignorada (não está na lista de IDs do teste).
+04:18:30 [INFO] Ordem 2000018848574486 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018848634940 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018848844706 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018848958596 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018848963166 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018849123996 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018849225798 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018849328768 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018849443666 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018849755332 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018850121408 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018850155400 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Venda 2000018850339598 unificada ao pack 2000015403839937 (sem duplicar).
+04:18:31 [INFO] Ordem 2000015403839937 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018850403454 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018850589400 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018850649076 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018850787804 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018850995734 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018851370780 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018851856886 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018852059320 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018852855948 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018852989192 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Venda 2000018853983732 unificada ao pack 2000015407285719 (sem duplicar).
+04:18:31 [INFO] Ordem 2000015407285719 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018853993860 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018854153396 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018854726694 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018855313930 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018856324392 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018856646836 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Venda 2000018856900024 unificada ao pack 2000015410039391 (sem duplicar).
+04:18:31 [INFO] Ordem 2000015410039391 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018857175258 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018857179312 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018858135908 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018858380178 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018858756186 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Venda 2000018859040112 unificada ao pack 2000015411988331 (sem duplicar).
+04:18:31 [INFO] Ordem 2000015411988331 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018859395726 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018859536522 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018859861492 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018860048696 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018860119110 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018861090530 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018861562552 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018861956914 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018862164468 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018862790758 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018862777764 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018862777764 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018864422788 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018864433030 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018864550110 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018865590074 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018865892354 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018865974922 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018866217132 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018866293390 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Venda 2000018866401630 unificada ao pack 2000015419048067 (sem duplicar).
+04:18:31 [INFO] Ordem 2000015419048067 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018866414738 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Venda 2000018866602240 unificada ao pack 2000015419245513 (sem duplicar).
+04:18:31 [INFO] Ordem 2000015419245513 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018867166092 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018867230572 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018867389248 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Ordem 2000018867377918 ignorada (não está na lista de IDs do teste).
+04:18:31 [INFO] Venda 2000018867448700 unificada ao pack 2000015420001643 (sem duplicar).

