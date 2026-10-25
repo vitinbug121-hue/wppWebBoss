@@ -138,6 +138,7 @@ import hashlib
 import csv
 import calendar
 from xml.sax.saxutils import escape
+from pymongo import MongoClient, ReplaceOne
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.date import DateTrigger
@@ -1133,6 +1134,144 @@ def _diretorios_base_candidatos():
             vistos.add(c)
             unicos.append(c)
     return unicos
+
+# ==========================================
+# BANCO DE DADOS: MONGODB ATLAS
+# - LEITURA: somente do Atlas.
+# - GRAVAÇÃO: no Atlas e também no database_vendas.json da pasta da conta (backup local).
+# - Configuração no .env:
+#     MONGODB_URI=mongodb+srv://usuario:senha@cluster.xxxx.mongodb.net/
+#     MONGODB_DB=coletor_pro            (opcional)
+# ==========================================
+_MONGO_COLECAO = "vendas"
+_mongo_cliente = None
+_mongo_colecao = None
+_mongo_estado = {}           # conta -> {order_id: json do último estado conhecido no Atlas}
+_contas_sem_leitura = set()  # contas cuja última leitura do Atlas falhou
+
+
+def _mongo_get_colecao():
+    global _mongo_cliente, _mongo_colecao
+    if _mongo_colecao is None:
+        uri = os.environ.get("MONGODB_URI", "").strip()
+        if not uri:
+            raise RuntimeError("MONGODB_URI não configurada no arquivo .env")
+        nome_db = os.environ.get("MONGODB_DB", "coletor_pro").strip() or "coletor_pro"
+        _mongo_cliente = MongoClient(uri, serverSelectionTimeoutMS=10000)
+        _mongo_colecao = _mongo_cliente[nome_db][_MONGO_COLECAO]
+        _mongo_colecao.create_index("conta")
+    return _mongo_colecao
+
+
+def _mongo_serializar(dados):
+    return json.dumps(dados, sort_keys=True, ensure_ascii=False, default=str)
+
+
+def _mongo_gravar(conta, db):
+    """Grava no Atlas apenas os pedidos novos ou alterados desde a última leitura/gravação."""
+    col = _mongo_get_colecao()
+    estado_anterior = _mongo_estado.get(conta, {})
+    novo_estado = {}
+    operacoes = []
+    for order_id, dados in db.items():
+        oid = str(order_id)
+        serial = _mongo_serializar(dados)
+        novo_estado[oid] = serial
+        if estado_anterior.get(oid) != serial:
+            doc_id = f"{conta}|{oid}"
+            operacoes.append(ReplaceOne(
+                {"_id": doc_id},
+                {"_id": doc_id, "conta": conta, "order_id": oid, "dados": dados},
+                upsert=True,
+            ))
+    if operacoes:
+        col.bulk_write(operacoes, ordered=False)
+    removidos = [f"{conta}|{o}" for o in estado_anterior if o not in novo_estado]
+    if removidos:
+        col.delete_many({"_id": {"$in": removidos}})
+    _mongo_estado[conta] = novo_estado
+
+
+def _mongo_carregar_conta(conta, caminho_json=None):
+    col = _mongo_get_colecao()
+    db = {}
+    for doc in col.find({"conta": conta}, {"_id": 0, "order_id": 1, "dados": 1}):
+        db[doc["order_id"]] = doc.get("dados", {})
+
+    # Migração única: conta ainda sem dados no Atlas, mas com arquivo local existente
+    if not db and caminho_json and os.path.exists(caminho_json):
+        with open(caminho_json, 'r', encoding='utf-8') as f:
+            legado = json.load(f) or {}
+        if legado:
+            _mongo_estado[conta] = {}
+            _mongo_gravar(conta, legado)
+            db = legado
+
+    _mongo_estado[conta] = {str(k): _mongo_serializar(v) for k, v in db.items()}
+    return db
+
+
+def _banco_conta_de_pasta(folder):
+    return os.path.basename(os.path.normpath(folder))
+
+
+def _banco_caminho_json(folder):
+    return os.path.join(folder, "database_vendas.json")
+
+
+def banco_carregar(folder):
+    """Lê os pedidos da conta do Atlas. Lança exceção se não conseguir."""
+    conta = _banco_conta_de_pasta(folder)
+    try:
+        db = _mongo_carregar_conta(conta, _banco_caminho_json(folder))
+    except Exception:
+        _contas_sem_leitura.add(conta)
+        raise
+    _contas_sem_leitura.discard(conta)
+    return db
+
+
+def banco_salvar(folder, db):
+    """Grava no Atlas e no backup local (database_vendas.json)."""
+    conta = _banco_conta_de_pasta(folder)
+    if conta in _contas_sem_leitura:
+        # Sem uma leitura válida do Atlas, gravar poderia sobrescrever o backup com dados incompletos.
+        raise RuntimeError("a última leitura do Atlas falhou; gravação bloqueada para proteger o backup")
+
+    erro_mongo = None
+    try:
+        _mongo_gravar(conta, db)
+    except Exception as e:
+        erro_mongo = e
+
+    os.makedirs(folder, exist_ok=True)
+    with open(_banco_caminho_json(folder), 'w', encoding='utf-8') as f:
+        json.dump(db, f)
+
+    if erro_mongo is not None:
+        raise erro_mongo
+
+
+def banco_carregar_todas_contas():
+    """Retorna {conta: db} de todas as contas (usado pelo dashboard)."""
+    col = _mongo_get_colecao()
+    contas = {}
+    for doc in col.find({}, {"_id": 0, "conta": 1, "order_id": 1, "dados": 1}):
+        contas.setdefault(doc["conta"], {})[doc["order_id"]] = doc.get("dados", {})
+
+    # Contas que ainda existem só no arquivo local são importadas para o Atlas
+    if ACCOUNTS_DIR and os.path.isdir(ACCOUNTS_DIR):
+        for nome in os.listdir(ACCOUNTS_DIR):
+            pasta = os.path.join(ACCOUNTS_DIR, nome)
+            if nome not in contas and os.path.isdir(pasta) and os.path.exists(_banco_caminho_json(pasta)):
+                db = _mongo_carregar_conta(nome, _banco_caminho_json(pasta))
+                if db:
+                    contas[nome] = db
+
+    for conta, db in contas.items():
+        _mongo_estado[conta] = {str(k): _mongo_serializar(v) for k, v in db.items()}
+    return contas
+
 
 DB_FILE = os.path.join(BASE_DIR, 'database_vendas.json')
 TOKEN_FILE = 'ml_tokens_autorizacao.json'
@@ -4874,43 +5013,25 @@ class AppColetorPro:
         return textos_cliente
     
     def carregar_db_pasta(self, folder):
-        """Carrega o database_vendas.json de uma pasta específica (não depende do campo de email principal)."""
+        """Carrega os pedidos de uma conta (pasta) a partir do MongoDB Atlas."""
         if not folder:
             return {}
-        if not os.path.exists(folder):
-            try:
-                os.makedirs(folder, exist_ok=True)
-            except Exception as e:
-                self.logger(f"Erro ao criar pasta {folder}: {e}", "ERRO")
-                return {}
-        db_path = os.path.join(folder, "database_vendas.json")
-        if not os.path.exists(db_path):
-            return {}
         try:
-            with open(db_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
+            return banco_carregar(folder)
         except Exception as e:
             self.logger(f"Erro ao carregar banco de dados ({folder}): {e}", "ERRO")
             return {}
 
     def salvar_db_pasta(self, folder, db):
-        """Salva o database_vendas.json em uma pasta específica (não depende do campo de email principal)."""
+        """Grava os pedidos de uma conta no MongoDB Atlas e no backup local."""
         if not folder:
             self.logger("Erro: pasta não informada para salvar banco de dados.", "ERRO")
             return
-        if not os.path.exists(folder):
-            try:
-                os.makedirs(folder, exist_ok=True)
-            except Exception as e:
-                self.logger(f"Erro ao criar pasta {folder}: {e}", "ERRO")
-                return
-        db_path = os.path.join(folder, "database_vendas.json")
         try:
-            with open(db_path, 'w', encoding='utf-8') as f:
-                json.dump(db, f)
+            banco_salvar(folder, db)
         except Exception as e:
             self.logger(f"Erro ao salvar banco de dados ({folder}): {e}", "ERRO")
-    
+
     def abrir_reembolso_link(self):
         """Abre uma janela para selecionar uma ou mais contas e disparar o
         processamento de reembolso (Mercado Pago) em cada uma delas."""
@@ -9739,56 +9860,26 @@ class AppColetorPro:
     def carregar_db(self):
         folder = self.get_pasta_conta()
         if not folder:
-            # Se get_pasta_conta() falhar, tenta usar ACCOUNTS_DIR diretamente
             self.logger("Aviso: get_pasta_conta() falhou, usando ACCOUNTS_DIR como fallback.", "AVISO")
             if not ACCOUNTS_DIR or not os.path.exists(ACCOUNTS_DIR):
                 return {}
             folder = ACCOUNTS_DIR
-        
-        db_path = os.path.join(folder, "database_vendas.json")
-        
-        # Se a pasta não existir, cria
-        if not os.path.exists(folder):
-            try:
-                os.makedirs(folder, exist_ok=True)
-            except Exception as e:
-                self.logger(f"Erro ao criar pasta {folder}: {e}", "ERRO")
-                return {}
-        
-        # Se o arquivo não existir, retorna dicionário vazio
-        if not os.path.exists(db_path):
-            return {}
-        
         try:
-            with open(db_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
+            return banco_carregar(folder)
         except Exception as e:
-            self.logger(f"Erro ao carregar banco de dados: {e}", "ERRO")
+            self.logger(f"Erro ao carregar banco de dados do MongoDB Atlas: {e}", "ERRO")
             return {}
 
-    # # ALTERAÇÃO: Ajustado para salvar na pasta do e-mail
     def salvar_db(self, db):
         folder = self.get_pasta_conta()
         if not folder:
-            # Se get_pasta_conta() falhar, tenta usar ACCOUNTS_DIR diretamente
             self.logger("Aviso: get_pasta_conta() falhou, usando ACCOUNTS_DIR como fallback.", "AVISO")
             if not ACCOUNTS_DIR:
                 self.logger("Erro: Não conseguiu determinar a pasta de contas.", "ERRO")
                 return
             folder = ACCOUNTS_DIR
-        
-        # Se a pasta não existir, cria
-        if not os.path.exists(folder):
-            try:
-                os.makedirs(folder, exist_ok=True)
-            except Exception as e:
-                self.logger(f"Erro ao criar pasta {folder}: {e}", "ERRO")
-                return
-        
-        db_path = os.path.join(folder, "database_vendas.json")
         try:
-            with open(db_path, 'w', encoding='utf-8') as f:
-                json.dump(db, f)
+            banco_salvar(folder, db)
         except Exception as e:
             self.logger(f"Erro ao salvar banco de dados: {e}", "ERRO")
 
@@ -10215,29 +10306,28 @@ class AppColetorPro:
                     continue
             return None
 
-        # ---- Coleta bruta: para cada conta, lista os boletos pagos com sua data_solicitacao ----
+        # ---- Coleta bruta: lê do MongoDB Atlas os boletos pagos de cada conta ----
         contas_raw = {}  # email completo -> lista de {'order_id':..., 'data': datetime|None}
 
-        if os.path.exists(ACCOUNTS_DIR):
-            for pasta_conta in os.listdir(ACCOUNTS_DIR):
-                caminho_conta = os.path.join(ACCOUNTS_DIR, pasta_conta)
-                if os.path.isdir(caminho_conta):
-                    db_path = os.path.join(caminho_conta, 'database_vendas.json')
-                    if os.path.exists(db_path):
-                        try:
-                            with open(db_path, 'r', encoding='utf-8') as f:
-                                db = json.load(f)
-                            registros = []
-                            for oid, dados in db.items():
-                                if dados.get('boleto_pago') == True or dados.get('pago_via_pix') == True:
-                                    data_dt = _parse_data_solicitacao(dados.get('data_solicitacao'))
-                                    # Valor gravado na venda; vendas antigas sem o campo usam 138,98
-                                    valor_pedido = get_valor_taxa_pedido(dados, padrao=VALOR_TAXA_LEGADO)
-                                    registros.append({'order_id': oid, 'data': data_dt, 'valor': valor_pedido})
-                            if registros:
-                                contas_raw[pasta_conta] = registros
-                        except Exception as e:
-                            print(f"Erro ao ler {db_path}: {e}")
+        try:
+            todas_contas = banco_carregar_todas_contas()
+        except Exception as e:
+            todas_contas = {}
+            print(f"Erro ao ler banco de dados do MongoDB Atlas: {e}")
+
+        for pasta_conta, db in todas_contas.items():
+            try:
+                registros = []
+                for oid, dados in db.items():
+                    if dados.get('boleto_pago') == True or dados.get('pago_via_pix') == True:
+                        data_dt = _parse_data_solicitacao(dados.get('data_solicitacao'))
+                        # Valor gravado na venda; vendas antigas sem o campo usam 138,98
+                        valor_pedido = get_valor_taxa_pedido(dados, padrao=VALOR_TAXA_LEGADO)
+                        registros.append({'order_id': oid, 'data': data_dt, 'valor': valor_pedido})
+                if registros:
+                    contas_raw[pasta_conta] = registros
+            except Exception as e:
+                print(f"Erro ao processar conta {pasta_conta}: {e}")
 
         if not contas_raw:
             messagebox.showinfo("Dashboard Boletos", "Nenhum boleto/PIX pago encontrado em nenhuma conta.")
