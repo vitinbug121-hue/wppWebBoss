@@ -1,0 +1,66 @@
+{
+  "2000018853983732": {
+    "data_solicitacao": {
+      "atlas": "26/10/2026 20:00",
+      "arquivo": "07/10/2026 16:58"
+    },
+    "data_solicitacao_inicial": {
+      "atlas": "26/10/2026 20:00",
+      "arquivo": "07/10/2026 16:58"
+    }
+  },
+  "2000018956360888": {
+    "QtdenvioEncerrarReclamacao": {
+      "atlas": 2,
+      "arquivo": 1
+    },
+    "data_ultimo_envio_encerrar": {
+      "atlas": "26/10/2026 18:38",
+      "arquivo": "14/10/2026 11:54"
+    }
+  },
+  "2000018952636358": {
+    "QtdenvioEncerrarReclamacao": {
+      "atlas": 2,
+      "arquivo": 1
+    },
+    "data_ultimo_envio_encerrar": {
+      "atlas": "26/10/2026 18:38",
+      "arquivo": "24/10/2026 15:34"
+    }
+  },
+  "2000018955826854": {
+    "QtdenvioEncerrarReclamacao": {
+      "atlas": 2,
+      "arquivo": 1
+    },
+    "data_ultimo_envio_encerrar": {
+      "atlas": "26/10/2026 18:38",
+      "arquivo": "24/10/2026 15:34"
+    }
+  },
+  "2000018916462884": {
+    "data_solicitacao": {
+      "atlas": "26/10/2026 18:39",
+      "arquivo": "19/10/2026 23:23"
+    },
+    "data_solicitacao_inicial": {
+      "atlas": "26/10/2026 18:39",
+      "arquivo": "19/10/2026 23:23"
+    },
+    "data_ultimo_envio_encerrar": {
+      "atlas": "26/10/2026 18:39",
+      "arquivo": "19/10/2026 23:23"
+    }
+  },
+  "2000018926360568": {
+    "QtdenvioEncerrarReclamacao": {
+      "atlas": 2,
+      "arquivo": 1
+    },
+    "data_ultimo_envio_encerrar": {
+      "atlas": "26/10/2026 18:39",
+      "arquivo": "24/10/2026 15:35"
+    }
+  }
+}

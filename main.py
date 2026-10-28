@@ -6487,7 +6487,7 @@ class AppColetorPro:
         pedidos_pix = [
             order_id for order_id, dados in db.items()
             if (dados.get('metodo_cobro_dobro') == 'pix' and not dados.get('pago_dobro_pix'))
-            or (dados.get('cobrado_via_pix') and not dados.get('pago_via_pix'))
+            or (dados.get('cobrado_via_pix') and not dados.get('pago_via_pix')) or (dados.get('metodo_taxa') == 'pix' and not dados.get('pago_via_pix'))
         ]
 
         total = len(pedidos_pix)
@@ -6503,6 +6503,16 @@ class AppColetorPro:
 
         for idx, order_id in enumerate(pedidos_pix, start=1):
             self.root.after(0, lambda v=idx: self.progress.configure(value=v))
+
+
+            #ALVO_TESTE = "2000018884698730"
+            #if order_id == ALVO_TESTE:
+            # segue executando o código normal aqui dentro
+            #   pass
+            #else:
+            #    self.logger(f"Ordem {order_id} ignorad1a (não está na lista de IDs do teste).")
+            #    continue
+
 
             dados_pedido = db.get(order_id, {})
             claim_id = dados_pedido.get('claim_id')
